@@ -179,3 +179,53 @@ export function discountedTotal(cents, percent) {
 ```
 
 The new test calls `discountedTotal(2000, 20)` and expects `1600`; the original zero-discount test remains. The upstream source and NOTICE were independently read during implementation; the completion auditor did not receive those files. No live Soma skill was edited.
+
+## Sage round 2: inherited manifest registration
+
+Rechecked on the host on 2026-10-26 against the reviewed merge commit
+`ae12e52d4b90a0e0c7ed4561717ab79b916de432`. Both the important CodeQuality
+finding and the optional EcosystemCompliance suggestion concern the same
+`skills/show-me-your-work` registration. Both are dismissed with base evidence:
+the registration and member already shipped together in node #5's separate
+PR #21, commit `6190e30878cbe5d98ebfe7447a878b340fb05c83`, which is the
+local `origin/main` snapshot used for this comparison.
+
+Reproducible checks:
+
+```sh
+git show 6190e30878cbe5d98ebfe7447a878b340fb05c83:arc-manifest.yaml
+git ls-tree -r --name-only 6190e30878cbe5d98ebfe7447a878b340fb05c83 skills/show-me-your-work
+git diff 6190e30878cbe5d98ebfe7447a878b340fb05c83...ae12e52d4b90a0e0c7ed4561717ab79b916de432 -- arc-manifest.yaml
+git diff 6190e30878cbe5d98ebfe7447a878b340fb05c83...ae12e52d4b90a0e0c7ed4561717ab79b916de432 --name-only
+```
+
+The base manifest contains the exact `show-me-your-work` registration and
+description retained by this branch. Its tree contains `SKILL.md`,
+`arc-manifest.yaml`, `references/decision-log-template.tsv` and `scripts/log.sh`
+under that member directory. The manifest diff adds only the two-line
+`bug-fix-test` registration. The complete changed-file list is:
+
+```text
+arc-manifest.yaml
+docs/verification/node-4.md
+skills/bug-fix-test/SKILL.md
+skills/bug-fix-test/arc-manifest.yaml
+```
+
+The review's apparent addition is visible in the merge's first-parent diff:
+its first parent predates PR #21, while its second parent is the main commit
+that shipped the member. Comparing the node to main removes that apparent
+addition. Keep the inherited registration: deleting it would unregister a
+shipped member and introduce an unrelated node #5 change into node #4.
+
+No test was added for this evidence-only disposition. The existing manifest
+tests cover missing member directories and validation; the final host checks
+for this pass are recorded below.
+
+- `bun test test/check-pack.test.ts`: exit 0; 31 pass, 0 fail, 84 assertions.
+- `bun scripts/check-pack.ts`: run once for this pass before committing; exit 0,
+  `Pack checks passed (7 members).` This includes the inherited node #5 member.
+- `git diff 6190e30878cbe5d98ebfe7447a878b340fb05c83 HEAD -- skills/show-me-your-work`:
+  exit 0, no output; the inherited member is unchanged.
+- `git diff --check`: exit 0. Only this verification record changed in the
+  round-2 pass; the skill instructions and their prior live probes are unchanged.
