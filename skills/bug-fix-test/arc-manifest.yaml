@@ -1,0 +1,24 @@
+schema: arc/v1
+name: bug-fix-test
+version: 0.1.0
+type: skill
+tier: custom
+description: "Gate a bug-fix-test regression check on a cheap path and capture failing-before evidence. Requests naming tdd, TDD, red-green-refactor or general test-first development belong to Soma's tdd skill."
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/tdd/SKILL.md
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write:
+      - "./**"
+  network: []
+  bash:
+    allowed: true
+  secrets: []
