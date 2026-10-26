@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { runProbe } from "./probes/show-me-your-work";
-import { keepsPrefix, rows } from "./helpers/decision-trail";
+import { events, keepsPrefix, rows } from "./helpers/decision-trail";
 
 const skill = resolve(import.meta.dir, "../skills/show-me-your-work");
 const logger = join(skill, "scripts/log.sh");
@@ -86,12 +86,12 @@ test("scratch task records a real pivot, preserves history and adds an audited m
   expect(trail.map(row => row[1])).toEqual(["start", "sort", "sort", "audit-gap", "audit"]);
   const lexicalRow = trail.findIndex(row => row[1] === "sort");
   expect(trail[lexicalRow + 1]![2]).toContain(`supersedes row ${lexicalRow + 2} (${trail[lexicalRow]![0]})`);
-  const events = readFileSync(transcript, "utf8").trim().split("\n").map(line => JSON.parse(line));
-  expect(events.filter(event => event.command).map(event => event.stdout)).toEqual(["1\n10\n2\n", "1\n2\n10\n"]);
+  const transcriptEvents = events(transcript);
+  expect(transcriptEvents.filter(event => event.command).map(event => event.stdout)).toEqual(["1\n10\n2\n", "1\n2\n10\n"]);
   const auditText = readFileSync(audit, "utf8");
   expect(auditText).toContain("previously unlogged locale fork");
   const auditRow = trail.length + 1;
-  const summary = events.find(event => event.audit)!.audit;
+  const summary = transcriptEvents.find(event => event.audit)!.audit;
   expect(auditText).toContain(summary);
   expect(summary).toContain(`Checked rows 2-${auditRow - 1}`);
   expect(summary).toContain(`Row ${auditRow} records this audit`);

@@ -24,9 +24,9 @@ capabilities:
       - "./**"
   network:
     - host: api.anthropic.com
-      reason: Send this run's redacted trail and transcript to an authorized Claude reviewer.
+      reason: Send this run's trail and transcript to an authorized Claude reviewer.
     - host: api.openai.com
-      reason: Send this run's redacted trail and transcript to an authorized OpenAI reviewer.
+      reason: Send this run's trail and transcript to an authorized OpenAI reviewer.
   bash:
     # The logger, transcript extraction and reviewer CLI use shell access.
     allowed: true

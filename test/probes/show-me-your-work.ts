@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { keepsPrefix, rows } from "../helpers/decision-trail";
+import { events, keepsPrefix, rows } from "../helpers/decision-trail";
 
 const logger = resolve(import.meta.dir, "../../skills/show-me-your-work/scripts/log.sh");
 
@@ -44,13 +44,13 @@ export function runProbe(directory: string) {
   const numericRow = append("sort", `supersedes row ${lexicalRow.number} (${lexicalRow.timestamp}): chose numeric sort`, "default ordering failed the numeric requirement", numeric.evidence, "1, 2, 10; verified");
 
   // Walk the recorded events against the trail, including the deliberately missed fork.
-  const events = readFileSync(transcript, "utf8").trim().split("\n").map(value => JSON.parse(value));
-  if (!events.some(event => event.deliberatelyUnloggedUntilAudit)) throw new Error("Missing audit fixture");
+  const transcriptEvents = events(transcript);
+  if (!transcriptEvents.some(event => event.deliberatelyUnloggedUntilAudit)) throw new Error("Missing audit fixture");
   const gapRow = append("audit-gap", "kept LC_ALL=C (added during transcript audit)", "record the previously missed reproducibility fork", missingFork, "gap filled");
   const trail = rows(log);
   for (const row of trail) {
     const pointer = /^transcript\.jsonl:(\d+)$/.exec(row[4]!);
-    if (!pointer || !events[Number(pointer[1]) - 1]) throw new Error("Evidence does not resolve");
+    if (!pointer || !transcriptEvents[Number(pointer[1]) - 1]) throw new Error("Evidence does not resolve");
   }
   const lastCheckedRow = trail.length + 1;
   const auditRow = lastCheckedRow + 1;
