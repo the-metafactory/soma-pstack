@@ -22,3 +22,5 @@ artifacts:
     description: Remove redundant comments and encode constraints while lowering the lint baseline.
   - path: skills/bug-fix-test
     description: "Gate a bug-fix-test regression check on a cheap path and capture failing-before evidence. Requests naming tdd, TDD, red-green-refactor or general test-first development belong to Soma's tdd skill."
+  - path: skills/show-me-your-work
+    description: Keep an append-only decision trail with transcript audit and cross-model review.
