@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "scripts": {
+    "lint": "node /Users/fischer/work/mf/soma/node_modules/eslint/bin/eslint.js messages.js -f json",
+    "test": "bun test messages.test.js",
+    "check-types": "node /Users/fischer/work/mf/soma/node_modules/typescript/bin/tsc --noEmit"
+  }
+}
