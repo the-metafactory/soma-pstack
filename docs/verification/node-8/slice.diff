@@ -1,0 +1,25 @@
+diff --git a/eslint-suppressions.json b/eslint-suppressions.json
+index 3f7f4d0..7a73a41 100644
+--- a/eslint-suppressions.json
++++ b/eslint-suppressions.json
+@@ -1,7 +1,2 @@
+ {
+-  "messages.js": {
+-    "slice/no-comments": {
+-      "count": 2
+-    }
+-  }
+ }
+\ No newline at end of file
+diff --git a/messages.js b/messages.js
+index 848b7bf..de0af08 100644
+--- a/messages.js
++++ b/messages.js
+@@ -1,7 +1,5 @@
+ export function flushMessages(messages, send) {
+-  // do not remove: snapshot before send; send may synchronously append messages.
+   const batch = messages.slice();
+   send(batch);
+-  // Return the pending count.
+   return messages.length;
+ }
