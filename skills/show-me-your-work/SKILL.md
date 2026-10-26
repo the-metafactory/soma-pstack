@@ -47,7 +47,7 @@ Keep `decisions.tsv` in the work directory, or `.audit/<task-slug>.tsv` when sev
 
 ## Audit the log against the transcript
 
-At run end, before handing back, read only this run's transcript from the active substrate's session store using its exact session id/path. Examples are the active Cursor workspace's `agent-transcripts/` path or the exact Claude Code/Codex session file. Never glob across other projects or private chats. For a scripted scratch task, capture actual decisions, commands and outputs as its transcript while executing it. If the transcript is inaccessible, record the audit as incomplete and flag it in Attention; do not invent evidence.
+At run end, before handing back, read only this run's transcript from the active substrate's session store using its exact session id/path within the read paths declared in [arc-manifest.yaml](arc-manifest.yaml). Never glob across other projects or private chats. For another store location, have the caller supply this run's transcript in the work directory or update the declaration before reading it. For a scripted scratch task, capture actual decisions, commands and outputs as its transcript while executing it. If the transcript is inaccessible, record the audit as incomplete and flag it in Attention; do not invent evidence.
 
 Walk this run's row stretches against what actually happened:
 
@@ -68,7 +68,7 @@ Before handing back, ask a reviewer on a different model family from the one tha
 - Choices that look risky in hindsight: premature decisions, scope creep or symptom fixes.
 - Gaps the principal could miss on a casual skim.
 
-Use only authorized session paths and reviewer services; pass only this run's relevant material and redact secrets before the hand-off.
+Use only authorized session paths and reviewer services; pass only this run's relevant material and redact secrets before the hand-off. Remote review must use a host declared in [arc-manifest.yaml](arc-manifest.yaml), currently `api.anthropic.com` or `api.openai.com`, through an already authenticated tool or CLI. A proxy, another provider or a custom endpoint needs a matching declaration before use. These capabilities disclose access; they do not grant authorization or permission to read credential files.
 
 Save the review with the reviewer's model identity. If no different-family reviewer is available, retain the artifacts and report the review as incomplete in Attention; never label self-review as cross-model review.
 

@@ -16,11 +16,18 @@ capabilities:
   filesystem:
     read:
       - "./**"
+      - "~/.claude/projects/**"
+      - "~/.codex/sessions/**"
+      - "~/.cursor/projects/*/agent-transcripts/**"
+      - "~/.pi/agent/sessions/**"
     write:
       - "./**"
-  network: []
+  network:
+    - host: api.anthropic.com
+      reason: Send this run's redacted trail and transcript to an authorized Claude reviewer.
+    - host: api.openai.com
+      reason: Send this run's redacted trail and transcript to an authorized OpenAI reviewer.
   bash:
-    # Session-store reads and remote reviewer access need the caller's existing
-    # authorization for their paths and service.
+    # The logger, transcript extraction and reviewer CLI use shell access.
     allowed: true
   secrets: []
