@@ -14,9 +14,21 @@ upstream:
   commit: 99743e9c151c8537cbbf1f98bb38f34ef3368453
 capabilities:
   filesystem:
-    read: []
-    write: []
-  network: []
+    read:
+      - "./**"
+      - "~/.claude/projects/**"
+      - "~/.soma/**"
+    # git fetch updates repository metadata; the brief itself is read-only.
+    write:
+      - "./.git/**"
+  network:
+    - host: api.github.com
+      reason: Read issues, pull requests and live graph state through gh and Soma.
+    - host: github.com
+      reason: Fetch the repository's GitHub remote to verify live state.
   bash:
+    # Unrestricted shell access also reaches caller-selected repositories,
+    # git common directories, other session stores and non-GitHub remotes.
+    # Review those concrete paths and hosts when choosing the recall scope.
     allowed: true
   secrets: []

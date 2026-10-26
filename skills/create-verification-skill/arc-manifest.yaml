@@ -14,9 +14,24 @@ upstream:
   commit: 99743e9c151c8537cbbf1f98bb38f34ef3368453
 capabilities:
   filesystem:
-    read: []
-    write: []
-  network: []
+    read:
+      - "./**"
+      - "./.claude/skills/**"
+      - "./.agents/skills/**"
+    # Includes generated skills, feature maps, startup scaffolding and evidence.
+    write:
+      - "./**"
+      - "./.claude/skills/**"
+      - "./.agents/skills/**"
+      - "/tmp/**"
+  network:
+    - host: localhost
+      reason: Launch and drive the project's local app, API or browser debug endpoint.
+    - host: 127.0.0.1
+      reason: Drive loopback app endpoints bound to an IPv4 address.
   bash:
+    # Unrestricted shell access can reach the interviewed app's remote hosts,
+    # native temporary directory and external data/evidence paths. Review the
+    # generated launch, drive and cleanup commands for those concrete scopes.
     allowed: true
   secrets: []
