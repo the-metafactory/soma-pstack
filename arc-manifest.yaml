@@ -20,3 +20,5 @@ artifacts:
     description: Generate a project verification skill with a feature map and captured evidence.
   - path: skills/no-comments
     description: Remove redundant comments and encode constraints while lowering the lint baseline.
+  - path: skills/show-me-your-work
+    description: Keep an append-only decision trail with transcript audit and cross-model review.
