@@ -24,7 +24,11 @@ bun test
 bun scripts/check-pack.ts
 ```
 
-Every member PR must pass the gate. It checks the library metadata and each
+Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
+change when it fails. The principal controls the merge. This repository has no
+CI workflow or required GitHub check for the gate.
+
+The script checks the library metadata and each
 listed member's directory, `SKILL.md` name and description, manifest type,
 upstream repository/path/40-hex commit, and `arc validate <member-directory>`.
 An empty library passes without invoking Arc on the root.
