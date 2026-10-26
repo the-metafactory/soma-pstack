@@ -76,6 +76,9 @@ manifest. A release/version decision belongs to the supervisor/principal.
 
 The broader upstream findings listed by the reviewer are outside this node's
 four acceptance items. They are not claimed restored. The known probe and
-full-session audit limits remain explicit. Final independent review of the
-resulting text is saved in `final-skill-review.md`; it returned APPROVE with no
-actionable contradictions or regressions.
+full-session audit limits remain explicit. The earlier `final-skill-review.md`
+was a worker-authored summary without a raw prompt or response; it does not
+substantiate the claimed independent verdict. The finish pass supersedes that
+evidence claim with a fresh skill-text review: `final-skill-review-prompt.md`
+holds its exact prompt and `final-skill-review-output.md` holds its verbatim
+response. `final-skill-review.md` now holds the separate worker assessment.

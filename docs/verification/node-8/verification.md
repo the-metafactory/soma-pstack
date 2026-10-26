@@ -18,8 +18,9 @@ the independent investigator before removal; original line 5 is **meat**.
 There are zero reshapes and zero keeps. No architect invocation was needed.
 `how-check.md` records the symbol trace and the existing tests that enforce
 array separation. The mutation replacing `messages.slice()` with `messages`
-fails both tests. `slice.diff` contains only the two comment deletions and a
-suppression entry pruned from 2 to zero. The final source is otherwise unchanged.
+fails both tests. The `git diff -- messages.js eslint-suppressions.json` row in
+`probe-transcript.jsonl` is the canonical slice diff: two comment deletions and
+a suppression entry pruned from 2 to zero. The final source is otherwise unchanged.
 
 `probe-transcript.jsonl` contains actual commands, outputs, exit codes, the
 mutation failure, and the removal decision. Initial tool failures are retained:
@@ -80,7 +81,12 @@ projection succeed. This is a Codex projection probe only.
 
 The pack gate result is recorded in `validation.jsonl` before the final commit.
 
-## Supervisor action: member-list status
+## Merge prerequisite: member-list status
+
+**Do not merge this change or mark node #8 complete until the supervisor/principal
+has corrected the soma#1068 member list and recorded a live readback proving it.**
+This external acceptance item is pending. The implementation commit is reviewable
+work, not evidence that all node acceptance criteria are satisfied.
 
 Read-only inspection on 2026-10-27 confirmed that
 [soma#1068](https://github.com/the-metafactory/soma/issues/1068) still groups
@@ -91,12 +97,10 @@ separately as **adaptation incomplete; reviewer, how/why and architect safeguard
 tracked by [pack node #8](https://github.com/the-metafactory/soma-pstack/issues/8)**
 until this change lands. Other members and settled decisions need no changes.
 
-This external acceptance item is **pending**, not verified or completed here.
 The worker SOP forbids editing graph nodes and forbids GitHub writes. This
 document is a concrete handoff to the supervisor/principal; it is not an edit
-to the issue or the map. The code/skill work has no dependency on that status
-edit, so the worker can deliver the implementation for review without claiming
-the external correction happened.
+to the issue or the map. The worker may deliver the implementation for review,
+but merge remains blocked on the external correction above.
 
 Sequence the status correction before landing this change; after merge,
 `no-comments` can return to the ported group with the restored safeguards.
@@ -106,3 +110,14 @@ authorize a raw body edit that invalidates its gate metadata. A comment alone
 does not satisfy the requested member-list correction. Re-read the live node
 before acting. The captured issue read is in `soma-1068-read.json` and its
 timestamp/command in `validation.jsonl`.
+
+## Finish-pass review
+
+The current skill's independent review prompt and verbatim response are in
+`final-skill-review-prompt.md` and `final-skill-review-output.md`; the worker's
+assessment is separate in `final-skill-review.md`. The earlier summarized
+verdict is not treated as raw review evidence. `finish-review-disposition.md`
+maps the Sage findings to these corrections.
+
+The exact follow-up task message is in `final-skill-review-followup.md`.
+`finish-validation.jsonl` records this pass's validation and fresh projection.

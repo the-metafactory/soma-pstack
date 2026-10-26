@@ -53,3 +53,13 @@ before commit. All artifacts are staged for the final whitespace check. This
 extends the captured-artifact audit; it does not remove the explicitly reported
 absence of a full worker-session transcript. The external #1068 item remains
 pending supervisor action in every report.
+
+## Finish-pass evidence correction
+
+The earlier addendum's final-verdict claim relied on a worker-authored summary,
+not a captured reviewer prompt and raw response. Decisions row 15 remains
+historical; an appended correction supersedes its provenance claim. The fresh
+review's exact task message and verbatim final response are recorded separately
+from the worker assessment. This correction does not expand the historical
+slice or full-session audit coverage. `finish-validation.jsonl` records this
+pass's member validation and fresh isolated projection.
