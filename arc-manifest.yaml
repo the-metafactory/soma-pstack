@@ -1,0 +1,12 @@
+# Install: arc install https://github.com/the-metafactory/soma-pstack (available once the first member lands)
+schema: arc/v1
+name: soma-pstack
+version: 0.1.0
+type: library
+tier: custom
+description: pstack skills ported to run on top of Soma.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+artifacts: []
