@@ -1,0 +1,33 @@
+schema: arc/v1
+name: benchmark-checklist
+version: 0.1.0
+type: skill
+tier: custom
+description: Vet performance claims against measured evidence and benchmark limits.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/benchmark-checklist/SKILL.md
+  commit: 99743e9c151c8537cbbf1f98bb38f34ef3368453
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    # Measurement scripts may write datasets, profile output and benchmark results.
+    write:
+      - "./**"
+      - "/tmp/**"
+  network:
+    - host: localhost
+      reason: Measure local server or load-generator endpoints when the benchmark uses them.
+    - host: 127.0.0.1
+      reason: Measure local benchmark endpoints bound to an IPv4 address.
+  bash:
+    # Unrestricted shell access runs caller-selected measurement scripts and
+    # profilers. Review their remote targets, native temporary directory and
+    # external dataset/output paths before running; these vary by benchmark.
+    allowed: true
+  secrets: []
