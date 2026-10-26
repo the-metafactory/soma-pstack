@@ -2,13 +2,13 @@ from pathlib import Path
 import subprocess, os, sys, json, shlex
 ROOT = Path(__file__).resolve().parent
 LOG = ROOT/'live-transcript.txt'
-def run(args,cwd=None,expect=0,env=None):
+def run(args,cwd=None,expect=0,env=None,*,log_path=LOG):
     cmd=[str(x) for x in args]
     merged=os.environ.copy()
     if env: merged.update(env)
-    result=subprocess.run(cmd,cwd=cwd,env=merged,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    result=subprocess.run(cmd,cwd=cwd or ROOT,env=merged,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     block=f'\n$ (cwd={cwd or ROOT}) {shlex.join(cmd)}\n{result.stdout}\nEXIT {result.returncode}; expected {expect}\n'
-    with LOG.open('a') as f: f.write(block)
+    with log_path.open('a') as f: f.write(block)
     print(block,flush=True)
     if result.returncode!=expect: raise SystemExit(result.returncode or 1)
     return result.stdout
@@ -18,7 +18,7 @@ if __name__=='__main__':
     pi_package=os.environ['PI_PACKAGE_DIR']
     run(['git','rev-parse','4d6a775f1667f3d0b6c7f66724411ab667ed5c07','4d6a775f1667f3d0b6c7f66724411ab667ed5c07^'],repo)
     run(['git','show','--format=%H%n%s','--no-ext-diff','4d6a775f1667f3d0b6c7f66724411ab667ed5c07'],repo)
-    metadata=run(['gh','pr','view','1076','--repo','the-metafactory/soma','--json','title,body,mergedAt,baseRefOid,headRefOid,mergeCommit,commits,comments,reviews','--jq','del(.commits[].authors)'],ROOT)
+    metadata=run(['gh','pr','view','1076','--repo','the-metafactory/soma','--json','title,body,mergedAt,baseRefOid,headRefOid,mergeCommit,commits,comments,reviews','--jq','del(.commits[].authors, .commits[].messageBody)'],ROOT)
     (ROOT/'pr-metadata.json').write_text(metadata)
     run(['node','--version'],ROOT)
     run(['bun','--version'],ROOT)

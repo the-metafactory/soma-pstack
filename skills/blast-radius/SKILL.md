@@ -1,5 +1,6 @@
 ---
 name: blast-radius
+disable-model-invocation: true
 description: "Find what a change could break beyond its diff and prove the one or two facts its safety depends on. Use for 'blast radius of X', 'what could this break', or reviewing a small diff you do not trust. Use a mechanics or history investigation for a how/why question without a change to assess."
 ---
 
@@ -40,4 +41,4 @@ A higher number does not erase a coverage gap. A script that imports a library b
 
 Use plain prose and strip private material before sharing. This skill produces an assessment; it does not approve a merge.
 
-Source: ported from pstack (MIT, © 2026 Lauren Tan); upstream pin in [arc-manifest.yaml](arc-manifest.yaml), notice in [../../NOTICE.md](../../NOTICE.md). Soma adaptations: portable PR/reviewer lookup, explicit per-fact stop reasons and bounded execution evidence; upstream's explicit-invocation setting is expressed for Codex in [agents/openai.yaml](agents/openai.yaml). Decision source: [soma#1085](https://github.com/the-metafactory/soma/issues/1085), moved to pack node #6.
+Source: ported from pstack (MIT, © 2026 Lauren Tan); upstream pin in [arc-manifest.yaml](arc-manifest.yaml), notice in [../../NOTICE.md](../../NOTICE.md). Soma adaptations: portable PR/reviewer lookup, explicit per-fact stop reasons and bounded execution evidence; upstream's explicit-invocation key is retained for Claude Code, with Codex policy in [agents/openai.yaml](agents/openai.yaml). Decision source: [soma#1085](https://github.com/the-metafactory/soma/issues/1085), moved to pack node #6.

@@ -1,35 +1,41 @@
-$ ['soma', 'init', '--apply', '--home-dir', '/private/tmp/soma-pstack-node-6/projection-9ijmj0es/user', '--soma-home', '/private/tmp/soma-pstack-node-6/projection-9ijmj0es/soma']
+Disposable projection topology and Pi stub check. Linked bodies are not independent content copies.
+
+$ (cwd=/private/tmp/soma-pstack-node-6) soma init --apply --home-dir /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user --soma-home /private/tmp/soma-pstack-node-6/projection-zeusxnk6/soma
 soma init — applied
 
-bootstrap-soma-home: applied (Soma home at /private/tmp/soma-pstack-node-6/projection-9ijmj0es/soma)
+bootstrap-soma-home: applied (Soma home at /private/tmp/soma-pstack-node-6/projection-zeusxnk6/soma)
 install-codex: applied (103 files)
 
-EXIT 0
-$ ['soma', 'project-skill', '/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius', '--substrate', 'codex,pi-dev,claude-code,cursor,grok,dsh,anthropic-cowork', '--apply', '--home-dir', '/private/tmp/soma-pstack-node-6/projection-9ijmj0es/user', '--soma-home', '/private/tmp/soma-pstack-node-6/projection-9ijmj0es/soma']
+
+EXIT 0; expected 0
+
+$ (cwd=/private/tmp/soma-pstack-node-6) soma project-skill /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius --substrate codex,pi-dev,claude-code,cursor,grok,dsh,anthropic-cowork --apply --home-dir /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user --soma-home /private/tmp/soma-pstack-node-6/projection-zeusxnk6/soma
 Soma project-skill applied
 skill: blast-radius
 
 Links:
-- registry: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/soma/skills/blast-radius
-- codex: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.codex/skills/blast-radius
-- pi-dev: stubbed /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.pi/agent/skills/blast-radius
-- claude-code: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.claude/skills/blast-radius
-- cursor: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.cursor/rules/soma/skills/blast-radius
-- grok: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.grok/skills/blast-radius
-- dsh: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.dsh/skills/blast-radius
-- anthropic-cowork: linked /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.anthropic-cowork/skills/skills/blast-radius
+- registry: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/soma/skills/blast-radius
+- codex: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.codex/skills/blast-radius
+- pi-dev: stubbed /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.pi/agent/skills/blast-radius
+- claude-code: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.claude/skills/blast-radius
+- cursor: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.cursor/rules/soma/skills/blast-radius
+- grok: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.grok/skills/blast-radius
+- dsh: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.dsh/skills/blast-radius
+- anthropic-cowork: linked /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.anthropic-cowork/skills/skills/blast-radius
 
 Catalog:
-- codex: /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.codex/memories/soma/skills.md
-- pi-dev: /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.pi/agent/soma/skills.md
-- cursor: /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.cursor/rules/soma/SKILLS.md
-- grok: /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.grok/skills/soma/skills.md
-- anthropic-cowork: /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.anthropic-cowork/soma/skills.md
-EXIT 0
-MATCH /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.codex/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
-MATCH /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.claude/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
-MATCH /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.cursor/rules/soma/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
-MATCH /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.grok/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
-MATCH /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.dsh/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
-MATCH /private/tmp/soma-pstack-node-6/projection-9ijmj0es/user/.anthropic-cowork/skills/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
-MATCH pi-dev stub and full registry body: /private/tmp/soma-pstack-node-6/projection-9ijmj0es/soma/skills/blast-radius/SKILL.md
+- codex: /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.codex/memories/soma/skills.md
+- pi-dev: /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.pi/agent/soma/skills.md
+- cursor: /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.cursor/rules/soma/SKILLS.md
+- grok: /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.grok/skills/soma/skills.md
+- anthropic-cowork: /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.anthropic-cowork/soma/skills.md
+
+EXIT 0; expected 0
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/soma/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.codex/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.claude/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.cursor/rules/soma/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.grok/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.dsh/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+LINK /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.anthropic-cowork/skills/skills/blast-radius -> /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius; required member files resolve
+STUB /private/tmp/soma-pstack-node-6/projection-zeusxnk6/user/.pi/agent/skills/blast-radius/SKILL.md: independent file names blast-radius and references /private/tmp/soma-pstack-node-6/projection-zeusxnk6/soma/skills/blast-radius/SKILL.md

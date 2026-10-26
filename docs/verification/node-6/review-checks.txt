@@ -1,0 +1,79 @@
+Review round 1 host checks. Expected Codex-only validator rejection is documented in README.md.
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) python3 -m json.tool docs/verification/node-6/pr-metadata.json
+{
+    "baseRefOid": "a59fc622116df0a50c3761a4d3f252a240958de1",
+    "body": "## Problem\n\nEvery pi session currently fails at startup:\n\n```\nError: Failed to load extension \".../.pi/agent/extensions/soma-path-guard.ts\": Cannot find module 'bun:ffi'\nRequire stack: - .../soma/src/core/dir-lock.ts\n```\n\npi loads its extensions under Node. Since node #939 (#1023), `src/core/index.ts` has re-exported `dir-lock.ts`, which imports `bun:ffi`. The path-guard extension imports that barrel (`policy-path-guard.ts \u2192 ../core/index`), so pi breaks for the principal, for ranger's pi lane, and for abacus-friday (G8).\n\n## Fix\n\n- `dir-lock.ts` is no longer re-exported from the barrel. It is declared as its own public entry of `core` in `src/components.ts`, and `goal-accept.ts` imports it directly.\n- New `test/pi-dev-extension-imports.test.ts` walks the static import graph of every projected pi extension and fails on any `bun:` module. It was red before the fix (`dir-lock.ts -> bun:ffi`) and is green after.\n\n## Verification\n\n- With this tree projected into a fresh HOME, `pi --print --mode json` loads every extension and completes a tool-using run on spark/longctx-think.\n- `bun run test` passes (4009 tests, 0 failing) on the stacked branch for #1007, which contains this tree. Typecheck and lint are clean.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+    "comments": [],
+    "commits": [
+        {
+            "authoredDate": "2026-10-25T12:58:18Z",
+            "committedDate": "2026-10-25T12:58:18Z",
+            "messageHeadline": "Keep bun:ffi out of the core barrel so pi can load Soma's extensions",
+            "oid": "e681c58627b00e4ac5de1f707dc21c046cf7c151"
+        },
+        {
+            "authoredDate": "2026-10-25T13:26:28Z",
+            "committedDate": "2026-10-25T14:06:07Z",
+            "messageHeadline": "Declare core/dir-lock.ts a public entry of core, so flows may import \u2026",
+            "oid": "e668c94a5da658857a835c39179228efa2f67cb8"
+        }
+    ],
+    "headRefOid": "e668c94a5da658857a835c39179228efa2f67cb8",
+    "mergeCommit": {
+        "oid": "4d6a775f1667f3d0b6c7f66724411ab667ed5c07"
+    },
+    "mergedAt": "2026-10-25T14:14:00Z",
+    "reviews": [],
+    "title": "Keep bun:ffi out of the core barrel so pi can load Soma's extensions"
+}
+
+EXIT 0; expected 0
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) arc validate skills/blast-radius
+OK: /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius/arc-manifest.yaml is a valid arc/v1 manifest
+
+EXIT 0; expected 0
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) python3 /Users/fischer/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/blast-radius
+Unexpected key(s) in SKILL.md frontmatter: disable-model-invocation. Allowed properties are: allowed-tools, description, license, metadata, name
+
+EXIT 1; expected 1
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) bun -e 'import {YAML} from '"'"'bun'"'"'; import {readFileSync,existsSync} from '"'"'node:fs'"'"'; import {resolve} from '"'"'node:path'"'"'; import assert from '"'"'node:assert/strict'"'"';
+const path='"'"'skills/blast-radius/SKILL.md'"'"'; const text=readFileSync(path,'"'"'utf8'"'"'); const metadata=YAML.parse(text.split('"'"'---'"'"')[1]);
+assert.equal(metadata.name,'"'"'blast-radius'"'"'); assert.equal(typeof metadata.description,'"'"'string'"'"'); assert.equal(metadata['"'"'disable-model-invocation'"'"'],true);
+assert.equal(YAML.parse(readFileSync('"'"'skills/blast-radius/agents/openai.yaml'"'"','"'"'utf8'"'"')).policy.allow_implicit_invocation,false);
+for(const match of text.matchAll(/\]\(([^)]+)\)/g)) { if(!match[1].startsWith('"'"'https:'"'"')) assert(existsSync(resolve('"'"'skills/blast-radius'"'"',match[1])),match[1]); }
+console.log('"'"'PASS: Claude explicit invocation key, Codex invocation policy, name/description and local skill pointers'"'"');'
+PASS: Claude explicit invocation key, Codex invocation policy, name/description and local skill pointers
+
+EXIT 0; expected 0
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) git diff --check
+
+EXIT 0; expected 0
+
+Portable runner replay, foreground on host:
+SOMA_REPO=/Users/fischer/work/mf/soma PI_PACKAGE_DIR=/Users/fischer/.pi/agent/install/releases/1.4.0/node_modules/@earendil-works/pi-coding-agent python3 /tmp/soma-pstack-node-6/run_live.py
+EXIT 0
+Relevant actual output (shared diff/setup omitted; original replay retained in replay-transcript.txt):
+ 42 pass
+ 0 fail
+ 2 pass
+ 0 fail
+PASS: base fails actual pi loader at bun:ffi
+CLI_EXIT 1
+PASS: offline running pi app rejects base projection at bun:ffi
+PASS: head loads all 3 projected extensions; path guard tool_call registered
+CLI_EXIT 0
+PASS: offline running pi app starts with head extensions and exposes algorithm command
+PASS: fresh query JSON parses, equals retained pr-metadata.json and contains no commit authors/messageBody fields
+
+Targeted pack fixtures: bun test test/check-pack.test.ts
+
+ 31 pass
+ 0 fail
+ 84 expect() calls
+Ran 31 tests across 1 file. [40.46s]
+EXIT 0

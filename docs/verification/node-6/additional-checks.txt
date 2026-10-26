@@ -1,6 +1,6 @@
 Supplemental checks after completion audit; source snapshots only.
 
-$ ['git', 'rev-parse', 'a59fc622116df0a50c3761a4d3f252a240958de1:bun.lock', '4d6a775f1667f3d0b6c7f66724411ab667ed5c07:bun.lock', 'a59fc622116df0a50c3761a4d3f252a240958de1:src/core/dir-lock.ts', '4d6a775f1667f3d0b6c7f66724411ab667ed5c07:src/core/dir-lock.ts']
+$ (cwd=/Users/fischer/work/mf/soma) git rev-parse a59fc622116df0a50c3761a4d3f252a240958de1:bun.lock 4d6a775f1667f3d0b6c7f66724411ab667ed5c07:bun.lock a59fc622116df0a50c3761a4d3f252a240958de1:src/core/dir-lock.ts 4d6a775f1667f3d0b6c7f66724411ab667ed5c07:src/core/dir-lock.ts
 c8ce14fb04306a1a641f3ec44baf640be2cc6cae
 c8ce14fb04306a1a641f3ec44baf640be2cc6cae
 eee6f5d8f8589058d2f4e69a199f60162ddac40d
@@ -8,7 +8,7 @@ eee6f5d8f8589058d2f4e69a199f60162ddac40d
 
 EXIT 0; expected 0
 
-$ ['rg', '-n', 'LockBusyError|withExclusiveLock', 'src', 'test']
+$ (cwd=/private/tmp/soma-pstack-node-6/after) rg -n 'LockBusyError|withExclusiveLock' src test
 test/goal-accept.test.ts:7:import { withExclusiveLock } from "../src/core/dir-lock";
 test/goal-accept.test.ts:209:  const holder = withExclusiveLock(f.proposalsDir, async () => { acquired(); await held; });
 src/flows/goal-accept.ts:7:import { LockBusyError, withExclusiveLock } from "../core/dir-lock";
@@ -21,21 +21,27 @@ src/core/dir-lock.ts:26:    if (loadFlock()(handle.fd, LOCK_EX | LOCK_NB) !== 0)
 
 EXIT 0; expected 0
 
-$ ['bun', 'test', '/private/tmp/soma-pstack-node-6/after/test/boundaries.test.ts', '-t', "core's shared types entry"]
+$ (cwd=/private/tmp/soma-pstack-node-6) bun test /private/tmp/soma-pstack-node-6/after/test/boundaries.test.ts -t 'core'"'"'s shared types entry'
 bun test v1.4.2 (744846f84)
 
 after/test/boundaries.test.ts:
-(pass) component boundaries on the repository > core's shared types entry reaches no other component [626.17ms]
+(pass) component boundaries on the repository > core's shared types entry reaches no other component [980.33ms]
 
  1 pass
  47 filtered out
  0 fail
  2 expect() calls
-Ran 1 test across 1 file. [893.00ms]
+Ran 1 test across 1 file. [1273.00ms]
 
 EXIT 0; expected 0
 
-$ ['bun', 'test', '/private/tmp/soma-pstack-node-6/before/test/pi-dev-extension-imports.test.ts']
+$ (cwd=/private/tmp/soma-pstack-node-6) bun /private/tmp/soma-pstack-node-6/boundary-probe.ts /private/tmp/soma-pstack-node-6/after
+PASS: real checker discovers and accepts src/flows/goal-accept.ts -> src/core/dir-lock.ts
+PASS: removing the public entry rejects the same edge: src/flows/goal-accept.ts [flows] -> src/core/dir-lock.ts [core] (import): not a public entry of core
+
+EXIT 0; expected 0
+
+$ (cwd=/private/tmp/soma-pstack-node-6) bun test /private/tmp/soma-pstack-node-6/before/test/pi-dev-extension-imports.test.ts
 bun test v1.4.2 (744846f84)
 
 before/test/pi-dev-extension-imports.test.ts:
@@ -57,12 +63,12 @@ error: expect(received).toEqual(expected)
 + Received  + 3
 
       at <anonymous> (/private/tmp/soma-pstack-node-6/before/test/pi-dev-extension-imports.test.ts:40:93)
-(fail) projected pi extensions import no Bun-only module, so pi can load them under Node [16.24ms]
+(fail) projected pi extensions import no Bun-only module, so pi can load them under Node [14.61ms]
 
  0 pass
  1 fail
  2 expect() calls
-Ran 1 test across 1 file. [142.00ms]
+Ran 1 test across 1 file. [378.00ms]
 
 EXIT 1; expected 1
 

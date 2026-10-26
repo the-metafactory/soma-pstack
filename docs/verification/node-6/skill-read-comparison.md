@@ -1,4 +1,8 @@
-# Original skill-read versus final source
+# Original skill-read versus pre-review source
+
+Historical comparison at commit `b524856`, before review round 1. The round restores
+Claude invocation metadata and updates the footer; the operating body remains unchanged.
+The hashes and diff below describe the pre-review source.
 
 Compared only this worker's exact own session and the final skill source. No tests or behavior probes were run and no existing acceptance artifact was modified.
 

@@ -5,8 +5,9 @@ Its manifest pins that full commit. The pack's root NOTICE.md carries the MIT no
 The five rungs, decisive-fact focus, six investigation steps and library/wire/timing
 boundaries are preserved. Portable PR/reviewer lookup replaces upstream skill
 dependencies. The report explicitly lists every fact's evidence and stopping reason.
-Upstream's explicit-invocation setting is carried in Codex's `agents/openai.yaml`;
-other substrates retain their own invocation behavior.
+Upstream's `disable-model-invocation: true` is retained for Claude Code. Codex's
+`agents/openai.yaml` also disables implicit invocation. Other substrates retain
+their own invocation behavior; runtime enforcement there was not tested.
 
 ## Live invocation
 
@@ -31,21 +32,24 @@ to Soma.
 On 2026-10-26, on the host:
 
 - `arc validate skills/blast-radius`: exit 0, valid arc/v1 manifest.
-- Skill Creator's `quick_validate.py skills/blast-radius`: exit 0, `Skill is valid!`.
-  Its initial rejection of upstream's `disable-model-invocation` frontmatter led to
-  the supported Codex policy file; validation then passed.
+- Skill Creator's Codex-only `quick_validate.py` rejects the native Claude key
+  `disable-model-invocation`. That key is intentionally retained to preserve
+  upstream's Claude invocation policy; Arc and the pack gate accept it. Codex's
+  separate invocation policy remains in `agents/openai.yaml`.
 - Local Markdown pointers to the manifest, invocation policy and root notice resolve.
 - `bun test test/check-pack.test.ts`: exit 0; 31 pass, 0 fail, 84 assertions.
   [pack-targeted-tests.txt](pack-targeted-tests.txt) contains the full output. An
   earlier run's completion was not captured; the recorded repeat ran in the foreground.
-- `soma init --apply` bootstrapped a disposable home under
-  `/tmp/soma-pstack-node-6/projection-soma`, with substrate home
-  `/tmp/soma-pstack-node-6/projection-user`. `soma project-skill` applied the member to
-  `codex,pi-dev,claude-code,cursor,grok,dsh,anthropic-cowork` using those explicit homes.
-  Readback compared SKILL.md, arc-manifest.yaml and agents/openai.yaml byte for byte
-  on all six full-body projections; every comparison passed. Pi's frontmatter-only
-  stub names the skill and points to the complete, matching registry body. This proves
-  projection content, not each substrate's runtime invocation policy enforcement.
+- `soma init --apply` uses a fresh disposable `projection-*` directory on each run,
+  with separate `user/` and `soma/` homes. [projection-check.txt](projection-check.txt)
+  records the passing run's exact paths and exits. `soma project-skill` applies the
+  member to `codex,pi-dev,claude-code,cursor,grok,dsh,anthropic-cowork` there.
+  The probe asserts that the registry and six full-body substrate directory links
+  resolve to the intended source member, and that its required files exist. These
+  links expose the source itself; reading them is not an independent byte-copy
+  comparison. Pi's separate stub is checked for its name and registry-body pointer.
+  This proves projection topology and stub generation. It does not test runtime
+  invocation policy enforcement in each substrate.
 
 No wording-matching tests were added for the prose. Existing pack tests cover member
 structure; the independent invocation checks whether the instructions lead to real
@@ -56,16 +60,18 @@ The [invocation provenance](invocation-provenance.md) preserves skill-read evide
 and the inherited-context limitation. [member-checks.txt](member-checks.txt) records
 individual validator exit codes and fresh readback comparisons, rather than deriving
 those results from grouped shell commands. [additional-checks.txt](additional-checks.txt)
-records the audit-driven base guard failure and focused boundary pass. The two
+records the audit-driven base guard failure and focused boundary pass. The recorded
 `check-pack.test.ts` runs are targeted fixture tests; neither is the full
 `bun scripts/check-pack.ts` gate. No full pack gate had run at the time of audit.
 
-The manifest declares repository read/write access and shell execution for disposable
-probe scripts and fixtures; it does not authorize production changes. The explicit
-projection commands, their exits and comparison implementation are saved in
+The manifest grants repository-wide `./**` read/write access and unrestricted shell
+execution. Those grants do not enforce a scratch-only sandbox. The skill instructs
+assessment probes to use disposable state and requires separate authorization for
+production mutation; this is an instruction boundary, not a capability restriction. The explicit
+projection commands, their exits and topology assertions are saved in
 [projection-check.py](projection-check.py) and [projection-check.txt](projection-check.txt).
-Copy that script to scratch and set `BLAST_RADIUS_SKILL` to the source member path
-before running it to reproduce the seven projections.
+Copy that script and `run_live.py` to scratch and set `BLAST_RADIUS_SKILL` to the
+source member path before running it to reproduce the seven projections.
 
 [skill-read-comparison.md](skill-read-comparison.md) confirms identical operating
 instructions between the worker's first read and final source; only compatibility
@@ -79,5 +85,18 @@ material blocker. The [initial audit](completion-review-initial.md) and the fina
 audit's author dispositions retain the evidence refinements. The probe keeps external
 consumers unproven and bounds app reproduction to offline startup/RPC.
 
-Captured text normalizes trailing whitespace and redacts commit-author email fields;
-commands, exit statuses and substantive results are retained.
+Captured text normalizes trailing whitespace and redacts commit-author email fields.
+The retained PR metadata and the runner omit commit authors and message bodies
+(the latter can contain co-author trailers) at the query boundary; headlines and
+commit IDs remain. Historical transcripts retain their redacted query output.
+Commands, exit statuses and substantive results are retained.
+
+## Review round 1
+
+All eight findings were addressed: valid JSON with commit-body redaction at ingestion;
+fresh projection paths; restored Claude invocation metadata; trimmed failed replay;
+shared command runner; explicit link topology assertions; a discriminating F4 probe;
+and capability wording matching the manifest. [review-checks.txt](review-checks.txt)
+records the focused host checks and successful portable-runner replay. [boundary-probe.ts.txt](boundary-probe.ts.txt) runs
+the actual checker against the goal-accept import, then removes the public entry
+from the supplied manifest and asserts rejection of that same edge.
