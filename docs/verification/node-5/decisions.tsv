@@ -1,0 +1,9 @@
+ts	phase	decision	why	evidence	result
+2026-10-26T20:28:30Z	start	new log: node-5-scratch-sort	begin an unattended scratch task	transcript.jsonl:1	open
+2026-10-26T20:28:31Z	sort	tried default sort	check whether the default meets the task	transcript.jsonl:3	1, 10, 2; numeric order failed
+2026-10-26T20:28:31Z	sort	supersedes row 3 (2026-10-26T20:28:31Z): chose numeric sort	default ordering failed the numeric requirement	transcript.jsonl:6	1, 2, 10; verified
+2026-10-26T20:28:31Z	audit-gap	kept LC_ALL=C (added during transcript audit)	record the previously missed reproducibility fork	transcript.jsonl:4	gap filled
+2026-10-26T20:28:31Z	audit	audited the trail against this run's transcript	restore the missed fork and check every claim	audit.md	rows 2-5 checked; one missing fork added
+2026-10-26T20:31:55Z	clarify	supersedes row 3 (2026-10-26T20:28:31Z): tried sort's lexical comparator with explicit LC_ALL=C	clarify comparator versus locale after cross-model review	transcript.jsonl:3	1, 10, 2; numeric order failed
+2026-10-26T20:31:55Z	review	cross-model reviewer checked the trail and port	surface evidence gaps to the principal	review.md	reviewed by claude-sonnet-5-5; nonblocking findings addressed or bounded
+2026-10-26T20:31:55Z	audit	re-audited after review; preserved original rows and audit	record clarification and evidence limits	audit-follow-up.md	rows 2-8 checked; one clarification appended

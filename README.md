@@ -11,8 +11,20 @@ Install the pack with:
 arc install https://github.com/the-metafactory/soma-pstack
 ```
 
-This scaffold has no members yet. Arc's install loader requires a non-empty
-`artifacts:` list, so installation becomes available when the first member lands.
+The root manifest lists the installable members. [POLICY.md](POLICY.md) routes
+unattended decision trails to [show-me-your-work](skills/show-me-your-work/SKILL.md).
+
+Its logger tests and scripted scratch probe run on the host:
+
+```sh
+bun test test/show-me-your-work.test.ts
+bun test/probes/show-me-your-work.ts /tmp/fresh-decision-trail
+```
+
+The output directory must be fresh. The probe captures actual sort commands,
+a superseding decision, and an end-of-run audit that adds an omitted fork.
+The captured acceptance run and its separate cross-model review live under
+[`docs/verification/node-5/`](docs/verification/node-5/).
 
 ## Member gate
 

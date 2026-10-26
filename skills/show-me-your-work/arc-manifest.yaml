@@ -1,0 +1,26 @@
+schema: arc/v1
+name: show-me-your-work
+version: 0.1.0
+type: skill
+tier: custom
+description: Keep an append-only decision trail for unattended work with transcript audit and cross-model review.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/show-me-your-work/
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write:
+      - "./**"
+  network: []
+  bash:
+    # Session-store reads and remote reviewer access need the caller's existing
+    # authorization for their paths and service.
+    allowed: true
+  secrets: []
