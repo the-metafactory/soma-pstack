@@ -1,4 +1,4 @@
-# Install: arc install https://github.com/the-metafactory/soma-pstack (available once the first member lands)
+# Install: arc install https://github.com/the-metafactory/soma-pstack
 schema: arc/v1
 name: soma-pstack
 version: 0.1.0
@@ -9,4 +9,14 @@ license: MIT
 author:
   name: The MetaFactory
   github: the-metafactory
-artifacts: []
+artifacts:
+  - path: skills/benchmark-checklist
+    description: Vet performance claims against measured evidence and benchmark limits.
+  - path: skills/recall
+    description: Rebuild recent working context from Soma records and live repository state.
+  - path: skills/correct
+    description: Find repeated engineering mistakes and enforce corrections structurally.
+  - path: skills/create-verification-skill
+    description: Generate a project verification skill with a feature map and captured evidence.
+  - path: skills/no-comments
+    description: Remove redundant comments and encode constraints while lowering the lint baseline.
