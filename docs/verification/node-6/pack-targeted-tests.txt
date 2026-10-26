@@ -1,0 +1,39 @@
+bun test v1.4.2 (744846f84)
+
+test/check-pack.test.ts:
+(pass) empty library passes without Arc available [218.50ms]
+(pass) valid standalone member passes the real Arc validator [559.28ms]
+(pass) missing artifact path fails and names the path [236.92ms]
+(pass) invalid upstream.commit (undefined) names the member and field [529.42ms]
+(pass) invalid upstream.commit () names the member and field [572.85ms]
+(pass) invalid upstream.commit (abc) names the member and field [584.92ms]
+(pass) invalid upstream.commit (gggggggggggggggggggggggggggggggggggggggg) names the member and field [592.92ms]
+(pass) invalid upstream.commit (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa) names the member and field [542.60ms]
+(pass) invalid upstream.commit (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa) names the member and field [509.61ms]
+(pass) invalid upstream.commit (123) names the member and field [597.32ms]
+(pass) missing upstream.repo fails [569.15ms]
+(pass) missing upstream.path fails [569.05ms]
+(pass) missing upstream block fails [571.36ms]
+(pass) member manifest must have type skill [533.47ms]
+(pass) SKILL.md missing file fails [561.13ms]
+(pass) SKILL.md missing frontmatter fails [582.56ms]
+(pass) SKILL.md invalid YAML fails [536.64ms]
+(pass) SKILL.md wrong name fails [543.54ms]
+(pass) SKILL.md missing description fails [549.15ms]
+(pass) SKILL.md blank description fails [562.70ms]
+(pass) SKILL.md non-string description fails [543.01ms]
+(pass) Arc failure is propagated even when pack-specific member checks pass [1128.94ms]
+(pass) missing Arc fails for a populated library [226.38ms]
+(pass) all listed members are checked [566.43ms]
+(pass) malformed root manifest fails with its filename [240.94ms]
+(pass) artifacts must be a list [467.77ms]
+(pass) invalid artifact entry null fails [434.27ms]
+(pass) invalid artifact entry {} fails [448.00ms]
+(pass) invalid artifact entry {"path":"../outside"} fails [465.71ms]
+(pass) invalid artifact entry {"path":"/tmp/other"} fails [464.12ms]
+(pass) wrong root metadata fails with the field [225.18ms]
+
+ 31 pass
+ 0 fail
+ 84 expect() calls
+Ran 31 tests across 1 file. [15.75s]

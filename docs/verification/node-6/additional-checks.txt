@@ -1,0 +1,275 @@
+Supplemental checks after completion audit; source snapshots only.
+
+$ ['git', 'rev-parse', 'a59fc622116df0a50c3761a4d3f252a240958de1:bun.lock', '4d6a775f1667f3d0b6c7f66724411ab667ed5c07:bun.lock', 'a59fc622116df0a50c3761a4d3f252a240958de1:src/core/dir-lock.ts', '4d6a775f1667f3d0b6c7f66724411ab667ed5c07:src/core/dir-lock.ts']
+c8ce14fb04306a1a641f3ec44baf640be2cc6cae
+c8ce14fb04306a1a641f3ec44baf640be2cc6cae
+eee6f5d8f8589058d2f4e69a199f60162ddac40d
+eee6f5d8f8589058d2f4e69a199f60162ddac40d
+
+EXIT 0; expected 0
+
+$ ['rg', '-n', 'LockBusyError|withExclusiveLock', 'src', 'test']
+test/goal-accept.test.ts:7:import { withExclusiveLock } from "../src/core/dir-lock";
+test/goal-accept.test.ts:209:  const holder = withExclusiveLock(f.proposalsDir, async () => { acquired(); await held; });
+src/flows/goal-accept.ts:7:import { LockBusyError, withExclusiveLock } from "../core/dir-lock";
+src/flows/goal-accept.ts:129:    return await withExclusiveLock(dirname(proposalPath), async () => {
+src/flows/goal-accept.ts:135:    if (error instanceof LockBusyError) throw new GoalAcceptError("Goal proposal is already being accepted");
+src/core/dir-lock.ts:7:export class LockBusyError extends Error {}
+src/core/dir-lock.ts:21: * file to leave behind and no staleness to judge. Throws LockBusyError when another holder has it.
+src/core/dir-lock.ts:23:export async function withExclusiveLock<T>(path: string, work: () => Promise<T>): Promise<T> {
+src/core/dir-lock.ts:26:    if (loadFlock()(handle.fd, LOCK_EX | LOCK_NB) !== 0) throw new LockBusyError(`${path} is locked`);
+
+EXIT 0; expected 0
+
+$ ['bun', 'test', '/private/tmp/soma-pstack-node-6/after/test/boundaries.test.ts', '-t', "core's shared types entry"]
+bun test v1.4.2 (744846f84)
+
+after/test/boundaries.test.ts:
+(pass) component boundaries on the repository > core's shared types entry reaches no other component [626.17ms]
+
+ 1 pass
+ 47 filtered out
+ 0 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [893.00ms]
+
+EXIT 0; expected 0
+
+$ ['bun', 'test', '/private/tmp/soma-pstack-node-6/before/test/pi-dev-extension-imports.test.ts']
+bun test v1.4.2 (744846f84)
+
+before/test/pi-dev-extension-imports.test.ts:
+35 |
+36 | test("projected pi extensions import no Bun-only module, so pi can load them under Node", () => {
+37 |   const projection = projectPiDevHome(portableProjectionInput, "/tmp/soma-home", "/tmp/home");
+38 |   const extensions = projection.files.filter((file) => file.path.startsWith("agent/extensions/") && file.path.endsWith(".ts"));
+39 |   expect(extensions.length).toBeGreaterThan(0);
+40 |   expect(bunImports(extensions.map((file) => ({ from: file.path, source: file.content })))).toEqual([]);
+                                                                                                 ^
+error: expect(received).toEqual(expected)
+
+- []
++ [
++   "/private/tmp/soma-pstack-node-6/before/src/core/dir-lock.ts -> bun:ffi",
++ ]
+
+- Expected  - 1
++ Received  + 3
+
+      at <anonymous> (/private/tmp/soma-pstack-node-6/before/test/pi-dev-extension-imports.test.ts:40:93)
+(fail) projected pi extensions import no Bun-only module, so pi can load them under Node [16.24ms]
+
+ 0 pass
+ 1 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [142.00ms]
+
+EXIT 1; expected 1
+
+SOURCE /private/tmp/soma-pstack-node-6/after/src/core/dir-lock.ts
+1: import { dlopen, FFIType } from "bun:ffi";
+2: import { open } from "node:fs/promises";
+3:
+4: const LOCK_EX = 2;
+5: const LOCK_NB = 4;
+6:
+7: export class LockBusyError extends Error {}
+8:
+9: let flock: ((fd: number, operation: number) => number) | undefined;
+10:
+11: function loadFlock() {
+12:   flock ??= dlopen(process.platform === "darwin" ? "libSystem.B.dylib" : "libc.so.6", {
+13:     flock: { args: [FFIType.i32, FFIType.i32], returns: FFIType.i32 },
+14:   }).symbols.flock;
+15:   return flock;
+16: }
+17:
+18: /**
+19:  * Run `work` holding an OS advisory lock on `path` (a directory or file that already exists).
+20:  * The kernel drops the lock when the descriptor closes or the process dies, so there is no lock
+21:  * file to leave behind and no staleness to judge. Throws LockBusyError when another holder has it.
+22:  */
+23: export async function withExclusiveLock<T>(path: string, work: () => Promise<T>): Promise<T> {
+24:   const handle = await open(path, "r");
+25:   try {
+26:     if (loadFlock()(handle.fd, LOCK_EX | LOCK_NB) !== 0) throw new LockBusyError(`${path} is locked`);
+27:     return await work();
+28:   } finally {
+29:     await handle.close();
+30:   }
+31: }
+
+SOURCE /private/tmp/soma-pstack-node-6/after/src/flows/goal-accept.ts
+118:   const registry = deps.registry ?? goalKinds;
+119:   const selections = [
+120:     ...(proposal.sensor ? [resolveSelection(proposal.sensor, "sensor", registry, resources)] : []),
+121:     ...proposal.mechanisms.map((mechanism) => resolveSelection(mechanism, "mechanism", registry, resources)),
+122:   ];
+123:   if (new Set(selections.map(({ kind }) => kind.id)).size !== selections.length) {
+124:     throw new GoalAcceptError("Invalid goal proposal: duplicate kind");
+125:   }
+126:
+127:   // Serialize consumption of this proposal, including across CLI processes.
+128:   try {
+129:     return await withExclusiveLock(dirname(proposalPath), async () => {
+130:       // A competing accept may have finished after our initial read.
+131:       if (await readProposal(proposalPath) !== content) throw new GoalAcceptError("Goal proposal hash mismatch: file changed");
+132:       return writeAcceptedGoal(goalsDir, proposalPath, proposal, selections);
+133:     });
+134:   } catch (error) {
+135:     if (error instanceof LockBusyError) throw new GoalAcceptError("Goal proposal is already being accepted");
+136:     throw error;
+137:   }
+138: }
+139:
+140: async function readProposal(path: string): Promise<string> {
+
+SOURCE /private/tmp/soma-pstack-node-6/after/test/goal-accept.test.ts
+190:   expect(await readdir(f.proposalsDir)).toEqual([`${saved.hash}.yaml`]);
+191: });
+192:
+193: test("concurrent acceptance consumes a proposal once", async () => {
+194:   const f = await fixture();
+195:   const saved = await f.save();
+196:   const results = await Promise.allSettled(Array.from({ length: 4 }, () => acceptGoalProposal(f.goalsDir, saved.hash, deps)));
+197:   expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+198:   expect((await readdir(f.goalsDir)).sort()).toEqual(["G5.activations.yaml", "G5.md", "proposals"]);
+199:   expect(await readdir(f.proposalsDir)).toEqual([]);
+200: });
+201:
+202: test("a held proposals lock blocks accept without touching the proposal, and releasing it unblocks", async () => {
+203:   const f = await fixture();
+204:   const saved = await f.save();
+205:   let release!: () => void;
+206:   const held = new Promise<void>((resolve) => { release = resolve; });
+207:   let acquired!: () => void;
+208:   const locked = new Promise<void>((resolve) => { acquired = resolve; });
+209:   const holder = withExclusiveLock(f.proposalsDir, async () => { acquired(); await held; });
+210:   await locked;
+211:   await expect(acceptGoalProposal(f.goalsDir, saved.hash, deps)).rejects.toThrow("already being accepted");
+212:   expect(await readFile(saved.path, "utf8")).toBe(saved.content);
+213:   release();
+214:   await holder;
+215:   expect((await acceptGoalProposal(f.goalsDir, saved.hash, deps)).goalId).toBe("G5");
+216:   expect(await readdir(f.proposalsDir)).toEqual([]);
+217: });
+218:
+
+SOURCE /private/tmp/soma-pstack-node-6/after/src/policy/policy-path-guard.ts
+1: import { existsSync, realpathSync } from "node:fs";
+2: import { homedir } from "node:os";
+3: import { basename, dirname, isAbsolute, join, normalize, resolve } from "node:path";
+4: import { isInsidePath } from "../core/index";
+5: import type { SomaProtectedPath } from "./types";
+6:
+7: // ── Default Protected Paths ──
+8: // Paths that should never be destructively modified or deleted by an LLM tool.
+
+SOURCE /private/tmp/soma-pstack-node-6/after/src/substrates/adapters/pi-dev/path-guard.ts
+174: }
+175: `;
+176: }
+177:
+178: function defaultRuntimeModuleSpecifier(): string {
+179:   return pathToFileURL(join(import.meta.dir, "../../../policy/policy-path-guard.ts")).href;
+180: }
+181:
+182: function defaultRuntimePolicyModuleSpecifier(): string {
+183:   return pathToFileURL(join(import.meta.dir, "../../../policy/runtime-policy.ts")).href;
+184: }
+
+SOURCE /Users/fischer/.pi/agent/install/releases/1.4.0/node_modules/@earendil-works/pi-coding-agent/dist/core/extensions/loader.js
+462:         extensionCacheGeneration === cacheToken.generation);
+463: }
+464: async function loadExtensionModule(extensionPath, cacheToken) {
+465:     if (isCurrentCacheToken(cacheToken)) {
+466:         const cachedFactory = extensionCache.get(extensionPath);
+467:         if (cachedFactory) {
+468:             return cachedFactory;
+469:         }
+470:     }
+471:     const createJitiImpl = await getCreateJiti();
+472:     // Compiled binaries and the bundled Node distribution use embedded modules.
+473:     // Source TypeScript reuses host modules and root tsconfig paths. Unbundled
+474:     // Node builds use dist aliases and do not need the bundled virtual modules.
+475:     const resolutionOptions = usesEmbeddedModules
+476:         ? { virtualModules: await getVirtualModules(), tryNative: false }
+477:         : isTypeScriptSourceRuntime
+478:             ? { virtualModules: await getVirtualModules(), tsconfigPaths: true }
+479:             : { alias: getAliases() };
+480:     const jiti = createJitiImpl(import.meta.url, {
+481:         moduleCache: false,
+482:         ...resolutionOptions,
+483:     });
+484:     const module = await jiti.import(extensionPath, { default: true });
+
+SOURCE /Users/fischer/.pi/agent/install/releases/1.4.0/node_modules/@earendil-works/pi-coding-agent/dist/core/extensions/loader.js
+510:         shortcuts: new Map(),
+511:     };
+512: }
+513: async function initializeExtension(factory, extensionPath, resolvedPath, cwd, eventBus, runtime) {
+514:     const extension = createExtension(extensionPath, resolvedPath);
+515:     const load = createExtensionAPI(extension, runtime, cwd, eventBus);
+516:     try {
+517:         await factory(load.api);
+518:         load.commit();
+519:     }
+520:     catch (error) {
+521:         load.discard();
+522:         throw error;
+523:     }
+524:     time(`${extensionPath} factory`, "extensions");
+525:     return extension;
+526: }
+527: async function loadExtension(extensionPath, cwd, eventBus, runtime, cacheToken) {
+528:     const resolvedPath = resolvePath(extensionPath, cwd, { normalizeUnicodeSpaces: true });
+529:     try {
+530:         const factory = await loadExtensionModule(resolvedPath, cacheToken);
+531:         time(`${extensionPath} module import`, "extensions");
+532:         if (!factory) {
+533:             return { extension: null, error: `Extension does not export a valid factory function: ${extensionPath}` };
+534:         }
+535:         const extension = await initializeExtension(factory, extensionPath, resolvedPath, cwd, eventBus, runtime);
+536:         return { extension, error: null };
+537:     }
+538:     catch (err) {
+539:         const message = err instanceof Error ? err.message : String(err);
+540:         return { extension: null, error: `Failed to load extension: ${message}` };
+541:     }
+542: }
+543: /**
+544:  * Create an Extension from an inline factory function.
+545:  */
+546: export async function loadExtensionFromFactory(factory, cwd, eventBus, runtime, extensionPath = "<inline>") {
+547:     const resolvedCwd = resolvePath(cwd);
+548:     return initializeExtension(factory, extensionPath, extensionPath, resolvedCwd, eventBus, runtime);
+549: }
+550: /**
+551:  * Load extensions from paths.
+552:  */
+553: async function loadExtensionsInternal(paths, cwd, eventBus, runtime, useCache = false) {
+554:     const extensions = [];
+555:     const errors = [];
+556:     const warnings = [];
+557:     const cacheToken = useCache ? useExtensionCacheCwd(cwd) : undefined;
+558:     const resolvedCwd = cacheToken?.cwd ?? resolvePath(cwd);
+559:     const resolvedEventBus = eventBus ?? createEventBus();
+560:     const resolvedRuntime = runtime ?? createExtensionRuntime();
+561:     for (const extPath of paths) {
+562:         const { extension, error } = await loadExtension(extPath, resolvedCwd, resolvedEventBus, resolvedRuntime, cacheToken);
+563:         if (error) {
+564:             errors.push({ path: extPath, error });
+565:             continue;
+566:         }
+567:         if (extension) {
+568:             extensions.push(extension);
+569:         }
+570:     }
+571:     return {
+572:         extensions,
+573:         errors,
+574:         warnings,
+575:         runtime: resolvedRuntime,
+576:     };
+577: }
+578: export async function loadExtensions(paths, cwd, eventBus, runtime) {

@@ -1,0 +1,3 @@
+$ ['soma', 'init', '--apply', '--home-dir', '/private/tmp/soma-pstack-node-6/projection-user', '--soma-home', '/private/tmp/soma-pstack-node-6/projection-soma']
+soma init migrate-claude-skills failed: blast-radius: soma migrate claude-skills refused symlink path: blast-radius — symlink target resolves outside $HOME: /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius
+EXIT 1
