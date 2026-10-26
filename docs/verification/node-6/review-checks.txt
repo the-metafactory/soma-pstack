@@ -68,7 +68,11 @@ PASS: offline running pi app rejects base projection at bun:ffi
 PASS: head loads all 3 projected extensions; path guard tool_call registered
 CLI_EXIT 0
 PASS: offline running pi app starts with head extensions and exposes algorithm command
-PASS: fresh query JSON parses, equals retained pr-metadata.json and contains no commit authors/messageBody fields
+
+Correction in review round 2: the removed metadata PASS line was not emitted by
+the replayed runner. It must not be attributed to that historical replay.
+The runner now performs those assertions; metadata-checks.txt records a fresh
+metadata-only invocation and the rejection/main-entrypoint regression tests.
 
 Targeted pack fixtures: bun test test/check-pack.test.ts
 

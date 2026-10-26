@@ -100,3 +100,32 @@ and capability wording matching the manifest. [review-checks.txt](review-checks.
 records the focused host checks and successful portable-runner replay. [boundary-probe.ts.txt](boundary-probe.ts.txt) runs
 the actual checker against the goal-accept import, then removes the public entry
 from the supplied manifest and asserts rejection of that same edge.
+
+## Review round 2
+
+The metadata PASS line previously attributed to the portable replay had no
+matching assertion in that runner. It was removed from the historical replay
+block in [review-checks.txt](review-checks.txt). The runner now parses the fresh
+query JSON, rejects commit `authors` and `messageBody` fields before retention,
+and checks parsed equality after writing and rereading `pr-metadata.json`.
+Only then does it print and log that PASS line. This compares the fresh query
+to its newly saved file; it does not assert that GitHub metadata never changes.
+
+[metadata-checks.txt](metadata-checks.txt) records the fresh metadata-only query
+and focused regression checks. From this directory, rerun the same capture path
+used by the full runner with:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -c 'from pathlib import Path; from run_live import capture_metadata; capture_metadata(log_path=Path("metadata-checks.txt"))'
+```
+
+From the repository root, run the focused tests with:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s docs/verification/node-6 -p test_run_live.py -v
+```
+
+These checks cover malformed JSON, either forbidden field, failed retention,
+and PASS output through the runner's main entry point. Subprocesses are mocked
+in the tests; the metadata-only capture uses the real read-only GitHub query.
+The app probes were not repeated in this review round.

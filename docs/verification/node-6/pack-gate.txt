@@ -1,3 +1,6 @@
+Review round 2 final host pack gate, run once before commit.
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) bun scripts/check-pack.ts
 Pack checks passed (8 members).
 
-EXIT 0
+EXIT 0; expected 0
