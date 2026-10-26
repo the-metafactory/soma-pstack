@@ -1,0 +1,18 @@
+$ arc validate skills/blast-radius
+OK: /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/skills/blast-radius/arc-manifest.yaml is a valid arc/v1 manifest
+EXIT 0
+
+$ python3 /Users/fischer/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/blast-radius
+Skill is valid!
+EXIT 0
+
+MATCH .codex/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
+MATCH .claude/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
+MATCH .cursor/rules/soma/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
+MATCH .grok/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
+MATCH .dsh/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
+MATCH .anthropic-cowork/skills/skills/blast-radius: SKILL.md, arc-manifest.yaml, agents/openai.yaml
+MATCH pi-dev: named stub and registry pointer; complete registry body matches source
+RESOLVED arc-manifest.yaml
+RESOLVED agents/openai.yaml
+RESOLVED ../../NOTICE.md

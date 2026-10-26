@@ -1,0 +1,20 @@
+import { test, expect } from 'bun:test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+const root = import.meta.dir;
+for (const revision of ['before', 'after']) {
+  test(`render exact ${revision} projected extension bytes`, async () => {
+    const { portableProjectionInput } = await import(`${root}/${revision}/test/fixtures.ts`);
+    const { projectPiDevHome } = await import(`${root}/${revision}/src/substrates/adapters/pi-dev/adapter.ts`);
+    const projection = projectPiDevHome(portableProjectionInput, `${root}/fixture-soma`, `${root}/fixture-home`);
+    const extensions = projection.files.filter((file: { path: string }) => file.path.startsWith('agent/extensions/') && file.path.endsWith('.ts'));
+    expect(extensions.length).toBeGreaterThan(0);
+    for (const file of extensions) {
+      const target = join(root, 'projections', revision, file.path);
+      await mkdir(join(target, '..'), { recursive: true });
+      await writeFile(target, file.content);
+    }
+    await writeFile(join(root, 'projections', revision, 'entries.json'), JSON.stringify(extensions.map((file: { path: string }) => join(root, 'projections', revision, file.path))));
+    console.log(`${revision}: wrote ${extensions.length} unmodified projected extensions`);
+  });
+}

@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const root = resolve(process.argv[2]!);
+const { checkBoundaries } = await import(pathToFileURL(resolve(root, "scripts/check-boundaries.ts")).href);
+const { components } = await import(pathToFileURL(resolve(root, "src/components.ts")).href);
+const from = "src/flows/goal-accept.ts";
+const to = "src/core/dir-lock.ts";
+const isLockEdge = (edge: { from: string; to: string }) => edge.from === from && edge.to === to;
+const report = checkBoundaries({ root });
+assert(report.edges.some(isLockEdge), "Checker must discover the actual goal-accept lock import");
+assert.deepEqual(report.violations.filter(isLockEdge), []);
+console.log(`PASS: real checker discovers and accepts ${from} -> ${to}`);
+
+const withoutLockEntry = {
+  ...components,
+  core: { ...components.core, publicEntries: components.core.publicEntries.filter((entry: string) => entry !== to) },
+};
+const counterexample = checkBoundaries({ root, manifest: withoutLockEntry });
+const rejected = counterexample.violations.filter(isLockEdge);
+assert.equal(rejected.length, 1);
+assert.equal(rejected[0].rule, "public-entry");
+console.log(`PASS: removing the public entry rejects the same edge: ${rejected[0].message}`);

@@ -24,3 +24,5 @@ artifacts:
     description: "Gate a bug-fix-test regression check on a cheap path and capture failing-before evidence. Requests naming tdd, TDD, red-green-refactor or general test-first development belong to Soma's tdd skill."
   - path: skills/show-me-your-work
     description: Keep an append-only decision trail with transcript audit and cross-model review.
+  - path: skills/blast-radius
+    description: Find breakage beyond a change's diff and grade the evidence for each fact its safety depends on.

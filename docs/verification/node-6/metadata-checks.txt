@@ -1,0 +1,42 @@
+Review round 2: actual metadata capture and targeted regression output.
+Capture command (from this directory): PYTHONDONTWRITEBYTECODE=1 python3 -c 'from pathlib import Path; from run_live import capture_metadata; capture_metadata(log_path=Path("metadata-checks.txt"))'
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6/docs/verification/node-6) gh pr view 1076 --repo the-metafactory/soma --json title,body,mergedAt,baseRefOid,headRefOid,mergeCommit,commits,comments,reviews --jq 'del(.commits[].authors, .commits[].messageBody)'
+{"baseRefOid":"a59fc622116df0a50c3761a4d3f252a240958de1","body":"## Problem\n\nEvery pi session currently fails at startup:\n\n```\nError: Failed to load extension \".../.pi/agent/extensions/soma-path-guard.ts\": Cannot find module 'bun:ffi'\nRequire stack: - .../soma/src/core/dir-lock.ts\n```\n\npi loads its extensions under Node. Since node #939 (#1023), `src/core/index.ts` has re-exported `dir-lock.ts`, which imports `bun:ffi`. The path-guard extension imports that barrel (`policy-path-guard.ts → ../core/index`), so pi breaks for the principal, for ranger's pi lane, and for abacus-friday (G8).\n\n## Fix\n\n- `dir-lock.ts` is no longer re-exported from the barrel. It is declared as its own public entry of `core` in `src/components.ts`, and `goal-accept.ts` imports it directly.\n- New `test/pi-dev-extension-imports.test.ts` walks the static import graph of every projected pi extension and fails on any `bun:` module. It was red before the fix (`dir-lock.ts -\u003e bun:ffi`) and is green after.\n\n## Verification\n\n- With this tree projected into a fresh HOME, `pi --print --mode json` loads every extension and completes a tool-using run on spark/longctx-think.\n- `bun run test` passes (4009 tests, 0 failing) on the stacked branch for #1007, which contains this tree. Typecheck and lint are clean.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n","comments":[],"commits":[{"authoredDate":"2026-10-25T12:58:18Z","committedDate":"2026-10-25T12:58:18Z","messageHeadline":"Keep bun:ffi out of the core barrel so pi can load Soma's extensions","oid":"e681c58627b00e4ac5de1f707dc21c046cf7c151"},{"authoredDate":"2026-10-25T13:26:28Z","committedDate":"2026-10-25T14:06:07Z","messageHeadline":"Declare core/dir-lock.ts a public entry of core, so flows may import …","oid":"e668c94a5da658857a835c39179228efa2f67cb8"}],"headRefOid":"e668c94a5da658857a835c39179228efa2f67cb8","mergeCommit":{"oid":"4d6a775f1667f3d0b6c7f66724411ab667ed5c07"},"mergedAt":"2026-10-25T14:14:00Z","reviews":[],"title":"Keep bun:ffi out of the core barrel so pi can load Soma's extensions"}
+
+EXIT 0; expected 0
+PASS: fresh query JSON parses, equals retained pr-metadata.json and contains no commit authors/messageBody fields
+
+Base runner from git show b3beac17409b337a67b6b1c49f1bc5801c8f9766:docs/verification/node-6/run_live.py, copied beside the current test in disposable scratch. Only the main-entrypoint regression is run; it does not depend on the new helper name. Subprocesses are mocked.
+
+$ (cwd=/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/node-6-metadata-regression-c95rr036) /Users/fischer/.pyenv/versions/3.12.1/bin/python3 -m unittest test_run_live.MetadataCaptureTest.test_runner_main_emits_metadata_pass -v
+test_runner_main_emits_metadata_pass (test_run_live.MetadataCaptureTest.test_runner_main_emits_metadata_pass) ... FAIL
+
+======================================================================
+FAIL: test_runner_main_emits_metadata_pass (test_run_live.MetadataCaptureTest.test_runner_main_emits_metadata_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/node-6-metadata-regression-c95rr036/test_run_live.py", line 67, in test_runner_main_emits_metadata_pass
+    self.assertIn('PASS: fresh query JSON parses, equals retained pr-metadata.json', self.output.getvalue())
+AssertionError: 'PASS: fresh query JSON parses, equals retained pr-metadata.json' not found in '\n$ (cwd=/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) git rev-parse 4d6a775f1667f3d0b6c7f66724411ab667ed5c07 \'4d6a775f1667f3d0b6c7f66724411ab667ed5c07^\'\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) git show --format=%H%n%s --no-ext-diff 4d6a775f1667f3d0b6c7f66724411ab667ed5c07\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) gh pr view 1076 --repo the-metafactory/soma --json title,body,mergedAt,baseRefOid,headRefOid,mergeCommit,commits,comments,reviews --jq \'del(.commits[].authors, .commits[].messageBody)\'\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) node --version\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) bun --version\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) cmp /var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/bun.lock /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/after/bun.lock\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) cmp /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/before/bun.lock /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/after/bun.lock\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) bun test /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/after/test/pi-dev-extension-imports.test.ts /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/after/test/goal-accept.test.ts --timeout=60000\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) bun test /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/project-fixtures.test.ts\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) node /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/node-loader-probe.mjs before\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) python3 /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/pi-cli-probe.py before\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) node /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/node-loader-probe.mjs after\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n\n$ (cwd=/private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3) python3 /private/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/tmpyfny_nq3/pi-cli-probe.py after\n{"commits":[{"oid":"abc"}]}\n\nEXIT 0; expected 0\n\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.009s
+
+FAILED (failures=1)
+
+EXIT 1; expected 1
+
+$ (cwd=/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-6) /Users/fischer/.pyenv/versions/3.12.1/bin/python3 -m unittest discover -s docs/verification/node-6 -p test_run_live.py -v
+test_different_retained_json_cannot_emit_pass (test_run_live.MetadataCaptureTest.test_different_retained_json_cannot_emit_pass) ... ok
+test_forbidden_commit_fields_cannot_replace_evidence_or_emit_pass (test_run_live.MetadataCaptureTest.test_forbidden_commit_fields_cannot_replace_evidence_or_emit_pass) ... ok
+test_malformed_json_cannot_replace_evidence_or_emit_pass (test_run_live.MetadataCaptureTest.test_malformed_json_cannot_replace_evidence_or_emit_pass) ... ok
+test_runner_main_emits_metadata_pass (test_run_live.MetadataCaptureTest.test_runner_main_emits_metadata_pass) ... ok
+test_valid_response_is_retained_and_pass_is_logged (test_run_live.MetadataCaptureTest.test_valid_response_is_retained_and_pass_is_logged) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.014s
+
+OK
+
+EXIT 0; expected 0

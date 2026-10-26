@@ -1,0 +1,28 @@
+schema: arc/v1
+name: blast-radius
+version: 0.1.0
+type: skill
+tier: custom
+description: Find breakage beyond a change's diff and grade the evidence for each fact its safety depends on.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/blast-radius/SKILL.md
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write:
+      - "./**"
+  network:
+    - host: api.github.com
+      reason: Read the assessed change's PR metadata, commits and discussion.
+    - host: raw.githubusercontent.com
+      reason: Read revision-pinned source for the assessed change and its dependencies.
+  bash:
+    allowed: true
+  secrets: []

@@ -1,0 +1,13 @@
+Failed pi-cli-probe.py after block only. Shared setup, diff and test/loader output are retained in replay-transcript.txt.
+
+$ (cwd=/private/tmp/soma-pstack-node-6) python3 /private/tmp/soma-pstack-node-6/pi-cli-probe.py after
+COMMAND node /Users/fischer/.pi/agent/install/releases/1.4.0/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js --offline --mode rpc --no-session --no-extensions --no-mcp --no-skills --no-prompt-templates --no-themes --no-context-files -e /private/tmp/soma-pstack-node-6/projections/after/agent/extensions/soma.ts -e /private/tmp/soma-pstack-node-6/projections/after/agent/extensions/soma-path-guard.ts -e /private/tmp/soma-pstack-node-6/projections/after/agent/extensions/soma-algorithm.ts
+STDOUT {"type":"extension_ui_request","id":"9cab94a3-69be-4a40-8360-d5a90cc20f77","method":"setStatus","statusKey":"soma","statusText":"Soma ready"}
+STDOUT {"id":"probe-state","type":"response","command":"get_state","success":true,"data":{"model":{"id":"unknown","name":"unknown","api":"unknown","provider":"unknown","baseUrl":"","reasoning":false,"input":[],"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0},"contextWindow":0,"maxTokens":0},"thinkingLevel":"off","isStreaming":false,"isCompacting":false,"steeringMode":"one-at-a-time","followUpMode":"one-at-a-time","sessionId":"01a17a46-5f9f-7717-a5aa-dd9302860a4b","autoCompactionEnabled":true,"messageCount":0,"pendingMessageCount":0}}
+CLI_EXIT 143
+Traceback (most recent call last):
+  File "/private/tmp/soma-pstack-node-6/pi-cli-probe.py", line 46, in <module>
+    assert seen_commands and p.returncode==0
+AssertionError
+
+EXIT 1; expected 0
