@@ -1,0 +1,25 @@
+schema: arc/v1
+name: ketchup
+version: 0.1.0
+type: skill
+tier: custom
+description: Catch the principal up on what changed since their last message and list every call waiting on them with a pick, evidence and risk.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/ketchup/SKILL.md
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write: []
+  network:
+    - host: api.github.com
+      reason: Read the current state of the pull requests and issues this chat touched.
+  bash:
+    allowed: true
+  secrets: []

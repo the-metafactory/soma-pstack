@@ -26,6 +26,10 @@ a superseding decision, and an end-of-run audit that adds an omitted fork.
 The captured acceptance run and its separate cross-model review live under
 [`docs/verification/node-5/`](docs/verification/node-5/).
 
+The [ketchup](skills/ketchup/SKILL.md) skill is what the `cup` alias in a Soma home's
+`profile/communication.md` should expand to. The proposed alias text and the caps
+probe are in [`docs/verification/node-9/`](docs/verification/node-9/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
