@@ -36,8 +36,8 @@ Ship reflect as a standalone Arc library member. Prove its three-lens sequence, 
 - [x] ISC-4: Live probe contains three independent reviewer outputs followed by synthesis.
 - [x] ISC-5: Live probe produces a structural backlog proposal with a concrete check and regression probe.
 - [x] ISC-6: Anti: Reflection probe changes no reviewed skill without principal approval.
-- [ ] ISC-7: Final host pack gate exits zero.
-- [ ] ISC-8: Assigned branch contains the implementation commit and has a clean worktree.
+- [x] ISC-7: Final host pack gate exits zero.
+- [x] ISC-8: Assigned branch contains the implementation commit and has a clean worktree.
 
 ## Test Strategy
 
@@ -57,4 +57,4 @@ Conjecture: upstream invocation metadata could pass the local validator. Refuted
 
 ## Verification
 
-Arc validation and quick_validate pass. The focused tests cover resolving references and Codex invocation policy, and all seven projections match their source routing. report.md and probe-provenance.json preserve the actual lens/synthesis responses; backlog.md qualifies the structural proposal. approval-probe.json records the unchanged scratch source under an unapproved Accepted row. Final gate and commit remain pending at this snapshot.
+Arc validation and quick_validate pass. The focused tests cover resolving references and Codex invocation policy, and all seven projections match their source routing. report.md and probe-provenance.json preserve the actual lens/synthesis responses; backlog.md qualifies the structural proposal. approval-probe.json records the unchanged scratch source under an unapproved Accepted row. The single final host pack gate passed for ten members (pack-check.txt). implementation-commit.json records implementation commit a5cf619 on the assigned branch and its clean-status probe, before this evidence-only follow-up commit.

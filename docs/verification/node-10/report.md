@@ -1,9 +1,9 @@
 # Judgment
 
-1. **Id:** J1  
-   **Principle:** A failed prerequisite remains incomplete; reconstructing the original evidence after an edit cannot demonstrate that the edit was informed by that evidence.  
-   **Evidence:** In `docs/verification/node-8/probe-transcript.jsonl`, the attempted unsuppressed inventories fail at lines 9 and 12. Line 14 records both removals. The first successful inventory of the original source appears at line 23, after the removals and final checks. The retained source and how-check support these particular classifications, but the required inventory-first sequence was not completed.  
-   **Routing:** `skills/no-comments/SKILL.md`, Steps 1 and 3; structural enforcement of the existing prerequisite.  
+1. **Id:** J1
+   **Principle:** A failed prerequisite remains incomplete; reconstructing the original evidence after an edit cannot demonstrate that the edit was informed by that evidence.
+   **Evidence:** In `docs/verification/node-8/probe-transcript.jsonl`, the attempted unsuppressed inventories fail at lines 9 and 12. Line 14 records both removals. The first successful inventory of the original source appears at line 23, after the removals and final checks. The retained source and how-check support these particular classifications, but the required inventory-first sequence was not completed.
+   **Routing:** `skills/no-comments/SKILL.md`, Steps 1 and 3; structural enforcement of the existing prerequisite.
    **Enforcement:** Yes. A slice runner could require a successfully parsed unsuppressed ESLint inventory, tied to the original source hash, before allowing edits. Probe with a formatter failure or temp-directory failure: editing must remain blocked until inventory succeeds; an inventory reconstructed afterward must not satisfy the ordering check.
 
 **Coverage gaps:** The supplied evidence is a scripted scratch-task transcript. It does not include the independent slice-review verdict or its input bundle, so compliance with Step 5 is unverified. No reshape, external-constraint keep, rebase conflict, or PR workflow was exercised.

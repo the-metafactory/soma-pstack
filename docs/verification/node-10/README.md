@@ -14,7 +14,7 @@ Three independent subagents ran concurrently, without each other's conclusions:
 
 After all three returned, `/root/reflect_synthesizer` read their full responses in [lenses.md](lenses.md), the shared contract, the synthesizer prompt and the same session/source evidence. Its full response is [synthesis.md](synthesis.md). [report.md](report.md) combines the three lens sections and synthesis as the final output. The parent performed the structural enforcement check and retained B1 as a local backlog proposal with its concrete mechanism, target and regression probes.
 
-[probe-provenance.json](probe-provenance.json) retains raw received responses and timestamps plus reviewer prompt readbacks. The saved lens and synthesis files match those original responses after trimming outer whitespace. The parent qualifies B1 and supplies concrete proposed implementation paths in [backlog.md](backlog.md).
+[probe-provenance.json](probe-provenance.json) retains raw received responses and timestamps plus reviewer prompt readbacks. The saved lens and synthesis files preserve the original response content, with trailing Markdown hard-break spaces normalized in the rendered copies. The parent qualifies B1 and supplies concrete proposed implementation paths in [backlog.md](backlog.md).
 
 All four calls requested inherited/default routing. Reviewers could not report a model slug; actual model identity is unknown. These are independent role calls, not a claim of cross-family review or independent empirical corroboration. No reviewer failed or needed a fallback. The separate completion audit records its own reported model identity.
 
@@ -33,7 +33,7 @@ Projection uses a fresh temporary home initialized by the installed CLI entry po
 
 The authoring validator rejected upstream's `disable-model-invocation` frontmatter field. Codex's explicit invocation is machine metadata in `agents/openai.yaml`; the other substrates have the entry-point instruction only, not a verified machine guard against implicit invocation. This is a portability limitation. The role prompts are rewritten, with their shared constraints extracted into a new review contract; they are not verbatim upstream prompts. The port replaces Cursor-specific model slugs and transcript searches with substrate routing and exact-session scope. Capability globs declare access; they do not enforce the exact-session restriction or grant write authorization.
 
-The final prescribed pack gate result will be saved in pack-check.txt immediately before the final evidence commit. The supervisor owns push, review and principal merge; this worker makes no graph or publication claim.
+The prescribed `bun scripts/check-pack.ts` ran once on this host immediately before the final evidence commit: **passed, 10 members**, saved in [pack-check.txt](pack-check.txt). The focused test result is **2 pass, 0 fail**. [implementation-commit.json](implementation-commit.json) records the implementation commit and clean-status probe. The supervisor owns push, review and principal merge; this worker makes no graph or publication claim.
 
 ## Completion audit
 
