@@ -36,6 +36,10 @@ skill edits; this is a procedural contract, not runtime enforcement. Enforceable
 findings become structural backlog proposals. Its finished-session probe and
 isolated projection evidence live under [`docs/verification/node-10/`](docs/verification/node-10/).
 
+[typescript-best-practices](skills/typescript-best-practices/SKILL.md) is the rules table
+Soma's type-system-discipline principle should point at. Its projection evidence and the
+proposed principle line live under [`docs/verification/node-12/`](docs/verification/node-12/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
