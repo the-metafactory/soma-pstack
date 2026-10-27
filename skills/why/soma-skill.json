@@ -1,0 +1,18 @@
+{
+  "schema": "soma.skill.v1",
+  "name": "why",
+  "description": "Reconstruct the motivation behind code from a fixed roster of evidence sources (git and PR review threads, issues and graph nodes, docs, chat, Soma's own record) and return a cited read that separates found from inferred. USE WHEN why does X work this way, why did we pick Y, design rationale, regression history, postmortem, where does this threshold come from, why does this live here. NOT FOR what the code does at runtime (use how).",
+  "algorithmCapability": {
+    "satisfies": [
+      "TraceIntent"
+    ]
+  },
+  "substrates": [
+    "codex",
+    "pi-dev",
+    "claude-code",
+    "grok",
+    "dsh",
+    "anthropic-cowork"
+  ]
+}
