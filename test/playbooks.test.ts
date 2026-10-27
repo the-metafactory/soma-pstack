@@ -1,0 +1,81 @@
+import { expect, test } from "bun:test";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join, resolve } from "node:path";
+
+const member = resolve(import.meta.dir, "../skills/playbooks");
+const index = readFileSync(resolve(member, "SKILL.md"), "utf8");
+const cards = readdirSync(resolve(member, "references")).filter(name => name.endsWith(".md")).sort();
+const readCard = (card: string) => readFileSync(resolve(member, "references", card), "utf8");
+const stepsOf = (text: string) => text.split("\n").filter(line => /^\d+\. /.test(line));
+
+// Soma's working method projects this table verbatim and rewrites each
+// `references/` pointer to an absolute path, so its header and row shape are a
+// contract with Soma (src/home/working-method.ts).
+test("the index table keeps the shape Soma projects", () => {
+  const table = index.split("\n").filter(line => line.startsWith("|"));
+  expect(table.slice(0, 2)).toEqual(["| Card | Task shape |", "| --- | --- |"]);
+  for (const row of table.slice(2)) expect(row).toMatch(/^\| `references\/[a-z-]+\.md` \| [^|]+ \|$/);
+});
+
+test("the index lists every card exactly once and nothing else", () => {
+  const rows = [...index.matchAll(/^\| `references\/([a-z-]+\.md)` \|/gm)].map(match => match[1]!).sort();
+  expect(rows).toEqual(cards);
+});
+
+// Soma's PLAYBOOK_CARD_RULES hints these slugs and its mode hook prints the
+// card's path only when the file exists, so a rename here silently drops the hint.
+test("the cards Soma's classifier hints at exist", () => {
+  for (const slug of ["bug-fix", "investigation"]) expect(cards).toContain(`${slug}.md`);
+});
+
+// Moved from Soma's bundled-skill-references test (soma#922): cards are short by
+// contract, cheap enough to load per run.
+test("every card keeps its shape", () => {
+  const misshapen: string[] = [];
+  for (const card of cards) {
+    const body = readCard(card).trimEnd().split("\n");
+    const has = (prefix: string) => body.some(line => line.startsWith(prefix));
+    const steps = stepsOf(body.join("\n")).length;
+    if (body.length > 39) misshapen.push(`${card}: ${body.length} lines`);
+    if (steps < 6 || steps > 10) misshapen.push(`${card}: ${steps} numbered steps`);
+    for (const prefix of ["**Task shape:**", "**You own:**", "## Steps", "## Criteria", "## Principles"]) {
+      if (!has(prefix)) misshapen.push(`${card}: no ${prefix}`);
+    }
+    if (!body.at(-1)?.startsWith("**Reply:**")) misshapen.push(`${card}: does not end with a Reply line`);
+  }
+  expect(misshapen).toEqual([]);
+});
+
+test("an index row that names a card's task shape repeats it exactly", () => {
+  for (const card of ["prototype.md", "planning.md"]) {
+    const shape = /^\*\*Task shape:\*\* (.+)\.$/m.exec(readCard(card))?.[1];
+    expect(index, card).toContain(`| \`references/${card}\` | ${shape} |`);
+  }
+});
+
+test("the investigation card routes how and why questions through Soma's trace capabilities", () => {
+  expect(stepsOf(readCard("investigation.md"))[2]).toContain(
+    "For a how question, trace it through the registry's `TraceMechanics`; for a why question, through `TraceIntent`.",
+  );
+});
+
+test("a card names principles by their path under the Soma skills directory", () => {
+  for (const card of cards) expect(readCard(card), card).not.toMatch(/`references\/principles\//);
+});
+
+// The principles live in Soma, so this runs only where a Soma home is installed.
+// SOMA_SKILLS_DIR points it at another skills directory, such as a Soma checkout's src/skills.
+const somaSkills = process.env.SOMA_SKILLS_DIR ?? join(homedir(), ".soma", "skills");
+test.skipIf(!existsSync(join(somaSkills, "the-algorithm", "references", "principles")))(
+  "every principle a card names exists in the installed Soma",
+  () => {
+    const missing = cards.flatMap(card =>
+      [...readCard(card).matchAll(/`(the-algorithm\/references\/principles\/[a-z-]+\.md)`/g)]
+        .map(match => match[1]!)
+        .filter(path => !existsSync(join(somaSkills, path)))
+        .map(path => `${card}: ${path}`),
+    );
+    expect(missing).toEqual([]);
+  },
+);

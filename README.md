@@ -78,6 +78,14 @@ replayed against the real code, is under [`docs/verification/node-17/`](docs/ver
 with `humanizer` as the prose pass and mermaid or the `art` skill for pictures. It is command-only (`/explain`). The
 acceptance run and grep gate are under [`docs/verification/node-16/`](docs/verification/node-16/).
 
+[playbooks](skills/playbooks/SKILL.md) holds the playbook cards, one numbered step list per task shape. They
+used to ship in Soma's the-algorithm skill; a Soma home without this pack has no cards. Soma reads the index from the
+installed member's SKILL.md and projects it into the working method's Playbooks section, and its mode hook points a card
+hint at `skills/playbooks/references/<card>.md`. The index table's header and row shape are therefore a contract with
+Soma; `test/playbooks.test.ts` holds them, along with the card slugs Soma's classifier hints at. A card names the principles it leans on by their path under the Soma
+skills directory, since the principles stay in the-algorithm. Which upstream cards are ported, and why the rest are not,
+is recorded in [`docs/upstream-playbooks-review.md`](docs/upstream-playbooks-review.md).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
@@ -100,5 +108,5 @@ An empty library passes without invoking Arc on the root.
 ## Attribution
 
 [NOTICE.md](NOTICE.md) carries pstack's MIT notice for this pack. Soma's own
-`pstack-NOTICE.md` covers the principles and playbook cards in Soma, not this
-repository. Those principles and cards remain in Soma.
+`pstack-NOTICE.md` covers the principles in Soma, not this repository. The
+principles remain in Soma; the playbook cards live in this pack.

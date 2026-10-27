@@ -48,3 +48,5 @@ artifacts:
     description: Bring a project's formal verification back in line with the code after changes that skipped it.
   - path: skills/explain
     description: Explain a body of work plainly by running how and why and weaving what they find into one account.
+  - path: skills/playbooks
+    description: Playbook cards, the step lists Soma's working method routes each task shape to.
