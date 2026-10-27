@@ -47,6 +47,11 @@ proposed principle line live under [`docs/verification/node-12/`](docs/verificat
 capability; Soma reads that binding from the member's `soma-skill.json`. The acceptance runs
 live under [`docs/verification/node-11/`](docs/verification/node-11/).
 
+[technical-writing](skills/technical-writing/SKILL.md) splits docs into tutorial, how-to, reference and
+explanation, takes its words from the codebase, and runs `humanizer` as its prose pass. Soma's `writer`
+skill should route docs to it; the proposed routing line and the scratch-README probe are under
+[`docs/verification/node-14/`](docs/verification/node-14/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
