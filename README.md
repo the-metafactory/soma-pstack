@@ -42,6 +42,10 @@ proposed principle line live under [`docs/verification/node-12/`](docs/verificat
 
 [why](skills/why/SKILL.md) reconstructs the motivation behind code from a fixed roster of Soma evidence sources and binds the `TraceIntent` capability. Its binding probe, grep gate and acceptance run are under [`docs/verification/node-13/`](docs/verification/node-13/).
 
+[recall](skills/recall/SKILL.md) sweeps chat, long-form docs and error tracking as well as `gh`, the work graph and git. It reads
+the `why` skill's source playbooks instead of copying them, and its brief ends with a Sources part that names each source swept and
+each not reached, with the reason. The probe is under [`docs/verification/node-7/`](docs/verification/node-7/).
+
 [how](skills/how/SKILL.md) explains how a subsystem works from a cited trace: read-only
 `haiku` explorers per angle, one `opus` explainer. Its manifest binds the `TraceMechanics`
 capability; Soma reads that binding from the member's `soma-skill.json`. The acceptance runs

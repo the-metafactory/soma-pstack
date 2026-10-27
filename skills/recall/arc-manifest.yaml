@@ -18,6 +18,7 @@ capabilities:
       - "./**"
       - "~/.claude/projects/**"
       - "~/.soma/**"
+      - "~/.claude/skills/why/**"
     # git fetch updates repository metadata; the brief itself is read-only.
     write:
       - "./.git/**"
@@ -26,6 +27,10 @@ capabilities:
       reason: Read issues, pull requests and live graph state through gh and Soma.
     - host: github.com
       reason: Fetch the repository's GitHub remote to verify live state.
+    - host: confluence.switch.ch
+      reason: Read Confluence pages for SWITCH work through the why skill's long-form docs playbook.
+    - host: discord.com
+      reason: Read channel and thread history through the why skill's chat playbook.
   bash:
     # Unrestricted shell access also reaches caller-selected repositories,
     # git common directories, other session stores and non-GitHub remotes.
