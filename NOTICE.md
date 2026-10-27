@@ -4,6 +4,10 @@ This pack ports skills from pstack in the upstream repository
 [`cursor/plugins`](https://github.com/cursor/plugins), directory `pstack/`.
 Copyright © 2026 Lauren Tan. The upstream MIT license follows verbatim.
 
+The playbook cards in `skills/playbooks/` moved here from Soma's the-algorithm skill.
+Their task shapes and step order are adapted from pstack's poteto-mode playbooks at
+commit `99743e9`.
+
 ```text
 MIT License
 
