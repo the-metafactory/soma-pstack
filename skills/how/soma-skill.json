@@ -1,0 +1,7 @@
+{
+  "schema": "soma.skill.v1",
+  "name": "how",
+  "algorithmCapability": {
+    "satisfies": ["TraceMechanics"]
+  }
+}

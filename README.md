@@ -42,6 +42,11 @@ proposed principle line live under [`docs/verification/node-12/`](docs/verificat
 
 [why](skills/why/SKILL.md) reconstructs the motivation behind code from a fixed roster of Soma evidence sources and binds the `TraceIntent` capability. Its binding probe, grep gate and acceptance run are under [`docs/verification/node-13/`](docs/verification/node-13/).
 
+[how](skills/how/SKILL.md) explains how a subsystem works from a cited trace: read-only
+`haiku` explorers per angle, one `opus` explainer. Its manifest binds the `TraceMechanics`
+capability; Soma reads that binding from the member's `soma-skill.json`. The acceptance runs
+live under [`docs/verification/node-11/`](docs/verification/node-11/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
