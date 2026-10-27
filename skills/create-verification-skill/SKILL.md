@@ -1,6 +1,7 @@
 ---
 name: create-verification-skill
 description: "Generate a project-local verify-<app> skill that drives the real app surface (web, CLI, TUI, service) the way a user does, with a feature map and captured evidence. Use when a project has no scripted way to prove behavior."
+route: "Proving a change on the real app surface when the project has no scripted way to drive it (no verify-<project> skill yet)."
 disable-model-invocation: true
 triggers:
   - pattern: "/create-verification-skill"

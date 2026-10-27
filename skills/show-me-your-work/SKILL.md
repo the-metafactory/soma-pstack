@@ -1,6 +1,7 @@
 ---
 name: show-me-your-work
 description: "Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision, a transcript audit and cross-model review. Use for /show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away. Local by default; commit only when a reviewer needs the trail to trust the result."
+route: "Long, autonomous or multi-phase work, or any task the principal steps away from and reviews later."
 ---
 
 # Show me your work

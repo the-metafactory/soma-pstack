@@ -1,6 +1,7 @@
 ---
 name: benchmark-checklist
 description: "Vet a measured performance number before reporting or acting on it: limiter, tuning, limits, errors, repeat runs, end-to-end relevance, and whether the work ran. Use when you run a benchmark or claim a speedup or regression."
+route: "Running a benchmark, measuring performance yourself, or reporting a speedup or regression you measured, before you report or act on the number."
 disable-model-invocation: true
 triggers:
   - pattern: "/benchmark-checklist"

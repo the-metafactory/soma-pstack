@@ -1,6 +1,7 @@
 ---
 name: no-comments
 description: Strip comments from code, investigate claimed constraints, require independent slice review, and lower the eslint-suppressions.json baseline, one slice per PR. Use when burning down a comment baseline, when a `ranger/no-comments` (or similar no-comments lint) error fires, or when asked to remove comments from files.
+route: "Before review of a change, when a no-comments lint error fires, or when burning down a comment baseline."
 ---
 
 # No comments
