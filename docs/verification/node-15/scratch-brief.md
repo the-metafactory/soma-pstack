@@ -1,0 +1,1 @@
+Write a Bun script `dedupe.ts` that finds duplicate photos under `~/Pictures`. Hash every file with SHA-256 and group files with the same hash. Print the groups as JSON. Don't delete or move anything. Keep the script under 100 lines.

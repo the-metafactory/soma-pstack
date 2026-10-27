@@ -52,6 +52,10 @@ explanation, takes its words from the codebase, and runs `humanizer` as its pros
 skill should route docs to it; the proposed routing line and the scratch-README probe are under
 [`docs/verification/node-14/`](docs/verification/node-14/).
 
+[sharpen](skills/sharpen/SKILL.md) makes a task deeper, not bigger. It names what a top professional would add, the
+rawest source material, their methods and an outside check, then rewrites the prompt and leaves the principal's choices
+open. The scratch-brief probe is under [`docs/verification/node-15/`](docs/verification/node-15/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
