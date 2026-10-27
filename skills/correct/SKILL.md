@@ -1,6 +1,7 @@
 ---
 name: correct
 description: "Find mistake classes agents keep repeating in a repo and make each impossible: architecture, then types, then a lint naming the fix, then a test, docs last. Prove each check fails on a past mistake; keep a rule-to-enforcer table in AGENTS.md. Use for /correct."
+route: "The same agent mistake recurs in a repo, or a correction is given a second time, and a check could make it impossible."
 disable-model-invocation: true
 triggers:
   - pattern: "/correct"

@@ -2,6 +2,7 @@
 name: blast-radius
 disable-model-invocation: true
 description: "Find what a change could break beyond its diff and prove the one or two facts its safety depends on. Use for 'blast radius of X', 'what could this break', or reviewing a small diff you do not trust. Use a mechanics or history investigation for a how/why question without a change to assess."
+route: "Before merging or shipping a change whose effects can reach past its diff, or a small diff you do not trust."
 ---
 
 # Blast radius

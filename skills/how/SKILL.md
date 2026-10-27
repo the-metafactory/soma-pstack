@@ -1,6 +1,7 @@
 ---
 name: how
 description: "Explore the codebase and explain how a subsystem works, with file:line citations: architecture, runtime flow, onboarding mental models, code walkthroughs before a change, and placement, ownership or layering questions (where should this live, which package owns this, is this the right layer). Use for how does X work, walk me through X, explain the flow of X. Use a history or motivation investigation for why questions."
+route: "Before changing a subsystem you have not read this session, or when a reply must describe how code behaves."
 triggers:
   - pattern: "/how"
     type: command
