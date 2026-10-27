@@ -97,4 +97,4 @@ When the model describes code, replay each bug path against the real code, as a 
 
 - `mise` is optional. Set `TLA2TOOLS` to the path of `tla2tools.jar` (TLC 1.7.4) and `JAVA` to a Java 11 or later binary, and the command does not install anything or need the network.
 
-Source: ported from pstack `pstack/skills/statechart/SKILL.md` at commit 519d36aa98955bf680db01bcde5fdfba686dc901. Changed: triggers added, `disable-model-invocation` dropped, and the Running without mise section added. The upstream text above it is verbatim. `scripts/` is the upstream directory without `test/`, `package.json` and `tsconfig.json`, which are its own test tooling.
+Source: ported from pstack `pstack/skills/statechart/SKILL.md` at commit 519d36aa98955bf680db01bcde5fdfba686dc901. Changed: triggers added, `disable-model-invocation` dropped, and the Running without mise section added. The upstream text above it is verbatim. `scripts/` is the upstream directory without `test/`, `package.json` and `tsconfig.json`, which are its own test tooling, except that `scripts/passes/region-check.ts` walks the initial-state product one tuple at a time instead of building it whole.

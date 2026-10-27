@@ -31,18 +31,22 @@ export function regionsLie(
   };
   const addMove = (moves: Map<string, Move>, m: Move) =>
     moves.set(tupleKey([m.from, m.text, m.to]), m);
-  let product: string[][] = [[]];
-  for (const r of regions) {
-    const next: string[][] = [];
-    for (const c of product)
-      for (const s of r.states) if (s.start) next.push([...c, tupleKey(s.path)]);
-    product = next;
-  }
   const realStarts = new Set<string>();
   for (const i of starts) realStarts.add(tupleKey(combo(i)));
-  for (const c of product)
-    if (!realStarts.has(tupleKey(c)))
-      return `The regions chart starts at ${words(c)}, where the model never starts.`;
+  const initial = regions.map((r) => r.states.filter((s) => s.start).map((s) => tupleKey(s.path)));
+  if (initial.every((list) => list.length)) {
+    // Walk the product of the regions' initial states one tuple at a time. Every tuple that is not
+    // returned is a real start, so the walk takes at most realStarts.size + 1 steps.
+    const at = new Array<number>(initial.length).fill(0);
+    for (let more = true; more; ) {
+      const c = initial.map((list, r) => list[at[r]]);
+      if (!realStarts.has(tupleKey(c)))
+        return `The regions chart starts at ${words(c)}, where the model never starts.`;
+      let r = at.length - 1;
+      while (r >= 0 && ++at[r] === initial[r].length) at[r--] = 0;
+      more = r >= 0;
+    }
+  }
   for (const [i, r] of regions.entries())
     for (const a of r.arrows)
       if (a.condition.kind === "tuples")

@@ -16,9 +16,13 @@ capabilities:
   filesystem:
     read:
       - "./**"
-    # The spec, config, view module and --out folder live in a scratch folder outside the repo.
+    # /tmp holds the spec, config, view module and --out folder, in a scratch folder outside the repo.
+    # The mise paths hold the first-run install of Java and TLC (XDG defaults, or MISE_DATA_DIR, MISE_CACHE_DIR and MISE_STATE_DIR when set).
     write:
       - "/tmp/**"
+      - "~/.local/share/mise/**"
+      - "~/.cache/mise/**"
+      - "~/.local/state/mise/**"
   network:
     - host: github.com
       reason: First run installs TLC (tla2tools.jar 1.7.4) and Java through mise; skipped when TLA2TOOLS and JAVA are set.
