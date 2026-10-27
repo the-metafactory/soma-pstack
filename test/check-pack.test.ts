@@ -164,15 +164,17 @@ test("malformed root manifest fails with its filename", () => {
 test("artifacts must be a list", () => {
   const root = library();
   writeFileSync(join(root, "arc-manifest.yaml"), "schema: arc/v1\nname: soma-pstack\ntype: library\nlicense: MIT\nartifacts: {}\n");
-  expect(run(root).code).not.toBe(0);
-  expect(run(root).output).toContain("artifacts");
+  const result = run(root);
+  expect(result.code).not.toBe(0);
+  expect(result.output).toContain("artifacts");
 });
 
 for (const entry of [null, {}, { path: "../outside" }, { path: "/tmp/other" }]) {
   test(`invalid artifact entry ${JSON.stringify(entry)} fails`, () => {
     const root = library([entry]);
-    expect(run(root).code).not.toBe(0);
-    expect(run(root).output).toContain("path");
+    const result = run(root);
+    expect(result.code).not.toBe(0);
+    expect(result.output).toContain("path");
   });
 }
 
