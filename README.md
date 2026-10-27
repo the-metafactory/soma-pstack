@@ -81,7 +81,8 @@ acceptance run and grep gate are under [`docs/verification/node-16/`](docs/verif
 [playbooks](skills/playbooks/SKILL.md) holds the playbook cards, one numbered step list per task shape. They
 used to ship in Soma's the-algorithm skill; a Soma home without this pack has no cards. Soma reads the index from the
 installed member's SKILL.md and projects it into the working method's Playbooks section, and its mode hook points a card
-hint at `skills/playbooks/references/<card>.md`. A card names the principles it leans on by their path under the Soma
+hint at `skills/playbooks/references/<card>.md`. The index table's header and row shape are therefore a contract with
+Soma; `test/playbooks.test.ts` holds them, along with the card slugs Soma's classifier hints at. A card names the principles it leans on by their path under the Soma
 skills directory, since the principles stay in the-algorithm. Which upstream cards are ported, and why the rest are not,
 is recorded in [`docs/upstream-playbooks-review.md`](docs/upstream-playbooks-review.md).
 
