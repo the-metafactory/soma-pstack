@@ -1,6 +1,6 @@
 ---
 name: playbooks
-description: "Playbook cards: one numbered step list per task shape (bug fix, investigation, feature, prototype, planning, refactor, session pickup, pause, autonomous run, skill authoring, eval). Soma projects this index into every substrate's always-loaded working method, so pick a card from there."
+description: "Playbook cards: one numbered step list per task shape (bug fix, investigation, feature, prototype, planning, refactor, session pickup, pause, autonomous run, skill authoring, eval, opening a PR, shipping, perf issue, hillclimb, forensics, cleanup). Soma projects this index into every substrate's always-loaded working method, so pick a card from there."
 disable-model-invocation: true
 ---
 
@@ -25,6 +25,12 @@ A playbook card is the step list for one task shape. Cards apply in every mode: 
 | `references/autonomous-run.md` | work the principal walks away from |
 | `references/authoring-a-skill.md` | creating or changing a skill or doctrine file |
 | `references/eval.md` | testing whether a variant changes behavior |
+| `references/opening-a-pr.md` | a change is ready for review |
+| `references/shipping.md` | landing reviewed PRs under a grant to merge after Sage review |
+| `references/perf-issue.md` | something is too slow or uses too much, against a measurable target |
+| `references/hillclimb.md` | sustained improvement of one metric over many attempts |
+| `references/forensics.md` | a diagnosis from a profile, heap snapshot, trace or other runtime signal |
+| `references/cleanup.md` | reclaiming disk from stale worktrees, agent scratch and caches |
 
 Using a card:
 

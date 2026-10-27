@@ -39,6 +39,9 @@ jobs:
 
       - run: arc --version
 
+      # The worktree-audit member's script and its tests need ripgrep.
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+
       # Scoped to test/: a bare `bun test` would also run arc's suite in .arc/.
       - run: bun test test/
 

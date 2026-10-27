@@ -1,0 +1,29 @@
+schema: arc/v1
+name: worktree-audit
+version: 0.1.0
+type: skill
+tier: custom
+description: Read-only audit of a repo's git worktrees with a suggested cleanup bucket each.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/poteto-mode/scripts/worktree-audit.sh
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    # The audited repo and its worktrees come from the repo-path argument and
+    # `git worktree list`, so they cannot be listed here; they are only read.
+    read:
+      - "./**"
+      - "~/.claude/projects/**"
+    write: []
+  network:
+    - host: api.github.com
+      reason: List the principal's PRs through gh to bucket each worktree.
+  bash:
+    # Runs git (read-only subcommands, no fetch), gh pr list, du and rg.
+    allowed: true
+  secrets: []
