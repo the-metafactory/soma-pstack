@@ -12,7 +12,7 @@ Run it from the Cleanup card, once per repo:
 bun <skills>/worktree-audit/scripts/worktree-audit.ts [-b <base-ref>] [repo-path]
 ```
 
-It prints one tab-separated row per worktree except the main one, largest first.
+It needs `git`, `du` and `rg` (ripgrep) on the PATH; `gh` is optional. It prints one tab-separated row per worktree except the main one, largest first.
 
 | Column | Meaning |
 | --- | --- |
