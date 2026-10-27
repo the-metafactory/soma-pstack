@@ -84,17 +84,21 @@ const sessionSlug = (path: string) => path.replace(/[/.]/g, "-");
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
- * Newest transcript time per worktree, from one scan of the repo's session
- * directories. A path counts only when it does not run on into a longer name,
+ * Newest transcript time per worktree, from one scan of the session
+ * directories named after the main repo or after any worktree, since a
+ * session started inside a worktree outside the repo's path has its own. A path counts only when it does not run on into a longer name,
  * so `soma-682` does not match `soma-682-r2`. `--no-ignore` because a gitignore
  * above the sessions directory (`~/.claude` ignores its transcript files) would
  * otherwise hide every transcript. An rg failure stops the audit: reading it as
  * "no session" would bucket a live worktree as safe.
  */
-function lastSessions(sessionsDir: string, mainSlug: string, paths: readonly string[]): Map<string, number> {
+function lastSessions(sessionsDir: string, main: string, paths: readonly string[]): Map<string, number> {
   const newest = new Map<string, number>();
   if (paths.length === 0 || !existsSync(sessionsDir)) return newest;
-  const dirs = readdirSync(sessionsDir).filter((name) => name.startsWith(mainSlug)).map((name) => join(sessionsDir, name));
+  const slugs = [main, ...paths].map(sessionSlug);
+  const dirs = readdirSync(sessionsDir)
+    .filter((name) => slugs.some((slug) => name.startsWith(slug)))
+    .map((name) => join(sessionsDir, name));
   if (dirs.length === 0) return newest;
   const patterns = paths.flatMap((path) => ["-e", `${escapeRegex(path)}(?:[^A-Za-z0-9._-]|$)`]);
   const hits = run(["rg", "--no-ignore", "--with-filename", "--no-line-number", "--only-matching", ...patterns, ...dirs]);
@@ -131,11 +135,13 @@ function remoteState(worktree: string, branch: string): string {
   return "pushed";
 }
 
-function bucket(row: { dirty: string; pr: string; merged: boolean; recent: boolean }): string {
+/** `safe` needs the work landed (an ancestor of base or a merged PR) and nothing unpushed on top. */
+function bucket(row: { dirty: string; pr: string; remote: string; merged: boolean; recent: boolean }): string {
   if (row.dirty.startsWith("wip:")) return "hold-wip";
   if (/\/(open|draft)$/.test(row.pr)) return "hold-open-pr";
   if (row.recent) return "verify-recent-session";
-  return row.merged || row.pr !== "-" ? "safe" : "review";
+  if (/^(ahead|diverged)/.test(row.remote)) return "review";
+  return row.merged || row.pr.endsWith("/merged") ? "safe" : "review";
 }
 
 const { base: requestedBase, repo: repoArg } = parseArgs(process.argv.slice(2));
@@ -146,7 +152,7 @@ const base = resolveBase(repo, requestedBase);
 const [main, ...candidates] = worktrees(repo);
 const prs = pullRequests(repo);
 const sessionsDir = process.env.SOMA_AUDIT_SESSIONS_DIR ?? join(homedir(), ".claude", "projects");
-const sessions = lastSessions(sessionsDir, sessionSlug(main!), candidates);
+const sessions = lastSessions(sessionsDir, main!, candidates);
 const now = Date.now();
 
 const rows = candidates.map((worktree) => {
@@ -159,6 +165,7 @@ const rows = candidates.map((worktree) => {
   const pr = (branch !== "" && prs.get(branch)) || "-";
   const session = sessions.get(worktree);
   const recent = session !== undefined && now - session <= RECENT_DAYS * DAY_MS;
+  const remote = remoteState(worktree, branch);
   return {
     kb,
     cells: [
@@ -166,10 +173,10 @@ const rows = candidates.map((worktree) => {
       headTime > 0 ? `${Math.floor((now - headTime) / DAY_MS)}d` : "?",
       merged ? "YES" : "no",
       dirty,
-      remoteState(worktree, branch),
+      remote,
       pr,
       session === undefined ? "-" : new Date(session).toISOString().slice(0, 10),
-      bucket({ dirty, pr, merged, recent }),
+      bucket({ dirty, pr, remote, merged, recent }),
       worktree,
     ],
   };

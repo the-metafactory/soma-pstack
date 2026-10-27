@@ -23,8 +23,9 @@ test("the index lists every card exactly once and nothing else", () => {
   expect(rows).toEqual(cards);
 });
 
-// Soma's PLAYBOOK_CARD_RULES hints these slugs and its mode hook prints the
-// card's path only when the file exists, so a rename here silently drops the hint.
+// A copy of the slugs Soma's PLAYBOOK_CARD_RULES hints at (src/algorithm/
+// algorithm-classifier.ts). Its mode hook prints a card's path only when the file
+// exists, so a rename here silently drops the hint; a new slug there needs a line here.
 test("the cards Soma's classifier hints at exist", () => {
   for (const slug of ["bug-fix", "investigation"]) expect(cards).toContain(`${slug}.md`);
 });
@@ -64,18 +65,19 @@ test("a card names principles by their path under the Soma skills directory", ()
   for (const card of cards) expect(readCard(card), card).not.toMatch(/`references\/principles\//);
 });
 
-// The principles live in Soma, so this runs only where a Soma home is installed.
-// SOMA_SKILLS_DIR points it at another skills directory, such as a Soma checkout's src/skills.
+// The principles live in Soma, so this runs only where a Soma home is installed,
+// and skips otherwise. SOMA_SKILLS_DIR points it at another skills directory, such
+// as a Soma checkout's src/skills; a SOMA_SKILLS_DIR that does not exist fails.
 const somaSkills = process.env.SOMA_SKILLS_DIR ?? join(homedir(), ".soma", "skills");
-test.skipIf(!existsSync(join(somaSkills, "the-algorithm", "references", "principles")))(
+const somaPrinciples = join(somaSkills, "the-algorithm", "references", "principles");
+test.skipIf(process.env.SOMA_SKILLS_DIR === undefined && !existsSync(somaPrinciples))(
   "every principle a card names exists in the installed Soma",
   () => {
-    const missing = cards.flatMap(card =>
-      [...readCard(card).matchAll(/`(the-algorithm\/references\/principles\/[a-z-]+\.md)`/g)]
-        .map(match => match[1]!)
-        .filter(path => !existsSync(join(somaSkills, path)))
-        .map(path => `${card}: ${path}`),
+    expect(existsSync(somaPrinciples), somaPrinciples).toBe(true);
+    const pointers = cards.flatMap(card =>
+      [...readCard(card).matchAll(/`(the-algorithm\/references\/principles\/[^`]+)`/g)].map(match => ({ card, path: match[1]! })),
     );
-    expect(missing).toEqual([]);
+    expect(pointers.length).toBeGreaterThan(cards.length);
+    expect(pointers.filter(({ path }) => !existsSync(join(somaSkills, path))).map(({ card, path }) => `${card}: ${path}`)).toEqual([]);
   },
 );
