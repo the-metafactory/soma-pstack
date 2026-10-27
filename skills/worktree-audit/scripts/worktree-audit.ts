@@ -1,23 +1,28 @@
 #!/usr/bin/env bun
 // Read-only worktree audit for the Cleanup card. Classifies every git worktree
 // but the main one by size, merge state, uncommitted work, remote and PR state,
-// and the newest agent session that touched it, then suggests a bucket. It never
-// deletes anything; removal stays gated by the principal's approval.
+// and the newest agent session that touched it, then suggests a bucket. It
+// never fetches, writes or deletes; removal stays gated by the principal's
+// approval.
 //
 // Usage: bun worktree-audit.ts [-b|--base <ref>] [repo-path]
 //   -b sets the ref the MERGED column checks against. Without it: origin/HEAD,
-//   then origin/main, then origin/master.
+//   then origin/main, then origin/master. The ref is read as it is locally;
+//   run `git fetch` first for a fresh one.
 //   SOMA_AUDIT_SESSIONS_DIR overrides ~/.claude/projects, where Claude Code
 //   keeps one directory of session transcripts per working directory.
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-const RECENT_DAYS = 4;
+const COLUMNS = ["SIZE", "AGE", "MERGED", "DIRTY", "REMOTE", "PR", "LAST_SESSION", "BUCKET", "WORKTREE"] as const;
 
-function run(cmd: string[], cwd?: string): { ok: boolean; out: string } {
+const RECENT_DAYS = 4;
+const DAY_MS = 86_400_000;
+
+function run(cmd: string[], cwd?: string): { code: number; out: string; err: string } {
   const result = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe" });
-  return { ok: result.exitCode === 0, out: result.stdout.toString().trim() };
+  return { code: result.exitCode, out: result.stdout.toString().trim(), err: result.stderr.toString().trim() };
 }
 
 const git = (cwd: string, ...args: string[]) => run(["git", "-C", cwd, ...args]);
@@ -44,16 +49,10 @@ function parseArgs(argv: string[]): { base?: string; repo?: string } {
 }
 
 function resolveBase(repo: string, requested?: string): string {
-  if (requested?.startsWith("origin/")) {
-    const branch = requested.slice("origin/".length);
-    if (!git(repo, "fetch", "--quiet", "origin", `+refs/heads/${branch}:refs/remotes/${requested}`).ok) {
-      console.error(`warn: could not fetch ${requested}; MERGED may be stale`);
-    }
-  }
   const candidates = requested === undefined
     ? [git(repo, "symbolic-ref", "--short", "refs/remotes/origin/HEAD").out, "origin/main", "origin/master"]
     : [requested];
-  const base = candidates.find((ref) => ref !== "" && git(repo, "rev-parse", "--verify", "--quiet", `${ref}^{commit}`).ok);
+  const base = candidates.find((ref) => ref !== "" && git(repo, "rev-parse", "--verify", "--quiet", `${ref}^{commit}`).code === 0);
   if (base === undefined) fail(requested === undefined ? "no base ref found; pass -b <ref>" : `base ref not found: ${requested}`);
   if (requested === undefined) console.error(`warn: no -b given; MERGED checks against ${base}`);
   return base;
@@ -69,7 +68,10 @@ function worktrees(repo: string): string[] {
 function pullRequests(repo: string): Map<string, string> {
   const listed = run(["gh", "pr", "list", "--author", "@me", "--state", "all", "--limit", "1000", "--json", "number,state,headRefName"], repo);
   const byBranch = new Map<string, string>();
-  if (!listed.ok) return byBranch;
+  if (listed.code !== 0) {
+    console.error("warn: gh could not list PRs; the PR column is empty");
+    return byBranch;
+  }
   for (const pr of JSON.parse(listed.out) as { number: number; state: string; headRefName: string }[]) {
     if (!byBranch.has(pr.headRefName)) byBranch.set(pr.headRefName, `#${pr.number}/${pr.state.toLowerCase()}`);
   }
@@ -82,19 +84,34 @@ const sessionSlug = (path: string) => path.replace(/[/.]/g, "-");
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
- * Newest transcript under the repo's session directories that mentions the
- * worktree path. The path must not run on into a longer name, so `soma-682`
- * does not match `soma-682-r2`. `--no-ignore` because a gitignore above the
- * sessions directory (`~/.claude` ignores its transcript files) would otherwise
- * hide every transcript.
+ * Newest transcript time per worktree, from one scan of the repo's session
+ * directories. A path counts only when it does not run on into a longer name,
+ * so `soma-682` does not match `soma-682-r2`. `--no-ignore` because a gitignore
+ * above the sessions directory (`~/.claude` ignores its transcript files) would
+ * otherwise hide every transcript. An rg failure stops the audit: reading it as
+ * "no session" would bucket a live worktree as safe.
  */
-function lastSession(sessionsDir: string, mainSlug: string, worktree: string): number | undefined {
-  if (!existsSync(sessionsDir)) return undefined;
+function lastSessions(sessionsDir: string, mainSlug: string, paths: readonly string[]): Map<string, number> {
+  const newest = new Map<string, number>();
+  if (paths.length === 0 || !existsSync(sessionsDir)) return newest;
   const dirs = readdirSync(sessionsDir).filter((name) => name.startsWith(mainSlug)).map((name) => join(sessionsDir, name));
-  if (dirs.length === 0) return undefined;
-  const hits = run(["rg", "-l", "--no-ignore", "-e", `${escapeRegex(worktree)}([^A-Za-z0-9._-]|$)`, ...dirs]);
-  const mtimes = hits.out.split("\n").filter(Boolean).map((file) => statSync(file).mtimeMs);
-  return mtimes.length === 0 ? undefined : Math.max(...mtimes);
+  if (dirs.length === 0) return newest;
+  const patterns = paths.flatMap((path) => ["-e", `${escapeRegex(path)}(?:[^A-Za-z0-9._-]|$)`]);
+  const hits = run(["rg", "--no-ignore", "--with-filename", "--no-line-number", "--only-matching", ...patterns, ...dirs]);
+  if (hits.code > 1) fail(`rg could not scan ${sessionsDir}: ${hits.err || `exit ${hits.code}`}`);
+  const byLength = [...paths].sort((a, b) => b.length - a.length);
+  const mtimes = new Map<string, number>();
+  for (const line of hits.out.split("\n").filter(Boolean)) {
+    const split = line.indexOf(":/");
+    const file = line.slice(0, split);
+    const match = line.slice(split + 1);
+    const path = byLength.find((candidate) => match === candidate || (match.startsWith(candidate) && match.length === candidate.length + 1));
+    if (path === undefined) continue;
+    const mtime = mtimes.get(file) ?? statSync(file).mtimeMs;
+    mtimes.set(file, mtime);
+    newest.set(path, Math.max(newest.get(path) ?? 0, mtime));
+  }
+  return newest;
 }
 
 function dirtyState(worktree: string): string {
@@ -104,11 +121,14 @@ function dirtyState(worktree: string): string {
   return tracked > 0 ? `wip:${tracked}` : `scratch:${lines.length}`;
 }
 
-function remoteState(worktree: string, branch: string, head: string): string {
+function remoteState(worktree: string, branch: string): string {
   if (branch === "") return "detached";
-  const remote = git(worktree, "rev-parse", "--verify", "--quiet", `refs/remotes/origin/${branch}`);
-  if (!remote.ok) return "no-remote";
-  return remote.out === head ? "pushed" : `ahead${git(worktree, "rev-list", "--count", `origin/${branch}..HEAD`).out}`;
+  if (git(worktree, "rev-parse", "--verify", "--quiet", `refs/remotes/origin/${branch}`).code !== 0) return "no-remote";
+  const [behind = 0, ahead = 0] = git(worktree, "rev-list", "--left-right", "--count", `origin/${branch}...HEAD`).out.split(/\s+/).map(Number);
+  if (ahead > 0 && behind > 0) return `diverged+${ahead}-${behind}`;
+  if (ahead > 0) return `ahead${ahead}`;
+  if (behind > 0) return `behind${behind}`;
+  return "pushed";
 }
 
 function bucket(row: { dirty: string; pr: string; merged: boolean; recent: boolean }): string {
@@ -120,33 +140,33 @@ function bucket(row: { dirty: string; pr: string; merged: boolean; recent: boole
 
 const { base: requestedBase, repo: repoArg } = parseArgs(process.argv.slice(2));
 const repo = repoArg ?? run(["git", "rev-parse", "--show-toplevel"]).out;
-if (repo === "" || !git(repo, "rev-parse", "--git-dir").ok) fail("not in a git repo; pass a repo path");
+if (repo === "" || git(repo, "rev-parse", "--git-dir").code !== 0) fail("not in a git repo; pass a repo path");
 
 const base = resolveBase(repo, requestedBase);
 const [main, ...candidates] = worktrees(repo);
 const prs = pullRequests(repo);
 const sessionsDir = process.env.SOMA_AUDIT_SESSIONS_DIR ?? join(homedir(), ".claude", "projects");
+const sessions = lastSessions(sessionsDir, sessionSlug(main!), candidates);
 const now = Date.now();
-const day = 86_400_000;
 
 const rows = candidates.map((worktree) => {
-  const du = run(["du", "-sk", worktree]).out.split("\t")[0] ?? "0";
+  const kb = Number(run(["du", "-sk", worktree]).out.split("\t")[0] ?? 0);
   const head = git(worktree, "rev-parse", "HEAD").out;
   const headTime = Number(git(worktree, "log", "-1", "--format=%ct", "HEAD").out) * 1000;
   const branch = git(worktree, "symbolic-ref", "--quiet", "--short", "HEAD").out;
-  const merged = git(repo, "merge-base", "--is-ancestor", head, base).ok;
+  const merged = git(repo, "merge-base", "--is-ancestor", head, base).code === 0;
   const dirty = dirtyState(worktree);
   const pr = (branch !== "" && prs.get(branch)) || "-";
-  const session = lastSession(sessionsDir, sessionSlug(main!), worktree);
-  const recent = session !== undefined && now - session <= RECENT_DAYS * day;
+  const session = sessions.get(worktree);
+  const recent = session !== undefined && now - session <= RECENT_DAYS * DAY_MS;
   return {
-    kb: Number(du),
+    kb,
     cells: [
-      `${Math.round(Number(du) / 1024)}M`,
-      headTime > 0 ? `${Math.floor((now - headTime) / day)}d` : "?",
+      `${Math.round(kb / 1024)}M`,
+      headTime > 0 ? `${Math.floor((now - headTime) / DAY_MS)}d` : "?",
       merged ? "YES" : "no",
       dirty,
-      remoteState(worktree, branch, head),
+      remoteState(worktree, branch),
       pr,
       session === undefined ? "-" : new Date(session).toISOString().slice(0, 10),
       bucket({ dirty, pr, merged, recent }),
@@ -156,5 +176,5 @@ const rows = candidates.map((worktree) => {
 });
 
 console.log(`# base: ${base}`);
-console.log(["SIZE", "AGE", "MERGED", "DIRTY", "REMOTE", "PR", "LAST_SESSION", "BUCKET", "WORKTREE"].join("\t"));
+console.log(COLUMNS.join("\t"));
 for (const { cells } of rows.sort((a, b) => b.kb - a.kb)) console.log(cells.join("\t"));

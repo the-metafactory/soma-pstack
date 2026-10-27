@@ -84,7 +84,9 @@ installed member's SKILL.md and projects it into the working method's Playbooks 
 hint at `skills/playbooks/references/<card>.md`. The index table's header and row shape are therefore a contract with
 Soma; `test/playbooks.test.ts` holds them, along with the card slugs Soma's classifier hints at. A card names the principles it leans on by their path under the Soma
 skills directory, since the principles stay in the-algorithm. Which upstream cards are ported, and why the rest are not,
-is recorded in [`docs/upstream-playbooks-review.md`](docs/upstream-playbooks-review.md).
+is recorded in [`docs/upstream-playbooks-review.md`](docs/upstream-playbooks-review.md). The Cleanup card's audit is the
+separate [worktree-audit](skills/worktree-audit/SKILL.md) member, so the playbooks member itself stays text with no shell
+or network access.
 
 ## Member gate
 

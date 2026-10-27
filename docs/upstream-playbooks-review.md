@@ -35,7 +35,7 @@ These cards were written on 2026-10-27 after the first review, adapted to Soma.
 | `perf-issue.md` | `perf-issue.md` | The control-skill, `architect` and model defaults are dropped. The baseline, the mantras and the post-fix measurement stay. |
 | `hillclimb.md` | `hillclimb.md` | The trail is `show-me-your-work`. Matching a reference answer goes to `agentic-loop`. |
 | `runtime-forensics.md` and `trace-forensics.md` | `forensics.md` | One card. Step 1 forks on whether a capture already exists. |
-| `worktree-cleanup.md` | `cleanup.md` | `scripts/worktree-audit.ts` replaces `worktree-audit.sh`. It reads Claude Code transcripts under `~/.claude/projects` and ignores the gitignore that hides them. Removal waits for the principal's approval of the list, per Soma's policy, instead of proceeding on clean worktrees. Simulator steps are dropped. |
+| `worktree-cleanup.md` | `cleanup.md` | The `worktree-audit` member's TypeScript script replaces `worktree-audit.sh`, so the playbooks member keeps no shell or network access. It reads Claude Code transcripts under `~/.claude/projects` and ignores the gitignore that hides them. Removal waits for the principal's approval of the list, per Soma's policy, instead of proceeding on clean worktrees. Simulator steps are dropped. |
 
 ## Not ported
 

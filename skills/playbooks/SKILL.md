@@ -39,6 +39,4 @@ Using a card:
 - Its **Principles** are the ones that most often decide that shape. They live in the-algorithm skill, so a card names each as `the-algorithm/references/principles/<name>.md`, relative to the Soma skills directory; the full vocabulary is `the-algorithm/references/principles.md`.
 - Its **Reply** line lists what the final message must contain.
 
-The Cleanup card's audit lever is `scripts/worktree-audit.ts` in this skill. It is read-only.
-
 Adapted in part from pstack (MIT, © 2026 Lauren Tan); notice in the pack's `NOTICE.md`.

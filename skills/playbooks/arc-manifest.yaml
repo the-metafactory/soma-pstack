@@ -16,12 +16,8 @@ capabilities:
   filesystem:
     read:
       - "./**"
-      - "~/.claude/projects/**"
     write: []
-  network:
-    - host: api.github.com
-      reason: The worktree audit lists the principal's PRs through gh to bucket each worktree.
+  network: []
   bash:
-    # The worktree audit runs git, gh, du and rg; it never writes or deletes.
-    allowed: true
+    allowed: false
   secrets: []

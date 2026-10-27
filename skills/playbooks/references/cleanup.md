@@ -5,7 +5,7 @@
 
 ## Steps
 
-1. Record `df -h /`. For each repo, run `bun <playbooks skill>/scripts/worktree-audit.ts [-b <base-ref>] <repo>`. It reads paths from `git worktree list`, never by hand, and suggests a bucket per worktree.
+1. Record `df -h /`. For each repo, run the `worktree-audit` skill's script on it, after a `git fetch` when the base ref may be stale. It reads paths from `git worktree list`, never by hand, and suggests a bucket per worktree.
 2. Treat the bucket as advice. Cross-check every candidate against what is live: running agent sessions, ranger workers and open PRs. A live session wins over `safe`.
 3. For each `verify-recent-session` row, or any doubt, read that session's transcript in a subagent and report whether it is still going and which worktrees it uses.
 4. Show the principal the prune list with each path, its size and its bucket. A `wip:N` row shows its diff; a `scratch:N` row names its files. Remove nothing before approval.
