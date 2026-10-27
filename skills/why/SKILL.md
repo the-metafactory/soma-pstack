@@ -28,7 +28,7 @@ Investigate the motivation and intent behind code. The companion `how` skill ans
 
 ## Models
 
-Spawn each investigator with model `haiku` and the synthesizer with model `opus`. State that choice in the spawn. If the substrate's sub-agent tool rejects a slug, use the closest valid slug of the same family from its error message and say so in the final answer.
+Spawn each investigator with model `haiku` and the synthesizer with model `opus`. State that choice in the spawn. If the substrate's sub-agent tool rejects a slug, use the closest valid slug of the same family from its error message. If the substrate offers no model of that family (Codex offers neither Haiku nor Opus), use the cheapest available model for each investigator and the most capable available model for the synthesizer, or the substrate's default when it offers no choice. In either case say in the final answer which model each role ran on.
 
 Spawn every investigator and the synthesizer as a general-purpose sub-agent with the tools it needs: shell, file reads, and the `confluence` and `Discord` skills' CLIs. Investigators are read-only: they write no file (not even scratch output: filter large tool output with `grep` or `head` instead of saving it), post no message, and change no issue, node, page or record. A tool-less or read-only-mode sub-agent cannot run the CLIs the playbooks name, so don't use one.
 
