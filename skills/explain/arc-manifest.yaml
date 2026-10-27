@@ -1,0 +1,27 @@
+schema: arc/v1
+name: explain
+version: 0.1.0
+type: skill
+tier: custom
+description: Explain a body of work plainly by running how and why and weaving what they find into one account.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/teach/SKILL.md
+  commit: 99743e9c151c8537cbbf1f98bb38f34ef3368453
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "~/.claude/projects/**"
+      - "~/.soma/**"
+    write: []
+  network:
+    - host: api.github.com
+      reason: Read pull requests, review threads and issues through the how and why skills.
+  bash:
+    allowed: true
+  secrets: []
