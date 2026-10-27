@@ -40,3 +40,9 @@ artifacts:
     description: Write and review docs, readmes and PR text by Diátaxis mode and sentence rules, with humanizer as the prose pass.
   - path: skills/sharpen
     description: Make a task deeper, not bigger. Name what a top professional would add, the rawest source material, their methods and an outside check, then rewrite the prompt with the principal's choices left open.
+  - path: skills/statechart
+    description: Check a TLA+ model with TLC, draw it as a Mermaid statechart, and report the shortest path to each state that breaks a rule.
+  - path: skills/create-formal-verification-skill
+    description: Generate a project-local skill that formally verifies the code where a bug costs most and tests reach least.
+  - path: skills/maintain-formal-verification-skill
+    description: Bring a project's formal verification back in line with the code after changes that skipped it.

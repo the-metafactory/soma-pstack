@@ -1,0 +1,2 @@
+AbandonedStaysAbandoned: abandon -> abandoned -> complete -> complete
+CompleteIsNeverAbandoned: complete -> complete -> abandon -> abandoned

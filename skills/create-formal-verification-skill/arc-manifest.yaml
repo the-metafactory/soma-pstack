@@ -1,0 +1,31 @@
+schema: arc/v1
+name: create-formal-verification-skill
+version: 0.1.0
+type: skill
+tier: custom
+description: Generate a project-local skill that formally verifies the code where a bug costs most and tests reach least, with the verification tool that fits.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/create-formal-verification-skill/SKILL.md
+  commit: 519d36aa98955bf680db01bcde5fdfba686dc901
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "./.claude/skills/**"
+      - "./.agents/skills/**"
+    # The verification files and the project-local verify skill; scratch changes for the break check.
+    write:
+      - "./**"
+      - "./.claude/skills/**"
+      - "./.agents/skills/**"
+      - "/tmp/**"
+  network: []
+  bash:
+    # Runs the project's model checker, prover or verifier and git log/diff over the covered code.
+    allowed: true
+  secrets: []
