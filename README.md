@@ -67,6 +67,11 @@ agrees to is an invariant, and the report gives the shortest path to each state 
 project-local verify skill that runs it. The live probe, a model of Soma's Algorithm run phases with both bugs it found
 replayed against the real code, is under [`docs/verification/node-17/`](docs/verification/node-17/).
 
+[explain](skills/explain/SKILL.md) is pstack's `teach` under a new name, so it does not collide with Soma's `teach`
+(the multi-session learning workspace). It runs `how` and `why` and weaves what they find into one plain account,
+with `humanizer` as the prose pass and mermaid or the `art` skill for pictures. It is command-only (`/explain`). The
+acceptance run and grep gate are under [`docs/verification/node-16/`](docs/verification/node-16/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer

@@ -46,3 +46,5 @@ artifacts:
     description: Generate a project-local skill that formally verifies the code where a bug costs most and tests reach least.
   - path: skills/maintain-formal-verification-skill
     description: Bring a project's formal verification back in line with the code after changes that skipped it.
+  - path: skills/explain
+    description: Explain a body of work plainly by running how and why and weaving what they find into one account.
