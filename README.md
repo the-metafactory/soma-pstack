@@ -40,6 +40,8 @@ isolated projection evidence live under [`docs/verification/node-10/`](docs/veri
 Soma's type-system-discipline principle should point at. Its projection evidence and the
 proposed principle line live under [`docs/verification/node-12/`](docs/verification/node-12/).
 
+[why](skills/why/SKILL.md) reconstructs the motivation behind code from a fixed roster of Soma evidence sources and binds the `TraceIntent` capability. Its binding probe, grep gate and acceptance run are under [`docs/verification/node-13/`](docs/verification/node-13/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer

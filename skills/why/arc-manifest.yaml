@@ -1,0 +1,36 @@
+schema: arc/v1
+name: why
+version: 0.1.0
+type: skill
+tier: custom
+description: Reconstruct the motivation behind code from a fixed Soma evidence roster and return a cited read that separates found from inferred.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/why/
+  commit: 99743e9c151c8537cbbf1f98bb38f34ef3368453
+algorithmCapability:
+  satisfies:
+    - TraceIntent
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "~/.claude/projects/**"
+      - "~/.codex/sessions/**"
+      - "~/.pi/agent/sessions/**"
+      - "~/.soma/**"
+    write: []
+  network:
+    - host: api.github.com
+      reason: Read pull requests, review threads and issues through gh.
+    - host: confluence.switch.ch
+      reason: Read Confluence pages for SWITCH work through the confluence skill.
+    - host: discord.com
+      reason: Read channel and thread history through the Discord skill.
+  bash:
+    allowed: true
+  secrets: []
