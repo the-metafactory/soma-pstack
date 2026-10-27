@@ -1,0 +1,23 @@
+schema: arc/v1
+name: sharpen
+version: 0.1.0
+type: skill
+tier: custom
+description: Make a task deeper, not bigger. Name what a top professional would add, the rawest source material, their methods and an outside check, then rewrite the prompt with the principal's choices left open.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/sharpen/
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write: []
+  network: []
+  bash:
+    allowed: false
+  secrets: []

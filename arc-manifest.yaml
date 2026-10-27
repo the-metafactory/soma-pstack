@@ -38,3 +38,5 @@ artifacts:
     description: Explain how a subsystem works from a cited trace of the code, with read-only explorers and one explainer.
   - path: skills/technical-writing
     description: Write and review docs, readmes and PR text by Diátaxis mode and sentence rules, with humanizer as the prose pass.
+  - path: skills/sharpen
+    description: Make a task deeper, not bigger. Name what a top professional would add, the rawest source material, their methods and an outside check, then rewrite the prompt with the principal's choices left open.
