@@ -1,6 +1,7 @@
 ---
 name: bug-fix-test
 description: "Use for bug-fix-test or a focused bug-fix regression check: add a test only with a cheap local path, otherwise explain why it is skipped. Capture failing-before output. Do not select for requests naming tdd, TDD, red-green-refactor, or general test-first development; those belong to Soma's tdd skill."
+route: "After fixing a bug and before calling it fixed: add a regression test when a cheap local path exists, or say why there is none."
 ---
 
 # Bug-fix Test
