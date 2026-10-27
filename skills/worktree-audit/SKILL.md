@@ -21,7 +21,7 @@ It prints one tab-separated row per worktree except the main one, largest first.
 | `REMOTE` | `pushed`, `aheadN`, `behindN`, `diverged+A-B`, `no-remote` or `detached`. |
 | `PR` | `#N/state` for the principal's PR from that branch, through `gh`. |
 | `LAST_SESSION` | The day of the newest transcript that names the worktree path, from the session directories under `~/.claude/projects` named after the repo or any of its worktrees. |
-| `BUCKET` | `hold-wip`, `hold-open-pr`, `verify-recent-session` (a session within four days), `safe` or `review`. `safe` needs the work landed, as an ancestor of the base or through a merged PR, with no unpushed commits on top; a closed, unmerged PR or an `ahead` or `diverged` branch reads `review`. |
+| `BUCKET` | `hold-wip`, `hold-open-pr`, `verify-recent-session` (a session within four days), `safe` or `review`. `safe` needs the work landed with nothing on top: HEAD an ancestor of the base, or HEAD within a merged PR's head commit, which still holds after GitHub deletes the remote branch. A closed, unmerged PR, an `ahead` or `diverged` branch, or commits after a merge read `review`. Without `gh` the PR column is empty and only the base check counts. |
 
 The bucket is advice. The Cleanup card decides, and the principal approves every removal.
 

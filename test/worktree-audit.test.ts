@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -27,7 +27,7 @@ function fixture() {
   mkdirSync(repo);
   git(repo, "init", "-q", "-b", "main");
   git(repo, "commit", "-q", "--allow-empty", "-m", "base");
-  const names = ["merged", "wip", "scratch", "recent", "squashed", "closed", "unpushed"];
+  const names = ["merged", "wip", "scratch", "recent", "squashed", "closed", "unpushed", "aftermerge"];
   for (const name of names) git(repo, "worktree", "add", "-q", "-b", name, join(root, name));
   git(join(root, "wip"), "commit", "-q", "--allow-empty", "-m", "ahead");
   writeFileSync(join(root, "wip", "tracked.txt"), "a\n");
@@ -35,17 +35,22 @@ function fixture() {
   writeFileSync(join(root, "scratch", "notes.txt"), "b\n");
   const ahead = git(repo, "commit-tree", "-p", "HEAD", "-m", "remote moved on", `${git(repo, "rev-parse", "HEAD")}^{tree}`);
   git(repo, "update-ref", "refs/remotes/origin/merged", ahead);
+  for (const name of ["squashed", "closed", "unpushed", "aftermerge"]) git(join(root, name), "commit", "-q", "--allow-empty", "-m", `${name} work`);
   for (const name of ["squashed", "closed", "unpushed"]) {
-    git(join(root, name), "commit", "-q", "--allow-empty", "-m", `${name} work`);
     git(repo, "update-ref", `refs/remotes/origin/${name}`, git(join(root, name), "rev-parse", name === "unpushed" ? "HEAD~1" : "HEAD"));
   }
+  // aftermerge: its PR merged and GitHub deleted the branch, then work went on top.
+  const prHead = git(join(root, "aftermerge"), "rev-parse", "HEAD");
+  git(join(root, "aftermerge"), "commit", "-q", "--allow-empty", "-m", "after the merge");
 
   const bin = join(root, "bin");
   mkdirSync(bin);
+  const head = (name: string) => git(join(root, name), "rev-parse", "HEAD");
   const prs = [
-    { number: 1, state: "MERGED", headRefName: "squashed" },
-    { number: 2, state: "CLOSED", headRefName: "closed" },
-    { number: 3, state: "MERGED", headRefName: "unpushed" },
+    { number: 1, state: "MERGED", headRefName: "squashed", headRefOid: head("squashed") },
+    { number: 2, state: "CLOSED", headRefName: "closed", headRefOid: head("closed") },
+    { number: 3, state: "MERGED", headRefName: "unpushed", headRefOid: head("unpushed") },
+    { number: 4, state: "MERGED", headRefName: "aftermerge", headRefOid: prHead },
   ];
   executable(join(bin, "gh"), `echo '${JSON.stringify(prs)}'`);
 
@@ -61,9 +66,9 @@ function fixture() {
   return { root, repo, bin, sessionsDir: sessions, names };
 }
 
-function audit(repo: string, sessionsDir: string, bin: string) {
+function audit(repo: string, sessionsDir: string, bin: string, path = `${bin}:${process.env.PATH}`) {
   const result = Bun.spawnSync([process.execPath, script, "-b", "main", repo], {
-    stdout: "pipe", stderr: "pipe", env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, SOMA_AUDIT_SESSIONS_DIR: sessionsDir },
+    stdout: "pipe", stderr: "pipe", env: { ...process.env, PATH: path, SOMA_AUDIT_SESSIONS_DIR: sessionsDir },
   });
   const [, header = "", ...lines] = result.stdout.toString().trim().split("\n");
   const columns = header.split("\t");
@@ -83,6 +88,7 @@ test("the audit buckets each worktree and leaves every one in place", () => {
   expect(rows.get("squashed")).toMatchObject({ MERGED: "no", REMOTE: "pushed", PR: "#1/merged", BUCKET: "safe" });
   expect(rows.get("closed")).toMatchObject({ PR: "#2/closed", BUCKET: "review" });
   expect(rows.get("unpushed")).toMatchObject({ REMOTE: "ahead1", PR: "#3/merged", BUCKET: "review" });
+  expect(rows.get("aftermerge")).toMatchObject({ REMOTE: "no-remote", PR: "#4/merged", BUCKET: "review" });
   const listed = git(repo, "worktree", "list");
   for (const name of names) expect(listed).toContain(join(root, name));
 }, 30_000);
@@ -93,4 +99,15 @@ test("an rg that cannot run stops the audit instead of reading as no session", (
   const { code, stderr } = audit(repo, sessionsDir, bin);
   expect(code).toBe(1);
   expect(stderr).toContain("rg could not scan");
+}, 30_000);
+
+test("a machine without gh gets a warning and an empty PR column, not a crash", () => {
+  const { root, repo, bin, sessionsDir } = fixture();
+  const tools = join(root, "tools");
+  mkdirSync(tools);
+  for (const tool of ["git", "du", "rg"]) symlinkSync(Bun.which(tool)!, join(tools, tool));
+  const { code, stderr, rows } = audit(repo, sessionsDir, bin, tools);
+  expect(code).toBe(0);
+  expect(stderr).toContain("gh could not list PRs");
+  expect(rows.get("squashed")).toMatchObject({ PR: "-", BUCKET: "review" });
 }, 30_000);

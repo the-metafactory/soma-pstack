@@ -20,9 +20,14 @@ const COLUMNS = ["SIZE", "AGE", "MERGED", "DIRTY", "REMOTE", "PR", "LAST_SESSION
 const RECENT_DAYS = 4;
 const DAY_MS = 86_400_000;
 
+/** A command that is not installed reads as exit 127, like a shell, instead of throwing. */
 function run(cmd: string[], cwd?: string): { code: number; out: string; err: string } {
-  const result = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe" });
-  return { code: result.exitCode, out: result.stdout.toString().trim(), err: result.stderr.toString().trim() };
+  try {
+    const result = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe" });
+    return { code: result.exitCode, out: result.stdout.toString().trim(), err: result.stderr.toString().trim() };
+  } catch (error) {
+    return { code: 127, out: "", err: String(error) };
+  }
 }
 
 const git = (cwd: string, ...args: string[]) => run(["git", "-C", cwd, ...args]);
@@ -65,15 +70,22 @@ function worktrees(repo: string): string[] {
     .map((line) => line.slice("worktree ".length));
 }
 
-function pullRequests(repo: string): Map<string, string> {
-  const listed = run(["gh", "pr", "list", "--author", "@me", "--state", "all", "--limit", "1000", "--json", "number,state,headRefName"], repo);
-  const byBranch = new Map<string, string>();
+interface PullRequest {
+  readonly label: string;
+  readonly merged: boolean;
+  readonly head: string;
+}
+
+function pullRequests(repo: string): Map<string, PullRequest> {
+  const listed = run(["gh", "pr", "list", "--author", "@me", "--state", "all", "--limit", "1000", "--json", "number,state,headRefName,headRefOid"], repo);
+  const byBranch = new Map<string, PullRequest>();
   if (listed.code !== 0) {
     console.error("warn: gh could not list PRs; the PR column is empty");
     return byBranch;
   }
-  for (const pr of JSON.parse(listed.out) as { number: number; state: string; headRefName: string }[]) {
-    if (!byBranch.has(pr.headRefName)) byBranch.set(pr.headRefName, `#${pr.number}/${pr.state.toLowerCase()}`);
+  for (const pr of JSON.parse(listed.out) as { number: number; state: string; headRefName: string; headRefOid: string }[]) {
+    const state = pr.state.toLowerCase();
+    if (!byBranch.has(pr.headRefName)) byBranch.set(pr.headRefName, { label: `#${pr.number}/${state}`, merged: state === "merged", head: pr.headRefOid });
   }
   return byBranch;
 }
@@ -135,13 +147,16 @@ function remoteState(worktree: string, branch: string): string {
   return "pushed";
 }
 
-/** `safe` needs the work landed (an ancestor of base or a merged PR) and nothing unpushed on top. */
-function bucket(row: { dirty: string; pr: string; remote: string; merged: boolean; recent: boolean }): string {
+/**
+ * `safe` needs the work landed with nothing on top: HEAD an ancestor of base, or
+ * HEAD within a merged PR's head, which holds after GitHub deletes the remote branch.
+ */
+function bucket(row: { dirty: string; pr: string; remote: string; merged: boolean; prLanded: boolean; recent: boolean }): string {
   if (row.dirty.startsWith("wip:")) return "hold-wip";
   if (/\/(open|draft)$/.test(row.pr)) return "hold-open-pr";
   if (row.recent) return "verify-recent-session";
   if (/^(ahead|diverged)/.test(row.remote)) return "review";
-  return row.merged || row.pr.endsWith("/merged") ? "safe" : "review";
+  return row.merged || row.prLanded ? "safe" : "review";
 }
 
 const { base: requestedBase, repo: repoArg } = parseArgs(process.argv.slice(2));
@@ -162,7 +177,9 @@ const rows = candidates.map((worktree) => {
   const branch = git(worktree, "symbolic-ref", "--quiet", "--short", "HEAD").out;
   const merged = git(repo, "merge-base", "--is-ancestor", head, base).code === 0;
   const dirty = dirtyState(worktree);
-  const pr = (branch !== "" && prs.get(branch)) || "-";
+  const found = branch === "" ? undefined : prs.get(branch);
+  const pr = found?.label ?? "-";
+  const prLanded = found?.merged === true && git(repo, "merge-base", "--is-ancestor", head, found.head).code === 0;
   const session = sessions.get(worktree);
   const recent = session !== undefined && now - session <= RECENT_DAYS * DAY_MS;
   const remote = remoteState(worktree, branch);
@@ -176,7 +193,7 @@ const rows = candidates.map((worktree) => {
       remote,
       pr,
       session === undefined ? "-" : new Date(session).toISOString().slice(0, 10),
-      bucket({ dirty, pr, remote, merged, recent }),
+      bucket({ dirty, pr, remote, merged, prLanded, recent }),
       worktree,
     ],
   };
