@@ -28,3 +28,5 @@ artifacts:
     description: Find breakage beyond a change's diff and grade the evidence for each fact its safety depends on.
   - path: skills/ketchup
     description: Catch the principal up since their last message and list each pending call with pick, evidence and risk.
+  - path: skills/reflect
+    description: Review a finished session through judgment, tooling and divergent lenses, then synthesize skill proposals and structural backlog items.

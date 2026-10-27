@@ -1,0 +1,69 @@
+{
+  "capturedAt": "2026-10-27T03:44:58.930994+00:00",
+  "focusedChecks": [
+    {
+      "command": "bun test test/reflect.test.ts",
+      "exit": 0,
+      "result": "2 pass, 0 fail; 10 assertions"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 python3 test/reflect_review_test.py",
+      "exit": 0,
+      "result": "2 tests OK; failed-service stderr with content and empty stderr, successful evidence and response retention"
+    },
+    {
+      "command": "python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/reflect",
+      "exit": 0,
+      "result": "Skill is valid!"
+    },
+    {
+      "command": "python3 docs/verification/node-10/project.py",
+      "exit": 0,
+      "result": "Six full projections match; Pi stub resolves to matching registry."
+    }
+  ],
+  "testCommandCorrection": "python3 -m unittest test/reflect_review_test.py failed to import due to test module name collision; direct file invocation passed.",
+  "claudeProjection": {
+    "path": "/var/folders/gx/9yzsmrn92k39n_6y0zxzsyrw0000gq/T/reflect-projection-sdl199oi/home/.claude/skills/reflect",
+    "isSymlink": true,
+    "target": "/Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-10/skills/reflect",
+    "entrypointSHA256": "bd2949e1b270eb60efe683b9eebc4e47dc881ae9bbdab21129dcb6a67cf3b023",
+    "matchesSource": true,
+    "nativeDisableModelInvocationFieldPresent": false,
+    "explicitOnlyDescriptionPresent": true
+  },
+  "projectorInspection": [
+    {
+      "file": "/Users/fischer/.soma/runtime/codex/current/src/substrates/skill-projection.ts",
+      "sha256": "4445745750f35fbc0f8a6fcdfdc1c453dc04dc19f008be4dd7bbca9a4f94353a",
+      "firstLine": 440,
+      "lastLine": 470,
+      "excerpt": "  const slots = skillSlots(name, somaHome, substrates, options);\n  const links: SkillLink[] = [];\n  // Paths this call created or replaced \u2014 rolled back if a later link fails, so a\n  // skill is never left in the registry without all its loader links (which would\n  // catalog a non-invocable skill). Skips \"unchanged\" links we did not alter.\n  const created: string[] = [];\n\n  try {\n    // 1. Registry symlink in the soma home \u2014 the scan source the catalog reads.\n    //    Skipped when the source already lives under the registry (authored in place).\n    const sourceAlreadyInRegistry = dirname(skillDir) === resolve(registrySkillsDir(somaHome));\n    if (!sourceAlreadyInRegistry) {\n      const written = await ensureSymlink(slots.registry, skillDir, force);\n      if (written.status !== \"unchanged\") created.push(slots.registry);\n      links.push({ scope: \"registry\", path: slots.registry, target: skillDir, ...written });\n    }\n\n    // 2. Loader entry in each substrate. An on-demand loader gets a symlink to\n    //    the body; an eager one gets a generated frontmatter-only stub, because\n    //    linking there would put every body in context at session start\n    //    (soma#542). Rollback below treats both shapes identically \u2014 the created\n    //    path is removed either way.\n    for (const { substrate, path } of slots.substrates) {\n      const written =\n        installSpecFor(substrate).skillsLoading === \"eager\"\n          ? { status: await ensureSkillStub(path, skillDir, slots.registry, substrate, force) }\n          : await ensureSymlink(path, skillDir, force);\n      if (written.status !== \"unchanged\") created.push(path);\n      links.push({ scope: \"substrate\", substrate, path, target: skillDir, ...written });\n    }\n  } catch (error) {"
+    },
+    {
+      "file": "/Users/fischer/.soma/runtime/codex/current/src/substrates/adapters/claude-code/install.ts",
+      "sha256": "426aa66cde7554a3799e9bf61a7d7b298ea312629ef68a3d99bc9601a5113fda",
+      "firstLine": 80,
+      "lastLine": 90,
+      "excerpt": "      ? [SOMA_CLAUDE_STATUSLINE_RELATIVE_PATH]\n      : []),\n    ...(isClaudeCodeInstallOptions(options) && options.claudeMd === true\n      ? [CLAUDE_CODE_CLAUDE_MD_RELATIVE_PATH]\n      : []),\n  ],\n  skillsLoaderDir: skillsLoaderUnder(),\n  skillsLoading: \"on-demand\",\n  skillsDiscovery: CLAUDE_CODE_SKILLS_DISCOVERY,\n  vsaSkillProjection: {\n    destinationDir: vsaSkillUnder(),"
+    }
+  ],
+  "finalAuditRunnerCheck": {
+    "command": "env PYTHONDONTWRITEBYTECODE=1 python3 test/reflect_review_test.py",
+    "exit": 0,
+    "result": "2 tests OK; fresh evidence/response retention exercised for both review-round-3 and review-trail; failure stderr covers nonempty and empty cases"
+  },
+  "finalReadback": {
+    "branch": "node/10-reflect-three-lens-session-review-ported-from-ps",
+    "diffWhitespaceCheckExit": 0,
+    "reviewedSkillAndRoleSourcesDiffExit": 0,
+    "documentationLinksAndLogEvidencePointersResolve": true
+  },
+  "finalPackGate": {
+    "command": "bun scripts/check-pack.ts",
+    "exit": 0,
+    "runsThisFinishPass": 1,
+    "outputFile": "finish-pack-check.txt",
+    "result": "Pack checks passed (10 members)."
+  }
+}

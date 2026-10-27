@@ -1,0 +1,3 @@
+{"command": ["arc", "validate", "skills/reflect"], "exit": 0, "stdout": "OK: /Users/fischer/work/ranger-repos/the-metafactory/soma-pstack/.worktrees/node-10/skills/reflect/arc-manifest.yaml is a valid arc/v1 manifest\n", "stderr": ""}
+{"command": ["python3", "/Users/fischer/.codex/skills/.system/skill-creator/scripts/quick_validate.py", "skills/reflect"], "exit": 0, "stdout": "Skill is valid!\n", "stderr": ""}
+{"command": ["git", "diff", "--exit-code", "HEAD", "--", "skills/no-comments"], "exit": 0, "stdout": "", "stderr": ""}
