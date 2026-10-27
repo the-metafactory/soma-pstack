@@ -1,0 +1,34 @@
+schema: arc/v1
+name: reflect
+version: 0.1.0
+type: skill
+tier: custom
+description: Review a session through three lenses and synthesize approval-gated skill proposals and structural backlog items.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/reflect/
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "~/.claude/projects/**"
+      - "~/.codex/sessions/**"
+      - "~/.cursor/projects/*/agent-transcripts/**"
+      - "~/.pi/agent/sessions/**"
+    write:
+      - "./**"
+  network:
+    - host: api.anthropic.com
+      reason: Send the scoped session evidence to an authorized Claude reviewer.
+    - host: api.openai.com
+      reason: Send the scoped session evidence to an authorized OpenAI reviewer.
+    - host: api.github.com
+      reason: Read cited context or file backlog items only when externally authorized.
+  bash:
+    allowed: true
+  secrets: []

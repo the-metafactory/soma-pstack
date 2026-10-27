@@ -30,6 +30,11 @@ The [ketchup](skills/ketchup/SKILL.md) skill is what the `cup` alias in a Soma h
 `profile/communication.md` should expand to. The proposed alias text and the caps
 probe are in [`docs/verification/node-9/`](docs/verification/node-9/).
 
+[Reflect](skills/reflect/SKILL.md) reviews a session through three independent
+lenses and a synthesizer. Skill edits wait for principal approval; enforceable
+findings become structural backlog proposals. Its finished-session probe and
+isolated projection evidence live under [`docs/verification/node-10/`](docs/verification/node-10/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
