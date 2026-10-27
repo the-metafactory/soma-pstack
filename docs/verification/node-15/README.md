@@ -19,7 +19,7 @@ The upstream skill is one short prompt. `SKILL.md` keeps its text verbatim and m
 
 ## Live probe
 
-[scratch-brief.md](scratch-brief.md) is a task brief with six stated choices: Bun, `dedupe.ts`, `~/Pictures`, SHA-256, JSON output, no deleting or moving, and under 100 lines. [sharpened.md](sharpened.md) is the result of following `SKILL.md` on it: four headed parts, then the rewritten prompt.
+[scratch-brief.md](scratch-brief.md) is a task brief with seven stated choices: Bun, `dedupe.ts`, `~/Pictures`, SHA-256, JSON output, no deleting or moving, and under 100 lines. [sharpened.md](sharpened.md) is the result of following `SKILL.md` on it: four headed parts, then the rewritten prompt.
 
 - The rewrite contains the original brief word for word and adds depth: size-first filtering, link handling, a fixture with known answers, and an `fdupes` cross-check as the outside check.
 - Choices the brief left unmade (near-duplicates, perceptual hashing, RAW and sidecar files) are listed as open questions, not answered.
@@ -29,4 +29,4 @@ This probe was run by hand: I followed `SKILL.md` myself, in this session, and d
 
 ## Gate
 
-`bun scripts/check-pack.ts` output: see [pack-check.txt](pack-check.txt). `bun test test/` passes; bare `bun test` also collects `docs/verification/node-8/before-messages.test.js`, a stored "before" fixture that fails by design.
+`bun scripts/check-pack.ts` output: see [pack-check.txt](pack-check.txt). `bun test test/` passes; bare `bun test` also collects `docs/verification/node-8/before-messages.test.js`, a stored "before" fixture that fails on a missing `./messages.js` module. That failure comes from node #8's evidence, not from this node.
