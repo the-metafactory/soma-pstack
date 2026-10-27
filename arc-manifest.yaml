@@ -32,3 +32,5 @@ artifacts:
     description: Review a finished session through judgment, tooling and divergent lenses, then synthesize skill proposals and structural backlog items.
   - path: skills/typescript-best-practices
     description: Apply TypeScript type-system rules, from narrowing order to total types, when reading or editing .ts and .tsx files.
+  - path: skills/how
+    description: Explain how a subsystem works from a cited trace of the code, with read-only explorers and one explainer.
