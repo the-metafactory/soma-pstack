@@ -1,0 +1,23 @@
+schema: arc/v1
+name: typescript-best-practices
+version: 0.1.0
+type: skill
+tier: custom
+description: Apply TypeScript type-system rules when reading or editing .ts and .tsx files.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/typescript-best-practices
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write: []
+  network: []
+  bash:
+    allowed: false
+  secrets: []
