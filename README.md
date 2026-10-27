@@ -31,7 +31,8 @@ The [ketchup](skills/ketchup/SKILL.md) skill is what the `cup` alias in a Soma h
 probe are in [`docs/verification/node-9/`](docs/verification/node-9/).
 
 [Reflect](skills/reflect/SKILL.md) reviews a session through three independent
-lenses and a synthesizer. Skill edits wait for principal approval; enforceable
+lenses and a synthesizer. It instructs agents to wait for principal approval of
+skill edits; this is a procedural contract, not runtime enforcement. Enforceable
 findings become structural backlog proposals. Its finished-session probe and
 isolated projection evidence live under [`docs/verification/node-10/`](docs/verification/node-10/).
 

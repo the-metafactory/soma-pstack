@@ -1,13 +1,13 @@
 ---
 name: reflect
-description: "Review a session for durable lessons through judgment, tooling and divergent reviewers, then a synthesizer. Use when the principal asks to reflect or invokes /reflect; propose skill edits for approval and route enforceable findings to a structural backlog."
+description: "Only when the principal explicitly requests reflection or invokes /reflect; never auto-invoke. Review a session through judgment, tooling and divergent reviewers, then a synthesizer; propose skill edits for approval and route enforceable findings to a structural backlog."
 ---
 
 # Reflect
 
 Mine a completed session or the current conversation for durable lessons. Skip a trivial or off-topic session, or one whose lessons are already covered by guidance the agent followed correctly; state why. One-offs need not become instructions.
 
-Run only when the principal requests reflection. Codex's explicit invocation policy lives in [agents/openai.yaml](agents/openai.yaml).
+Run only when the principal requests reflection. Codex's explicit invocation policy lives in [agents/openai.yaml](agents/openai.yaml). On other substrates this is a procedural instruction; the port loses upstream's Claude Code `disable-model-invocation` flag because the shared source must pass the Codex authoring validator and Soma currently projects it unchanged.
 
 ## 1. Locate the session
 

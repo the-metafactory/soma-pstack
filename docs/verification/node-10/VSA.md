@@ -35,7 +35,7 @@ Ship reflect as a standalone Arc library member. Prove its three-lens sequence, 
 - [x] ISC-3: Isolated projections resolve to matching source.
 - [x] ISC-4: Live probe contains three independent reviewer outputs followed by synthesis.
 - [x] ISC-5: Live probe produces a structural backlog proposal with a concrete check and regression probe.
-- [x] ISC-6: Anti: Reflection probe changes no reviewed skill without principal approval.
+- [x] ISC-6: Anti: Reflection probe changes no reviewed skill without principal approval (unapproved-path probe only).
 - [x] ISC-7: Final host pack gate exits zero.
 - [x] ISC-8: Assigned branch contains the implementation commit and has a clean worktree.
 
@@ -49,7 +49,7 @@ P1 ports the entry point and prompts, covering ISC-1 and ISC-2. P2 checks isolat
 
 ## Decisions
 
-Standalone reflect preserves a workflow absent from the other members. Findings requiring external writes remain local proposals under this worker's restricted authority. Eight atomic probes are appropriate for this bounded prose port; expanding to the E4 soft floor would manufacture redundant checks. Upstream's unsupported frontmatter invocation flag is replaced by Codex policy metadata and explicit skill-body routing.
+Standalone reflect preserves a workflow absent from the other members. Findings requiring external writes remain local proposals under this worker's restricted authority. Eight atomic probes are appropriate for this bounded prose port; expanding to the E4 soft floor would manufacture redundant checks. The Codex validator rejects upstream's frontmatter invocation flag. Codex policy metadata retains its own explicit-only guard; Claude Code loses its upstream native flag. The other substrates have procedural explicit-only routing, not equivalent enforcement.
 
 ## Changelog
 
@@ -58,3 +58,17 @@ Conjecture: upstream invocation metadata could pass the local validator. Refuted
 ## Verification
 
 Arc validation and quick_validate pass. The focused tests cover resolving references and Codex invocation policy, and all seven projections match their source routing. report.md and probe-provenance.json preserve the actual lens/synthesis responses; backlog.md qualifies the structural proposal. approval-probe.json records the unchanged scratch source under an unapproved Accepted row. The single final host pack gate passed for ten members (pack-check.txt). implementation-commit.json records implementation commit a5cf619 on the assigned branch and its clean-status probe, before this evidence-only follow-up commit.
+
+## Sage finish-pass verification
+
+The original checkpoints above refer to the implementation at a5cf619/fea67df. The round-1 finish pass has three additional criteria, tracked by Algorithm run `ranger-soma-pstack-node-10-review-1`:
+
+- C1: Explicit-only discovery instruction and invocation guard limits are accurate against current projection.
+- C2: Completion audit uses neutral instructions and reports prompt limitations honestly.
+- C3: Focused checks and the single final pack gate pass, and work is committed clean on the assigned branch.
+
+The current verification record is [finish-pass.md](finish-pass.md). The original audit pass remains historical evidence with an explicit author-steering caveat; it does not establish independent acceptance of the contested dispositions.
+
+Finish-pass C1 is supported by the refreshed seven-substrate projection, explicit Claude symlink/entry-point readback and installed projector excerpts in finish-checks.json. C2 is supported by the neutral round-3 prompt and preserved **concerns** verdict; no neutral pass is claimed. Approved-edit execution, fallback routing and cryptographic proof of reviewer prompt isolation remain outside the exercised probe coverage.
+
+The finish-pass host gate ran once and passed for ten members (finish-pack-check.txt). Focused tests, validator and isolated projections pass. Commit/clean-status readback follows the final commit in the Algorithm run; no future commit is asserted in this precommit artifact.
