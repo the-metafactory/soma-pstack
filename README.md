@@ -56,6 +56,13 @@ skill should route docs to it; the proposed routing line and the scratch-README 
 rawest source material, their methods and an outside check, then rewrites the prompt and leaves the principal's choices
 open. The scratch-brief probe is under [`docs/verification/node-15/`](docs/verification/node-15/).
 
+[statechart](skills/statechart/SKILL.md) checks a TLA+ model with TLC and draws it as a Mermaid chart. Each rule the reader
+agrees to is an invariant, and the report gives the shortest path to each state that breaks one. The skill ships upstream's
+`scripts/` without its test corpus. [create-formal-verification-skill](skills/create-formal-verification-skill/SKILL.md) and
+[maintain-formal-verification-skill](skills/maintain-formal-verification-skill/SKILL.md) generate and keep in step the
+project-local verify skill that runs it. The live probe, a model of Soma's Algorithm run phases with both bugs it found
+replayed against the real code, is under [`docs/verification/node-17/`](docs/verification/node-17/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer

@@ -1,0 +1,34 @@
+schema: arc/v1
+name: statechart
+version: 0.1.0
+type: skill
+tier: custom
+description: Check a TLA+ model with TLC, draw it as a Mermaid statechart, and report the shortest path to each state that breaks a rule.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/statechart/
+  commit: 519d36aa98955bf680db01bcde5fdfba686dc901
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    # /tmp holds the spec, config, view module and --out folder, in a scratch folder outside the repo.
+    # The mise paths hold the first-run install of Java and TLC (XDG defaults, or MISE_DATA_DIR, MISE_CACHE_DIR and MISE_STATE_DIR when set).
+    write:
+      - "/tmp/**"
+      - "~/.local/share/mise/**"
+      - "~/.cache/mise/**"
+      - "~/.local/state/mise/**"
+  network:
+    - host: github.com
+      reason: First run installs TLC (tla2tools.jar 1.7.4) and Java through mise; skipped when TLA2TOOLS and JAVA are set.
+    - host: registry.npmjs.org
+      reason: Install Pele once to render a chart to SVG.
+  bash:
+    # Runs scripts/statechart, which starts Java for TLC and mise on the first run.
+    allowed: true
+  secrets: []
