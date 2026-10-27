@@ -11,6 +11,12 @@ Install the pack with:
 arc install https://github.com/the-metafactory/soma-pstack
 ```
 
+A member's `route:` frontmatter line is the condition under which an agent
+should read it, as in pstack's poteto-mode trigger list. Soma's working method
+lists each installed member that declares one in its Triggers section, with the
+absolute SKILL.md path. That is how a member with `disable-model-invocation:
+true` is reached while staying out of the skill catalog.
+
 The root manifest lists the installable members. [POLICY.md](POLICY.md) routes
 unattended decision trails to [show-me-your-work](skills/show-me-your-work/SKILL.md).
 
