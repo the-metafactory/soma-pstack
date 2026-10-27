@@ -1,0 +1,23 @@
+schema: arc/v1
+name: technical-writing
+version: 0.1.0
+type: skill
+tier: custom
+description: Write and review docs, readmes, PR descriptions and commit messages by Diátaxis mode and sentence rules, with humanizer as the prose pass.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/technical-writing/
+  commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write: []
+  network: []
+  bash:
+    allowed: false
+  secrets: []

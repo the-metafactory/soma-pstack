@@ -36,3 +36,5 @@ artifacts:
     description: Reconstruct the motivation behind code from a fixed Soma evidence roster and return a cited read that separates found from inferred.
   - path: skills/how
     description: Explain how a subsystem works from a cited trace of the code, with read-only explorers and one explainer.
+  - path: skills/technical-writing
+    description: Write and review docs, readmes and PR text by Diátaxis mode and sentence rules, with humanizer as the prose pass.
