@@ -56,6 +56,10 @@ test("the probe rewrite keeps every choice the brief stated and answers none it 
   expect(rewrite).toContain(brief.trim());
   const stated = ["Bun script", "dedupe.ts", "~/Pictures", "SHA-256", "as JSON", "Don't delete or move anything", "under 100 lines"];
   for (const choice of stated) expect(rewrite, choice).toContain(choice);
+  const overrides = [/group by size/i, /avoid hashing/i, /only (?:the )?files that share a size/i];
+  const [instructions = "", questions = ""] = rewrite.split("Open questions for me");
+  for (const override of overrides) expect(instructions, String(override)).not.toMatch(override);
+  expect(questions).toMatch(/hash every file[^\n]*\?/i);
   expect(rewrite).toContain("Open questions for me");
   expect(rewrite).toMatch(/near-duplicates[^\n]*\?/);
 });

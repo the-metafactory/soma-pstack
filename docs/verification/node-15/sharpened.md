@@ -8,7 +8,7 @@ The files on disk, read directly: the byte stream for exact matches, and the emb
 
 ## 3. The methods and tools they would use
 
-- Cheap-to-expensive filtering: group by file size first, hash only files that share a size.
+- Cheap-to-expensive filtering: group by file size first, hash only files that share a size. This conflicts with the stated "hash every file", so the rewrite does not apply it and asks instead.
 - SHA-256 on the byte stream for exact duplicates.
 - EXIF capture time plus dimensions to flag near-duplicates for review, kept as a separate group type from exact matches.
 - A perceptual hash only if near-duplicates matter, because it brings false positives.
@@ -22,11 +22,12 @@ A fixture directory with known answers: exact copies, a re-saved JPEG, a symlink
 
 Write a Bun script `dedupe.ts` that finds duplicate photos under `~/Pictures`. Hash every file with SHA-256 and group files with the same hash. Print the groups as JSON. Don't delete or move anything. Keep the script under 100 lines.
 
-Read the files themselves, not a photo manager's catalogue. Avoid hashing files that cannot match: group by size first. Report one path once even when a symlink or hard link reaches it twice. For each group, include the reason the files were grouped.
+Read the files themselves, not a photo manager's catalogue. Report one path once even when a symlink or hard link reaches it twice. For each group, include the reason the files were grouped.
 
 Build a fixture directory that holds exact copies, a symlink, a hard link, a re-saved JPEG and two different photos of equal size, with the expected groups written down before the script runs. Add a test that compares the script's output to those expected groups. Compare the script's exact-match groups to the output of `fdupes` on the same fixture and report any difference.
 
 Open questions for me, which I have not decided:
+- Hashing every file is slow on a large library. Do I want to relax "hash every file" to hashing only files that share a size?
 - Should near-duplicates (same EXIF capture time and dimensions, different bytes) be reported, and if so as a separate group type?
 - Do I want a perceptual hash for near-duplicates, accepting false positives?
 - How should RAW and sidecar files (`.xmp`, `.aae`) be treated?

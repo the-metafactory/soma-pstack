@@ -21,9 +21,10 @@ The upstream skill is one short prompt. `SKILL.md` keeps its text verbatim and m
 
 [scratch-brief.md](scratch-brief.md) is a task brief with seven stated choices: Bun, `dedupe.ts`, `~/Pictures`, SHA-256, JSON output, no deleting or moving, and under 100 lines. [sharpened.md](sharpened.md) is the result of following `SKILL.md` on it: four headed parts, then the rewritten prompt.
 
-- The rewrite contains the original brief word for word and adds depth: size-first filtering, link handling, a fixture with known answers, and an `fdupes` cross-check as the outside check.
+- The rewrite contains the original brief word for word and adds depth: link handling, the reason for each group, a fixture with known answers, and an `fdupes` cross-check as the outside check.
 - Choices the brief left unmade (near-duplicates, perceptual hashing, RAW and sidecar files) are listed as open questions, not answered.
-- `test/sharpen.test.ts` checks the heading structure and that every stated choice survives in the rewrite.
+- Size-first filtering is a method a professional would use, but it conflicts with the stated "hash every file". The rewrite does not apply it; it asks the principal whether to relax that choice.
+- `test/sharpen.test.ts` checks the heading structure and that every stated choice survives in the rewrite without an instruction that overrides one.
 
 This probe was run by hand: I followed `SKILL.md` myself, in this session, and did not invoke the skill through a substrate. It shows what the instructions produce when followed. It does not show how a substrate's model behaves with them.
 
