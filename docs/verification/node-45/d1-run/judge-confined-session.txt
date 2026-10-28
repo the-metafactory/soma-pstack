@@ -1,0 +1,12 @@
+OpenAI Codex v0.163.0
+--------
+workdir: /tmp/arena-d1-judge-confined
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: concise
+session id: 01a18334-93e0-73b0-8954-d429c07a939b
+...
+exit 0

@@ -1,0 +1,13 @@
+OpenAI Codex v0.163.0
+--------
+workdir: /tmp/arena-clamp-range
+model: gpt-6.1-sol
+provider: openai
+approval: on-request
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: concise
+session id: 01a182c5-a5ed-7762-9f62-a32e7364a7ed
+--------
+...
+exit 0

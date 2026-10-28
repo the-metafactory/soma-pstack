@@ -1,0 +1,12 @@
+OpenAI Codex v0.163.0
+--------
+workdir: /tmp/arena-parse-duration
+model: gpt-6.1-sol
+provider: openai
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: concise
+session id: 01a182b9-481d-7443-b0ac-56d04d3b9f27
+...
+27'502
+exit 0

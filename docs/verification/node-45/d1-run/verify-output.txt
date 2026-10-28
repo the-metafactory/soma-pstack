@@ -1,0 +1,110 @@
+bun test v1.4.2 (744846f84)
+
+verify.test.ts:
+42 |   if (!Number.isSafeInteger(total)) {
+43 |     throw new RangeError(
+44 |       Number.isInteger(total) || !Number.isFinite(total)
+45 |         ? `invalid duration "${input}": exceeds the largest safe millisecond value`
+46 |         : `invalid duration "${input}": resolves to ${total}ms, which is not a whole number of milliseconds`,
+47 |     );
+         ^
+RangeError: invalid duration "4.35m": resolves to 260999.99999999997ms, which is not a whole number of milliseconds
+      at parseDuration (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/candidate-1/duration.ts:47:5)
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:15:77)
+(fail) candidate-1 R1 4.35m [0.27ms]
+44 |     lastUnitIndex = unitIndex;
+45 | 
+46 |     const scale = 10 ** fracDigits.length;
+47 |     const scaled = Number(intDigits + fracDigits) * UNIT_MS[unit];
+48 |     if (!Number.isSafeInteger(scaled)) {
+49 |       throw new RangeError(`"${whole.trim()}" is too large to represent in milliseconds`);
+                                                                                             ^
+RangeError: "1.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001s" is too large to represent in milliseconds
+      at parseDuration (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/candidate-2/duration.ts:49:89)
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:15:77)
+(fail) candidate-2 R1 1.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001s [0.06ms]
+error: expect(received).toBe(expected)
+
+Expected: 261000
+Received: 260999.99999999997
+
+(fail) candidate-3 R1 4.35m [0.04ms]
+14 | for (const [name, parse] of [["candidate-1", c1], ["candidate-2", c2], ["candidate-3", c3], ["synthesis", synthesis]] as const) {
+15 |   for (const [input, ms] of valid) test(`${name} R1 ${input}`, () => expect(parse(input)).toBe(ms));
+16 |   for (const input of invalid) {
+17 |     test(`${name} R2/R3 ${JSON.stringify(input.slice(0, 12))}`, () => {
+18 |       expect(() => parse(input)).toThrow(RangeError);
+19 |       if (input.trim()) expect(() => parse(input)).toThrow(input.trim().slice(0, 12));
+                                                        ^
+error: expect(received).toThrow(expected)
+
+Expected substring: "5w"
+Received message: "Unknown duration unit \"w\" at position 0; expected ms, s, m, h, or d"
+
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:19:52)
+(fail) candidate-3 R2/R3 "5w" [0.07ms]
+14 | for (const [name, parse] of [["candidate-1", c1], ["candidate-2", c2], ["candidate-3", c3], ["synthesis", synthesis]] as const) {
+15 |   for (const [input, ms] of valid) test(`${name} R1 ${input}`, () => expect(parse(input)).toBe(ms));
+16 |   for (const input of invalid) {
+17 |     test(`${name} R2/R3 ${JSON.stringify(input.slice(0, 12))}`, () => {
+18 |       expect(() => parse(input)).toThrow(RangeError);
+19 |       if (input.trim()) expect(() => parse(input)).toThrow(input.trim().slice(0, 12));
+                                                        ^
+error: expect(received).toThrow(expected)
+
+Expected substring: "1hx"
+Received message: "Unknown duration unit \"hx\" at position 0; expected ms, s, m, h, or d"
+
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:19:52)
+(fail) candidate-3 R2/R3 "1hx" [0.06ms]
+13 | 
+14 | for (const [name, parse] of [["candidate-1", c1], ["candidate-2", c2], ["candidate-3", c3], ["synthesis", synthesis]] as const) {
+15 |   for (const [input, ms] of valid) test(`${name} R1 ${input}`, () => expect(parse(input)).toBe(ms));
+16 |   for (const input of invalid) {
+17 |     test(`${name} R2/R3 ${JSON.stringify(input.slice(0, 12))}`, () => {
+18 |       expect(() => parse(input)).toThrow(RangeError);
+                                      ^
+error: expect(received).toThrow(expected)
+
+Expected constructor: RangeError
+
+Received function did not throw
+Received value: 10800000
+
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:18:34)
+(fail) candidate-3 R2/R3 "1h2h" [0.04ms]
+13 | 
+14 | for (const [name, parse] of [["candidate-1", c1], ["candidate-2", c2], ["candidate-3", c3], ["synthesis", synthesis]] as const) {
+15 |   for (const [input, ms] of valid) test(`${name} R1 ${input}`, () => expect(parse(input)).toBe(ms));
+16 |   for (const input of invalid) {
+17 |     test(`${name} R2/R3 ${JSON.stringify(input.slice(0, 12))}`, () => {
+18 |       expect(() => parse(input)).toThrow(RangeError);
+                                      ^
+error: expect(received).toThrow(expected)
+
+Expected constructor: RangeError
+
+Received function did not throw
+Received value: 5400000
+
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:18:34)
+(fail) candidate-3 R2/R3 "30m1h" [0.04ms]
+14 | for (const [name, parse] of [["candidate-1", c1], ["candidate-2", c2], ["candidate-3", c3], ["synthesis", synthesis]] as const) {
+15 |   for (const [input, ms] of valid) test(`${name} R1 ${input}`, () => expect(parse(input)).toBe(ms));
+16 |   for (const input of invalid) {
+17 |     test(`${name} R2/R3 ${JSON.stringify(input.slice(0, 12))}`, () => {
+18 |       expect(() => parse(input)).toThrow(RangeError);
+19 |       if (input.trim()) expect(() => parse(input)).toThrow(input.trim().slice(0, 12));
+                                                        ^
+error: expect(received).toThrow(expected)
+
+Expected substring: "111111111111"
+Received message: "Duration exceeds the finite numeric range in milliseconds"
+
+      at <anonymous> (<home>/work/mf/soma-pstack-arena/docs/verification/node-45/d1-run/verify.test.ts:19:52)
+(fail) candidate-3 R2/R3 "111111111111" [0.05ms]
+
+ 64 pass
+ 8 fail
+ 96 expect() calls
+Ran 72 tests across 1 file. [10.00ms]
