@@ -82,7 +82,13 @@ test("worktree candidates hand back a commit and the judge reads one labeled tre
 test("arena's judge is never the parent's family and is skipped rather than faked", () => {
   const judge = phase("C");
   expect(judge).toMatch(/judge is never from the parent's family/);
-  expect(judge).toMatch(/Claude parent gets `codex exec --sandbox read-only/);
+  const command = /`(codex exec --sandbox read-only[^`]*)`/.exec(judge)![1]!;
+  expect(command).toContain("--skip-git-repo-check");
+  expect(command).toContain("-C /tmp/arena-<slug> ");
+  expect(command).toContain("-o /tmp/arena-<slug>-codex/judge-verdict.md");
+  expect(command).toContain(`'approval_policy="never"'`);
+  expect(command).toContain("- < /tmp/arena-<slug>-codex/judge-prompt.md");
+  expect(judge).toMatch(/`approval: never` and `sandbox: read-only`/);
   expect(judge).toMatch(/skip the judge/);
   expect(judge).toMatch(/never label a judge from the parent's family as cross-family/i);
   expect(judge).toMatch(/judge shares a family with one candidate/);
@@ -124,6 +130,16 @@ test("the probe synthesis note names the base, the judge, each graft, rejections
   expect(judge).not.toMatch(/judged by (?:claude|opus|sonnet|fable|haiku)/i);
   const candidates = readdirSync(probe).filter(name => /^candidate-\d+$/.test(name));
   expect(candidates.length).toBeGreaterThanOrEqual(2);
+});
+
+test("the committed probe evidence names no host path", () => {
+  expect(files(probe).filter(path => readFileSync(path, "utf8").includes("/Users/"))).toEqual([]);
+});
+
+test("the default-roster probe ran the judge confined, prompt on stdin", () => {
+  const header = readFileSync(join(probe, "d1-run", "judge-confined-session.txt"), "utf8");
+  expect(header).toContain("approval: never");
+  expect(header).toContain("sandbox: read-only");
 });
 
 test("the default-roster probe ran a codex seat and records the judge's shared family", () => {
