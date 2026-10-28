@@ -1,0 +1,8 @@
+$ bun test
+ 106 pass
+ 1 skip
+ 0 fail
+ 412 expect() calls
+Ran 107 tests across 12 files. [69.12s]
+$ bun scripts/check-pack.ts
+Pack checks passed (22 members).

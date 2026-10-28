@@ -1,0 +1,32 @@
+schema: arc/v1
+name: automate-me
+version: 0.1.0
+type: skill
+tier: custom
+description: Mine this workspace's history and propose approval-gated edits to the principal's Soma home that capture how they work.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/automate-me/SKILL.md
+  commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "~/.claude/projects/**"
+      - "~/.codex/sessions/**"
+      - "~/.pi/agent/sessions/**"
+      - "~/.cursor/projects/*/agent-transcripts/**"
+      - "~/.soma/**"
+    write:
+      - "./**"
+      - "~/.soma/policy/behavior.md"
+      - "~/.soma/skills/the-algorithm/references/principles.local.md"
+      - "~/.soma/skills/the-algorithm/references/principles-local/**"
+  network: []
+  bash:
+    allowed: true
+  secrets: []

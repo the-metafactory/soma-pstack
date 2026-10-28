@@ -100,6 +100,12 @@ source, the coordinator then drives every feature live that the target skill's o
 the principal's approval or a covering grant. The read-only probe of its first four steps against ranger's `verify-ranger` is under
 [`docs/verification/node-44/`](docs/verification/node-44/).
 
+[automate-me](skills/automate-me/SKILL.md) captures how the principal works. Soma keeps that in the Soma home, not in a
+`<handle>-mode` skill, so the skill mines only the active workspace's transcripts, asks a few questions, and writes a proposal
+that routes each signal seen in two or more slices to the communication contract, the behavior policy, a local principle or a
+memory note. It applies a row only after the principal approves it. It is command-only (`/automate-me`). The mining probe
+over this repository's own history is under [`docs/verification/node-49/`](docs/verification/node-49/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
