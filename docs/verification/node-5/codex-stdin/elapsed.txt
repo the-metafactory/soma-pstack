@@ -1,0 +1,2 @@
+codex exit=0 elapsed=22s (stdin of the caller held open by a writer; confined profile, prompt on stdin)
+codex (prompt as argument) exit=142 elapsed=120s, killed by a 120 s alarm; review file written: no

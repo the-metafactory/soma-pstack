@@ -30,7 +30,10 @@ bun test/probes/show-me-your-work.ts /tmp/fresh-decision-trail
 The output directory must be fresh. The probe captures actual sort commands,
 a superseding decision, and an end-of-run audit that adds an omitted fork.
 The captured acceptance run and its separate cross-model review live under
-[`docs/verification/node-5/`](docs/verification/node-5/).
+[`docs/verification/node-5/`](docs/verification/node-5/). A run of the codex
+reviewer command, which gives codex its prompt on stdin so it cannot hang and
+denies it reads under `$HOME` except the work directory, is under
+[`docs/verification/node-5/codex-stdin/`](docs/verification/node-5/codex-stdin/).
 
 The [ketchup](skills/ketchup/SKILL.md) skill is what the `cup` alias in a Soma home's
 `profile/communication.md` should expand to. The proposed alias text and the caps
@@ -147,8 +150,11 @@ limit, no login, no network, a 30 s timeout, a reply that is not JSON) fails
 the run as "could not be checked", so rerun it once the cause is gone.
 
 Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
-change when it fails. The principal controls the merge. This repository has no
-CI workflow or required GitHub check for the gate.
+change when it fails. The principal controls the merge. The CI workflow
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the same gate on each
+push to `main` and each pull request against it: it puts Arc v0.46.1 on `PATH`,
+installs ripgrep, then runs `bun test test/` and `bun scripts/check-pack.ts`.
+`main` has no branch protection, so the check is not required for a merge.
 
 The script checks the library metadata and each
 listed member's directory, `SKILL.md` name and description, manifest type,

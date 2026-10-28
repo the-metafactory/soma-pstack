@@ -69,6 +69,20 @@ Before handing back, ask a reviewer on a different model family from the one tha
 - Choices that look risky in hindsight: premature decisions, scope creep or symptom fixes.
 - Gaps the principal could miss on a casual skim.
 
+When the reviewer is `codex`, it reads only the work directory. Copy this run's transcript and the evidence files the log points at into the work directory first, since session stores live under `$HOME`. Write the request to a file, with the Write tool on Claude Code, and give it to codex on stdin, in bash or zsh:
+
+```sh
+fs="{\":root\"=\"read\", \"$HOME\"=\"none\", \"<work-dir>\"=\"read\"}"
+codex exec --skip-git-repo-check \
+  -c "permissions.review.filesystem=$fs" \
+  -c 'default_permissions="review"' \
+  -c 'approval_policy="never"' \
+  -C <work-dir> -o <work-dir>/review.md \
+  - < <work-dir>/review-prompt.md > <work-dir>/review-session.txt 2>&1
+```
+
+The profile lets the reviewer read nothing under `$HOME` except the work directory, write nothing, and reach no network; `approval_policy="never"` keeps it from asking to escalate. These `-c` overrides take precedence over the user's codex config for the sandbox, the network and approvals. `-` makes codex read its prompt from stdin, and the redirect closes stdin when the file ends. With the prompt as an argument, codex also reads any stdin it inherits: an agent's shell keeps stdin open, so codex prints `Reading additional input from stdin...` and waits without end. `-o` writes the final message to a known file; codex itself writes it, outside the sandbox. The session header in `review-session.txt` names the model and must read `approval: never` and `sandbox: read-only`. If it reads otherwise, discard the review and report it as incomplete in Attention. Keep the header with the review.
+
 Use only authorized session paths and reviewer services; pass only this run's relevant material and redact secrets before the hand-off. Remote review must use a host declared in [arc-manifest.yaml](arc-manifest.yaml), currently `api.anthropic.com` or `api.openai.com`, through an already authenticated tool or CLI. A proxy, another provider or a custom endpoint needs a matching declaration before use. These capabilities disclose access; they do not grant authorization or permission to read credential files.
 
 Save the review with the reviewer's model identity. If no different-family reviewer is available, retain the artifacts and report the review as incomplete in Attention; never label self-review as cross-model review.
