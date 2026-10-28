@@ -45,4 +45,11 @@ jobs:
       # Scoped to test/: a bare `bun test` would also run arc's suite in .arc/.
       - run: bun test test/
 
+      # CHECK_PACK_UPSTREAM asks GitHub that each upstream pin resolves at its
+      # commit and is the kind its trailing `/` says; offline, a directory
+      # pinned without its `/` passes as a file. The job token keeps gh under
+      # the authenticated rate limit.
       - run: bun scripts/check-pack.ts
+        env:
+          CHECK_PACK_UPSTREAM: "1"
+          GH_TOKEN: ${{ github.token }}

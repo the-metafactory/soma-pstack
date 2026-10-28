@@ -153,7 +153,8 @@ Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
 change when it fails. The principal controls the merge. The CI workflow
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the same gate on each
 push to `main` and each pull request against it: it puts Arc v0.46.1 on `PATH`,
-installs ripgrep, then runs `bun test test/` and `bun scripts/check-pack.ts`.
+installs ripgrep, then runs `bun test test/` and `bun scripts/check-pack.ts`
+with `CHECK_PACK_UPSTREAM=1`, so CI also confirms every pin on GitHub.
 `main` has no branch protection, so the check is not required for a merge.
 
 The script checks the library metadata and each
