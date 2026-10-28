@@ -24,6 +24,54 @@ function readManifest(directory: string): Mapping {
   return parseMapping(readFileSync(resolve(directory, "arc-manifest.yaml"), "utf8"), "arc-manifest.yaml");
 }
 
+function upstreamPathShapeError(path: string): string | null {
+  const segments = (path.endsWith("/") ? path.slice(0, -1) : path).split("/");
+  if (segments.some((segment) => segment === "" || segment === "." || segment === "..")) {
+    return "upstream.path must be relative with no empty, . or .. segments";
+  }
+  return null;
+}
+
+const githubTimeoutMs = Number(process.env.CHECK_PACK_GH_TIMEOUT_MS) || 30_000;
+
+function lookUpOnGitHub(api: string): { found: unknown } | { notFound: string } | { error: string } {
+  let lookup;
+  try {
+    lookup = Bun.spawnSync(["gh", "api", api], { stdout: "pipe", stderr: "pipe", timeout: githubTimeoutMs });
+  } catch (error) {
+    return { error: `gh could not run: ${describe(error)}` };
+  }
+  if (lookup.exitedDueToTimeout) return { error: `gh api timed out after ${githubTimeoutMs} ms` };
+  const stderr = lookup.stderr.toString().trim();
+  if (lookup.exitCode !== 0) {
+    if (stderr.includes("(HTTP 404)")) return { notFound: stderr };
+    return { error: stderr || `gh api exited with ${lookup.exitCode ?? lookup.signalCode}` };
+  }
+  try {
+    return { found: JSON.parse(lookup.stdout.toString()) };
+  } catch (error) {
+    return { error: `gh api returned no JSON: ${describe(error)}` };
+  }
+}
+
+function checkUpstreamOnGitHub(upstream: Mapping & { path: string }, path: string, errors: string[]): void {
+  const pin = `${upstream.repo}:${upstream.path}@${upstream.commit}`;
+  const target = upstream.path.replace(/\/$/, "").split("/").map(encodeURIComponent).join("/");
+  const result = lookUpOnGitHub(`repos/${upstream.repo}/contents/${target}?ref=${upstream.commit}`);
+  if ("error" in result) {
+    errors.push(`${path}: upstream.path ${pin} could not be checked on GitHub: ${result.error}`);
+    return;
+  }
+  if ("notFound" in result) {
+    errors.push(`${path}: upstream.path ${pin} does not resolve on GitHub: ${result.notFound}`);
+    return;
+  }
+  const isDirectory = Array.isArray(result.found);
+  if (isDirectory !== upstream.path.endsWith("/")) {
+    errors.push(`${path}: upstream.path ${pin} is a ${isDirectory ? "directory" : "file"} on GitHub`);
+  }
+}
+
 function checkMemberManifest(member: string, path: string, errors: string[]): void {
   try {
     const memberManifest = readManifest(member);
@@ -33,9 +81,16 @@ function checkMemberManifest(member: string, path: string, errors: string[]): vo
       errors.push(`${path}: upstream must be a mapping with repo, path and commit`);
     } else {
       if (upstream.repo !== "cursor/plugins") errors.push(`${path}: upstream.repo must be cursor/plugins`);
-      if (!nonEmpty(upstream.path)) errors.push(`${path}: upstream.path must be a non-empty string`);
-      if (typeof upstream.commit !== "string" || !/^[a-f0-9]{40}$/i.test(upstream.commit)) {
-        errors.push(`${path}: upstream.commit must be a 40-hex commit`);
+      const commitValid = typeof upstream.commit === "string" && /^[a-f0-9]{40}$/i.test(upstream.commit);
+      if (!commitValid) errors.push(`${path}: upstream.commit must be a 40-hex commit`);
+      if (!nonEmpty(upstream.path)) {
+        errors.push(`${path}: upstream.path must be a non-empty string`);
+      } else {
+        const shapeError = upstreamPathShapeError(upstream.path);
+        if (shapeError) errors.push(`${path}: ${shapeError}`);
+        else if (commitValid && process.env.CHECK_PACK_UPSTREAM === "1") {
+          checkUpstreamOnGitHub({ ...upstream, path: upstream.path }, path, errors);
+        }
       }
     }
   } catch (error) {

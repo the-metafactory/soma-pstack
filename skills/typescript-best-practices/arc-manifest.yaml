@@ -10,7 +10,7 @@ author:
   github: the-metafactory
 upstream:
   repo: cursor/plugins
-  path: pstack/skills/typescript-best-practices
+  path: pstack/skills/typescript-best-practices/
   commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
 capabilities:
   filesystem:
