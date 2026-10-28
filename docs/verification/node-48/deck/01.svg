@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="920" viewBox="0 0 1920 920">
+<rect width="1920" height="920" fill="#f8fafc"/>
+<text x="120" y="80" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#475569">soma-pstack main</text>
+<line x1="100" y1="360" x2="1260" y2="360" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+<circle cx="300" cy="360" r="46" fill="#fde047"/>
+<circle cx="300" cy="360" r="28" fill="#16a34a"/>
+<text x="300" y="280" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#0f172a">8 members say when to load</text>
+<text x="300" y="230" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#39</text>
+<circle cx="570" cy="360" r="46" fill="#fde047"/>
+<circle cx="570" cy="360" r="28" fill="#16a34a"/>
+<text x="570" y="470" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#0f172a">Plain bun test passes</text>
+<text x="570" y="520" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#41</text>
+</svg>

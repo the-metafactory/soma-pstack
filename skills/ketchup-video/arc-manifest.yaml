@@ -1,0 +1,34 @@
+schema: arc/v1
+name: ketchup-video
+version: 0.1.0
+type: skill
+tier: custom
+description: Catch the principal up like ketchup, with a short subtitled slide video of what happened and the waiting calls as text under it.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/ketchup-video/SKILL.md
+  commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+capabilities:
+  filesystem:
+    # The slides, deck.json, frames, video, stills and check.json all go in one
+    # fresh directory under the temp dir, which render and check read back;
+    # scripts/ketchup-video.ts refuses an output directory inside a git work tree.
+    read:
+      - "./**"
+      - "${TMPDIR}/ketchup-video-*/**"
+    write:
+      - "${TMPDIR}/ketchup-video-*/**"
+  network:
+    - host: api.github.com
+      reason: Read the current state of the pull requests and issues this chat touched, as ketchup does.
+  bash:
+    # Runs bun on scripts/ketchup-video.ts, which calls ffmpeg and
+    # rsvg-convert (or ImageMagick's magick), plus ketchup's read-only gh and git.
+    allowed: true
+  secrets: []
+policy:
+  allow_implicit_invocation: false

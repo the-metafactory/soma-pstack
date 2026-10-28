@@ -1,0 +1,20 @@
+{
+  "slides": [
+    {
+      "src": "01.svg",
+      "subtitle": "Two fixes landed: members say when to load, tests run clean"
+    },
+    {
+      "src": "02.svg",
+      "subtitle": "The playbook cards now ship in this pack, six of them new"
+    },
+    {
+      "src": "03.svg",
+      "subtitle": "Six more skills are being ported side by side right now"
+    },
+    {
+      "src": "04.svg",
+      "subtitle": "Pack nudges cannot start until a Soma change lands"
+    }
+  ]
+}

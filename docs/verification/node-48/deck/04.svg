@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="920" viewBox="0 0 1920 920">
+<rect width="1920" height="920" fill="#f8fafc"/>
+<text x="120" y="80" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#475569">soma-pstack main</text>
+<line x1="100" y1="360" x2="1260" y2="360" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+<circle cx="300" cy="360" r="28" fill="#16a34a"/>
+<text x="300" y="280" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#0f172a">8 members say when to load</text>
+<text x="300" y="230" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#39</text>
+<circle cx="570" cy="360" r="28" fill="#16a34a"/>
+<text x="570" y="470" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#0f172a">Plain bun test passes</text>
+<text x="570" y="520" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#41</text>
+<circle cx="840" cy="360" r="28" fill="#16a34a"/>
+<text x="840" y="280" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#0f172a">Playbook cards in the pack</text>
+<text x="840" y="230" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#42</text>
+<circle cx="1110" cy="360" r="28" fill="#16a34a"/>
+<text x="1110" y="470" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#0f172a">Six new cards</text>
+<text x="1110" y="520" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#43</text>
+<path d="M1260 360 C 1340 360, 1340 130, 1410 130 L 1880 130" fill="none" stroke="none" stroke-width="22"/>
+<path d="M1260 360 C 1340 360, 1340 130, 1410 130 L 1880 130" fill="none" stroke="#d97706" stroke-width="8" stroke-dasharray="18 12"/>
+<text x="1420" y="110" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0f172a">arena</text>
+<path d="M1260 360 C 1340 360, 1340 242, 1410 242 L 1880 242" fill="none" stroke="none" stroke-width="22"/>
+<path d="M1260 360 C 1340 360, 1340 242, 1410 242 L 1880 242" fill="none" stroke="#d97706" stroke-width="8" stroke-dasharray="18 12"/>
+<text x="1420" y="222" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0f172a">interrogate</text>
+<path d="M1260 360 C 1340 360, 1340 354, 1410 354 L 1880 354" fill="none" stroke="none" stroke-width="22"/>
+<path d="M1260 360 C 1340 360, 1340 354, 1410 354 L 1880 354" fill="none" stroke="#d97706" stroke-width="8" stroke-dasharray="18 12"/>
+<text x="1420" y="334" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0f172a">figure-it-out</text>
+<path d="M1260 360 C 1340 360, 1340 466, 1410 466 L 1880 466" fill="none" stroke="none" stroke-width="22"/>
+<path d="M1260 360 C 1340 360, 1340 466, 1410 466 L 1880 466" fill="none" stroke="#d97706" stroke-width="8" stroke-dasharray="18 12"/>
+<text x="1420" y="446" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0f172a">automate-me</text>
+<path d="M1260 360 C 1340 360, 1340 578, 1410 578 L 1880 578" fill="none" stroke="none" stroke-width="22"/>
+<path d="M1260 360 C 1340 360, 1340 578, 1410 578 L 1880 578" fill="none" stroke="#d97706" stroke-width="8" stroke-dasharray="18 12"/>
+<text x="1420" y="558" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0f172a">ketchup-video</text>
+<path d="M1260 360 C 1340 360, 1340 690, 1410 690 L 1880 690" fill="none" stroke="none" stroke-width="22"/>
+<path d="M1260 360 C 1340 360, 1340 690, 1410 690 L 1880 690" fill="none" stroke="#d97706" stroke-width="8" stroke-dasharray="18 12"/>
+<text x="1420" y="670" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0f172a">maintain-verification-skill</text>
+<rect x="160" y="640" width="560" height="130" rx="16" fill="#e2e8f0" stroke="#fde047" stroke-width="10"/>
+<text x="440" y="700" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#0f172a">Pack declares its nudges</text>
+<text x="440" y="750" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">#40</text>
+<rect x="880" y="640" width="400" height="130" rx="16" fill="#e2e8f0" stroke="#fde047" stroke-width="10"/>
+<text x="1080" y="700" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#0f172a">Soma change, open</text>
+<text x="1080" y="750" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">soma #1105</text>
+<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#64748b"/></marker></defs>
+<line x1="725" y1="705" x2="868" y2="705" stroke="#64748b" stroke-width="6" stroke-dasharray="14 10" marker-end="url(#arrow)"/>
+<text x="800" y="620" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#64748b">waits on</text>
+</svg>

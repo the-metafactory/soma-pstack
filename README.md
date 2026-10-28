@@ -88,6 +88,12 @@ is recorded in [`docs/upstream-playbooks-review.md`](docs/upstream-playbooks-rev
 separate [worktree-audit](skills/worktree-audit/SKILL.md) member, so the playbooks member itself stays text with no shell
 or network access.
 
+[ketchup-video](skills/ketchup-video/SKILL.md) is [ketchup](skills/ketchup/SKILL.md) with the summary shown as a short subtitled slide
+video. It is command-only (`/ketchup-video`). Its script draws SVG slides with rsvg-convert, crossfades them with ffmpeg
+and measures each slide's hold by matching frames, so it needs ffmpeg on the host; the render goes to a fresh temp
+directory, never into the repository, and the reply gives the file path. The probe on this repo's own recent work is
+under [`docs/verification/node-48/`](docs/verification/node-48/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
