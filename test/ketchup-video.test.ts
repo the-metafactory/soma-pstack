@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { YAML } from "bun";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { wordsAdded } from "../skills/ketchup-video/scripts/ketchup-video.ts";
@@ -42,6 +42,8 @@ test("ketchup-video pins the upstream file and is listed in the root manifest", 
 
 test("the render writes only outside the repo", () => {
   expect(manifest.capabilities.filesystem.write).toEqual(["${TMPDIR}/ketchup-video-*/**"]);
+  expect(manifest.capabilities.filesystem.read).toContain("${TMPDIR}/ketchup-video-*/**");
+  expect(skill).toContain("pass that same directory as `out-dir` to both");
   expect(skill).toContain("the one exception to its read-only rule");
   expect(skill).toContain("never inside the repository");
 });
@@ -84,16 +86,96 @@ test("a slide adds its subtitle and each word the slide before it lacked", () =>
   expect(wordsAdded("PR 40 open", "PR 40 open PR", "Still open")).toBe(2);
 });
 
-const tools = ["ffmpeg", "ffprobe", "rsvg-convert"].every(tool => Bun.which(tool));
+const slide = (fill: string, label: string) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="920"><rect width="1920" height="920" fill="${fill}"/><text x="200" y="460" font-size="96" font-family="Helvetica">${label}</text></svg>`;
+
+function deckDir(slides: object[]): string {
+  const dir = mkdtempSync(join(tmpdir(), "ketchup-video-test-"));
+  roots.push(dir);
+  writeFileSync(join(dir, "a.svg"), slide("#dbeafe", "Two PRs wait"));
+  writeFileSync(join(dir, "deck.json"), JSON.stringify({ slides }));
+  return dir;
+}
+
+function runScript(args: string[], env?: Record<string, string>) {
+  const result = Bun.spawnSync([process.execPath, script, ...args], { stdout: "pipe", stderr: "pipe", env: env ?? process.env });
+  return { code: result.exitCode, stderr: result.stderr.toString() };
+}
+
+test("SKILL.md documents the exit codes and the two-second floor", () => {
+  expect(skill).toContain("exits 0 when every hold is long enough, 1 when a hold is too short, and 2");
+  expect(skill).toContain("never shorter than two seconds");
+  expect(skill).not.toContain("ffprobe");
+});
+
+test("render refuses an out-dir inside a git work tree, also through a symlink", () => {
+  const dir = deckDir([{ src: "a.svg", subtitle: "Two pull requests wait" }]);
+  mkdirSync(join(dir, "repo/.git"), { recursive: true });
+  mkdirSync(join(dir, "repo/sub"));
+  symlinkSync(join(dir, "repo/sub"), join(dir, "link"));
+  for (const out of [join(dir, "repo/sub/out"), join(dir, "link/out"), join(dir, "link")]) {
+    const { code, stderr } = runScript(["render", join(dir, "deck.json"), out]);
+    expect(code, out).toBe(2);
+    expect(stderr, out).toContain("inside a git work tree");
+  }
+  expect(existsSync(join(dir, "repo/sub/out"))).toBe(false);
+});
+
+test("a broken deck or a missing ffmpeg exits 2, not the short-hold 1", () => {
+  const missing = deckDir([{ src: "gone.svg", subtitle: "Two pull requests wait" }]);
+  const blank = deckDir([{ src: "a.svg", subtitle: " " }]);
+  const good = deckDir([{ src: "a.svg", subtitle: "Two pull requests wait" }]);
+  for (const [dir, text] of [[missing, "gone.svg"], [blank, "subtitle"]] as const) {
+    for (const command of ["render", "check"]) {
+      const { code, stderr } = runScript([command, join(dir, "deck.json"), join(dir, "out")]);
+      expect(code, `${command} ${text}`).toBe(2);
+      expect(stderr).toContain(text);
+    }
+  }
+  writeFileSync(join(good, "bad.json"), "{ not json");
+  expect(runScript(["render", join(good, "bad.json")]).code).toBe(2);
+  const noTools = { ...process.env, PATH: join(good, "empty") } as Record<string, string>;
+  for (const command of ["render", "check"]) {
+    const { code, stderr } = runScript([command, join(good, "deck.json"), join(good, "out")], noTools);
+    expect(code, command).toBe(2);
+    expect(stderr, command).toContain("ffmpeg");
+  }
+});
+
+const tools = ["ffmpeg", "rsvg-convert"].every(tool => Bun.which(tool));
+
+test.skipIf(!tools)("render into the deck's own directory leaves the slide files alone", () => {
+  const dir = deckDir([]);
+  run(["rsvg-convert", "-o", join(dir, "slide-01.png"), join(dir, "a.svg")]);
+  writeFileSync(join(dir, "frame-01.png"), readFileSync(join(dir, "slide-01.png")));
+  writeFileSync(join(dir, "b.svg"), slide("#fde68a", "One merged"));
+  writeFileSync(join(dir, "deck.json"), JSON.stringify({
+    slides: [
+      { src: "slide-01.png", subtitle: "Two pull requests were waiting" },
+      { src: "b.svg", subtitle: "One of them merged" },
+      { src: "frame-01.png", subtitle: "The same screen again" },
+    ],
+  }));
+  const before = readFileSync(join(dir, "slide-01.png"));
+  const render = runScript(["render", join(dir, "deck.json"), dir]);
+  expect(render.code, render.stderr).toBe(0);
+  expect(readFileSync(join(dir, "slide-01.png")).equals(before)).toBe(true);
+  expect(readFileSync(join(dir, "frame-01.png")).equals(before)).toBe(true);
+  expect(runScript(["check", join(dir, "deck.json"), dir]).code).toBe(0);
+}, 60_000);
+
+function run(cmd: string[]) {
+  expect(Bun.spawnSync(cmd).exitCode).toBe(0);
+}
 
 test.skipIf(!tools)("check fails a slide whose measured hold is too short for its words", () => {
   const dir = mkdtempSync(join(tmpdir(), "ketchup-video-test-"));
   roots.push(dir);
-  const slide = (fill: string, label: string) =>
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="920"><rect width="1920" height="920" fill="${fill}"/><text x="200" y="460" font-size="96" font-family="Helvetica">${label}</text></svg>`;
-  writeFileSync(join(dir, "a.svg"), slide("#dbeafe", "Two PRs wait"));
+  // a and b differ only in their words, b and c everywhere, so a match must hold
+  // against each neighbour on its own, not averaged over both.
+  writeFileSync(join(dir, "a.svg"), slide("#fde68a", "Two PRs wait"));
   writeFileSync(join(dir, "b.svg"), slide("#fde68a", "One of them merged today after review"));
-  writeFileSync(join(dir, "c.svg"), slide("#bbf7d0", "Nothing else"));
+  writeFileSync(join(dir, "c.svg"), slide("#1e3a8a", "Nothing else"));
   writeFileSync(join(dir, "deck.json"), JSON.stringify({
     slides: [
       { src: "a.svg", subtitle: "Two pull requests were waiting on you" },
@@ -108,8 +190,9 @@ test.skipIf(!tools)("check fails a slide whose measured hold is too short for it
   expect(check.exitCode).toBe(1);
   const report = JSON.parse(readFileSync(join(out, "check.json"), "utf8"));
   expect(report.slides.map((row: { pass: boolean }) => row.pass)).toEqual([true, false, true]);
-  expect(report.slides[1].measured).toBeGreaterThan(0.8);
-  expect(report.slides[1].measured).toBeLessThan(1.2);
+  // The 1 s hold is 30 frames, plus xfade's progress-0 frame, which shows the
+  // slide unchanged; no frame that blends in a neighbour counts.
+  expect(report.slides[1].measured).toBe(1.03);
   for (const row of report.slides) expect(existsSync(join(out, row.still))).toBe(true);
 }, 60_000);
 

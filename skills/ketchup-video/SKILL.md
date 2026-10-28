@@ -32,7 +32,7 @@ Give each slide one short subtitle line, about ten words, that says its point th
 
 Render one silent landscape mp4 with motion between slides. Every frame is the slide itself, edge to edge, above its subtitle strip. Make the frames from the slides, never by recording a screen, and burn each subtitle into its slide's frames so it stays on screen for the slide's whole hold. The hold is the time a slide is fully on screen, not counting the motion into or out of it. Hold each slide long enough to read the words it adds, at least one second for each three words. A slide adds its subtitle and each word that was not on the slide before it, including a label it changes. The first slide adds all its words. Words inside a screenshot do not count.
 
-Draw each slide as an SVG at 1920 by 920, or use a screenshot as the whole slide. Write the slides and a `deck.json` beside them, in the fresh directory:
+Draw each slide as an SVG at 1920 by 920, or use a screenshot as the whole slide. Make one fresh directory, `$TMPDIR/ketchup-video-<name>/`, write the slides and a `deck.json` into it, and pass that same directory as `out-dir` to both `render` and `check`:
 
 ```json
 { "slides": [{ "src": "01.svg", "subtitle": "Two pull requests wait on your review" }] }
@@ -41,10 +41,10 @@ Draw each slide as an SVG at 1920 by 920, or use a screenshot as the whole slide
 Then render:
 
 ```sh
-bun <skills>/ketchup-video/scripts/ketchup-video.ts render <deck.json> [out-dir]
+bun <skills>/ketchup-video/scripts/ketchup-video.ts render <deck.json> <out-dir>
 ```
 
-The script draws each SVG with `rsvg-convert`, or ImageMagick's `magick` when that is missing, adds a 160-pixel subtitle strip below it, and crossfades the frames with ffmpeg's `xfade` into `ketchup.mp4`. It holds each slide one second per three added words plus half a second; a slide's optional `hold` (seconds) overrides that. It refuses an output directory inside a git work tree. Without `out-dir` it writes to `$TMPDIR/ketchup-video-<timestamp>/`. It needs `ffmpeg` and `ffprobe`; without them the render fails.
+The script draws each SVG with `rsvg-convert`, or ImageMagick's `magick` when that is missing, adds a 160-pixel subtitle strip below it, and crossfades the frames with ffmpeg's `xfade` into `ketchup.mp4`. It holds each slide one second per three added words plus half a second, and never shorter than two seconds; a slide's optional `hold` (seconds) overrides both. It keeps its intermediate frames under `out-dir/.render/`, so they never overwrite a slide. It refuses an output directory inside a git work tree, following symlinks. It needs `ffmpeg`.
 
 ## Check
 
@@ -54,6 +54,6 @@ Before you give the path, check the rendered file:
 bun <skills>/ketchup-video/scripts/ketchup-video.ts check <deck.json> <out-dir>
 ```
 
-It measures each hold by matching the file's frames to the slide, not with a still-frame detector, which counts the faint ends of a fade as still. It counts the words each slide adds against its measured hold, writes the table to `check.json`, saves one frame from each slide at chat size (640 pixels wide) under `stills/`, and exits 1 when a hold is too short. Look at one frame from each slide at chat size, and check that its subtitle is readable and covers nothing. Fix any slide you cannot read in that time, render again, and check again.
+It measures each hold by matching the file's frames to the slide, not with a still-frame detector, which counts the faint ends of a fade as still. It counts the words each slide adds against its measured hold, writes the table to `check.json`, saves one frame from each slide at chat size (640 pixels wide) under `stills/`, and exits 0 when every hold is long enough, 1 when a hold is too short, and 2 on a usage, deck or tool error, such as a missing slide file, an empty subtitle or no `ffmpeg`; `render` exits 2 on those too. On 2, fix what the message names, not the holds. Look at one frame from each slide at chat size, and check that its subtitle is readable and covers nothing. Fix any slide you cannot read in that time, render again, and check again.
 
 Source: ported from pstack `pstack/skills/ketchup-video/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c (MIT, © 2026 Lauren Tan); changed: the principal replaces "the user", a `/ketchup-video` trigger is added, the window also restarts after `cup`, the reply gives the file path because a terminal cannot embed a video, the render goes to a fresh temp directory through the bundled script (rsvg-convert or magick, then ffmpeg), and the hold and chat-size checks run through its `check` subcommand.

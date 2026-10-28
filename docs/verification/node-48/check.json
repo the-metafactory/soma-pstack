@@ -15,7 +15,7 @@
       "slide": 2,
       "words": 22,
       "required": 7.33,
-      "measured": 7.9,
+      "measured": 7.87,
       "pass": true,
       "still": "stills/slide-02-chat.png"
     },
@@ -23,7 +23,7 @@
       "slide": 3,
       "words": 23,
       "required": 7.67,
-      "measured": 8.23,
+      "measured": 8.2,
       "pass": true,
       "still": "stills/slide-03-chat.png"
     },

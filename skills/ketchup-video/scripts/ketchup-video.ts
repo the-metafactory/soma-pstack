@@ -7,15 +7,17 @@
 // Usage: bun ketchup-video.ts render <deck.json> [out-dir]
 //        bun ketchup-video.ts check <deck.json> <out-dir>
 //   out-dir defaults to $TMPDIR/ketchup-video-<timestamp> and must not sit
-//   inside a git work tree. The deck is
+//   inside a git work tree; it may be the deck's own directory, since the
+//   intermediate frames go under out-dir/.render/. The deck is
 //   { "slides": [{ "src": "01.svg", "subtitle": "...", "hold": 4 }] },
 //   with src relative to the deck file. hold (seconds) is optional; without it
-//   the slide holds one second per three words it adds, plus half a second.
-//   check measures each hold by matching the video's frames to the slide's
+//   the slide holds one second per three words it adds, plus half a second,
+//   and never less than two seconds. check measures each hold by matching the video's frames to the slide's
 //   own frame, writes chat-size stills and check.json to out-dir, and exits 1
-//   when a slide is held too short for the words it adds.
-//   Needs ffmpeg and ffprobe, and rsvg-convert or ImageMagick's magick.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+//   when a slide is held too short for the words it adds. Exit 2 is a usage,
+//   deck or tool error.
+//   Needs ffmpeg, and rsvg-convert or ImageMagick's magick.
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
@@ -38,7 +40,12 @@ function fail(message: string): never {
 }
 
 function run(cmd: string[], stdin?: Uint8Array): Buffer {
-  const result = Bun.spawnSync(cmd, { stdin: stdin ?? "ignore", stdout: "pipe", stderr: "pipe" });
+  let result: ReturnType<typeof Bun.spawnSync>;
+  try {
+    result = Bun.spawnSync(cmd, { stdin: stdin ?? "ignore", stdout: "pipe", stderr: "pipe" });
+  } catch (error) {
+    fail(`${cmd[0]} could not start: ${(error as Error).message}`);
+  }
   if (result.exitCode !== 0) fail(`${cmd[0]} failed: ${result.stderr.toString().trim().split("\n").at(-1)}`);
   return result.stdout;
 }
@@ -80,10 +87,25 @@ function rasterize(svg: string, png: string, width: number, height: number) {
 }
 
 function loadDeck(path: string): { deck: Deck; base: string } {
-  const deck = JSON.parse(readFileSync(path, "utf8")) as Deck;
-  if (!Array.isArray(deck.slides) || deck.slides.length === 0) fail("the deck has no slides");
+  let deck: Deck;
+  try {
+    deck = JSON.parse(readFileSync(path, "utf8")) as Deck;
+  } catch (error) {
+    fail(`cannot read the deck ${path}: ${(error as Error).message}`);
+  }
+  if (!Array.isArray(deck?.slides) || deck.slides.length === 0) fail("the deck has no slides");
   if (deck.slides.length > 10) fail("a deck has at most 10 slides");
-  return { deck, base: dirname(resolve(path)) };
+  const base = dirname(resolve(path));
+  deck.slides.forEach((slide, i) => {
+    if (typeof slide?.src !== "string" || !existsSync(resolve(base, slide.src))) fail(`slide ${i + 1}: src ${slide?.src} is not a file beside the deck`);
+    if (typeof slide.subtitle !== "string" || slide.subtitle.trim() === "") fail(`slide ${i + 1}: subtitle must be a non-empty string`);
+    if (slide.hold !== undefined && !(typeof slide.hold === "number" && slide.hold > 0)) fail(`slide ${i + 1}: hold must be a positive number of seconds`);
+  });
+  return { deck, base };
+}
+
+function requireFfmpeg() {
+  if (!Bun.which("ffmpeg")) fail("needs ffmpeg on PATH");
 }
 
 function plan(deck: Deck, base: string): { words: number[]; holds: number[] } {
@@ -93,29 +115,40 @@ function plan(deck: Deck, base: string): { words: number[]; holds: number[] } {
   return { words, holds };
 }
 
+// Resolves symlinks first, so a link into a repository does not pass, and asks
+// git too, which also sees $GIT_DIR setups.
 function insideGitWorkTree(path: string): boolean {
-  for (let dir = path; ; dir = dirname(dir)) {
+  let existing = path;
+  while (!existsSync(existing)) existing = dirname(existing);
+  const real = realpathSync(existing);
+  for (let dir = real; ; dir = dirname(dir)) {
     if (existsSync(join(dir, ".git"))) return true;
-    if (dirname(dir) === dir) return false;
+    if (dirname(dir) === dir) break;
   }
+  if (!Bun.which("git")) return false;
+  const git = Bun.spawnSync(["git", "-C", real, "rev-parse", "--is-inside-work-tree"], { stdout: "pipe", stderr: "ignore" });
+  return git.stdout.toString().trim() === "true";
 }
 
+// Intermediate frames live under out/.render/ so they never overwrite a slide
+// when the deck sits in out-dir itself.
 function frameName(i: number): string {
-  return `frame-${String(i + 1).padStart(2, "0")}.png`;
+  return join(".render", `frame-${String(i + 1).padStart(2, "0")}.png`);
 }
 
 function render(deckPath: string, outArg?: string) {
   const { deck, base } = loadDeck(deckPath);
   const out = resolve(outArg ?? join(tmpdir(), `ketchup-video-${new Date().toISOString().replace(/[:.]/g, "-")}`));
   if (insideGitWorkTree(out)) fail(`${out} is inside a git work tree; write the video outside the repository`);
-  mkdirSync(out, { recursive: true });
+  requireFfmpeg();
+  mkdirSync(join(out, ".render"), { recursive: true });
   const { holds } = plan(deck, base);
 
   deck.slides.forEach((slide, i) => {
     const src = resolve(base, slide.src);
     let png = src;
     if (src.endsWith(".svg")) {
-      png = join(out, `slide-${String(i + 1).padStart(2, "0")}.png`);
+      png = join(out, ".render", `slide-${String(i + 1).padStart(2, "0")}.png`);
       rasterize(src, png, WIDTH, HEIGHT - STRIP);
     }
     const data = readFileSync(png).toString("base64");
@@ -153,14 +186,19 @@ function gray(path: string): Uint8Array {
   return run(["ffmpeg", "-loglevel", "error", "-i", path, "-vf", `scale=${ANALYSIS.width}:${ANALYSIS.height},format=gray`, "-f", "rawvideo", "-"]);
 }
 
-// A frame belongs to slide i's hold when, over the pixels where slide i differs
-// from its neighbours, it sits within a few percent of slide i. A fade frame at
-// alpha a sits a*100 percent of the way to the neighbour, so even the faint
-// first and last frames of a fade fall outside the hold.
+// A frame belongs to slide i's hold when, against each neighbour on its own and
+// over the pixels where slide i differs from that neighbour, it sits within a
+// few percent of slide i. A fade frame at alpha a sits a*100 percent of the way
+// to the neighbour, so every frame that blends in a neighbour falls outside the
+// hold. xfade's first frame, at alpha 0, shows the slide unchanged and counts,
+// so a slide followed by a fade measures one frame over its planned hold.
+// Taking each neighbour separately keeps a large change on one side from
+// diluting a small one on the other.
 function check(deckPath: string, outArg: string) {
   const { deck, base } = loadDeck(deckPath);
   const out = resolve(outArg);
   const video = join(out, "ketchup.mp4");
+  requireFfmpeg();
   if (!existsSync(video)) fail(`no ketchup.mp4 in ${out}; run render first`);
   const { words } = plan(deck, base);
   const size = ANALYSIS.width * ANALYSIS.height;
@@ -168,26 +206,26 @@ function check(deckPath: string, outArg: string) {
   const raw = gray(video);
   const frames = raw.length / size;
 
-  const masks = refs.map((ref, i) => {
+  const sides = refs.map((ref, i) => [i - 1, i + 1].filter(j => j >= 0 && j < refs.length).map(j => {
     const mask: number[] = [];
+    let spread = 0;
     for (let p = 0; p < size; p++) {
-      const prev = i > 0 ? Math.abs(ref[p]! - refs[i - 1]![p]!) : 0;
-      const next = i < refs.length - 1 ? Math.abs(ref[p]! - refs[i + 1]![p]!) : 0;
-      if (Math.max(prev, next) > 24) mask.push(p);
+      const gap = Math.abs(ref[p]! - refs[j]![p]!);
+      if (gap > 24) {
+        mask.push(p);
+        spread += gap;
+      }
     }
-    return mask;
-  });
-  const spreads = masks.map((mask, i) => mask.reduce((total, p) => {
-    const prev = i > 0 ? Math.abs(refs[i]![p]! - refs[i - 1]![p]!) : 0;
-    const next = i < refs.length - 1 ? Math.abs(refs[i]![p]! - refs[i + 1]![p]!) : 0;
-    return total + Math.max(prev, next);
-  }, 0));
+    return { mask, spread };
+  }).filter(side => side.mask.length > 0));
   const distance = (frame: number, i: number) => {
-    const mask = masks[i]!;
-    if (mask.length === 0) return 0;
-    let sum = 0;
-    for (const p of mask) sum += Math.abs(raw[frame * size + p]! - refs[i]![p]!);
-    return sum / spreads[i]!;
+    let worst = 0;
+    for (const { mask, spread } of sides[i]!) {
+      let sum = 0;
+      for (const p of mask) sum += Math.abs(raw[frame * size + p]! - refs[i]![p]!);
+      worst = Math.max(worst, sum / spread);
+    }
+    return worst;
   };
 
   mkdirSync(join(out, "stills"), { recursive: true });
