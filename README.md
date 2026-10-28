@@ -137,6 +137,11 @@ bun test
 bun scripts/check-pack.ts
 ```
 
+An `upstream.path` that ends in `/` names a directory and one that ends in a
+filename with an extension names a file; the gate checks this shape offline,
+and `CHECK_PACK_UPSTREAM=1 bun scripts/check-pack.ts` also asks GitHub (through
+`gh`) that each pin resolves at its commit and is that kind.
+
 Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
 change when it fails. The principal controls the merge. This repository has no
 CI workflow or required GitHub check for the gate.

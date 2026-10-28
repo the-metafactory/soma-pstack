@@ -24,6 +24,33 @@ function readManifest(directory: string): Mapping {
   return parseMapping(readFileSync(resolve(directory, "arc-manifest.yaml"), "utf8"), "arc-manifest.yaml");
 }
 
+function upstreamPathShapeError(path: string): string | null {
+  const segments = (path.endsWith("/") ? path.slice(0, -1) : path).split("/");
+  if (segments.some((segment) => segment === "" || segment === "." || segment === "..")) {
+    return "upstream.path must be relative with no empty, . or .. segments";
+  }
+  if (!path.endsWith("/") && !/\.[A-Za-z0-9]+$/.test(segments.at(-1)!)) {
+    return "upstream.path must end in / for a directory or in a filename with an extension for a file";
+  }
+  return null;
+}
+
+function checkUpstreamOnGitHub(upstream: Mapping & { path: string }, path: string, errors: string[]): void {
+  const pin = `${upstream.repo}:${upstream.path}@${upstream.commit}`;
+  const target = upstream.path.replace(/\/$/, "");
+  const lookup = Bun.spawnSync(["gh", "api", `repos/${upstream.repo}/contents/${target}?ref=${upstream.commit}`], {
+    stdout: "pipe", stderr: "pipe",
+  });
+  if (lookup.exitCode !== 0) {
+    errors.push(`${path}: upstream.path ${pin} does not resolve on GitHub: ${lookup.stderr.toString().trim()}`);
+    return;
+  }
+  const isDirectory = Array.isArray(JSON.parse(lookup.stdout.toString()));
+  if (isDirectory !== upstream.path.endsWith("/")) {
+    errors.push(`${path}: upstream.path ${pin} is a ${isDirectory ? "directory" : "file"} on GitHub`);
+  }
+}
+
 function checkMemberManifest(member: string, path: string, errors: string[]): void {
   try {
     const memberManifest = readManifest(member);
@@ -33,9 +60,16 @@ function checkMemberManifest(member: string, path: string, errors: string[]): vo
       errors.push(`${path}: upstream must be a mapping with repo, path and commit`);
     } else {
       if (upstream.repo !== "cursor/plugins") errors.push(`${path}: upstream.repo must be cursor/plugins`);
-      if (!nonEmpty(upstream.path)) errors.push(`${path}: upstream.path must be a non-empty string`);
-      if (typeof upstream.commit !== "string" || !/^[a-f0-9]{40}$/i.test(upstream.commit)) {
-        errors.push(`${path}: upstream.commit must be a 40-hex commit`);
+      const commitValid = typeof upstream.commit === "string" && /^[a-f0-9]{40}$/i.test(upstream.commit);
+      if (!commitValid) errors.push(`${path}: upstream.commit must be a 40-hex commit`);
+      if (!nonEmpty(upstream.path)) {
+        errors.push(`${path}: upstream.path must be a non-empty string`);
+      } else {
+        const shapeError = upstreamPathShapeError(upstream.path);
+        if (shapeError) errors.push(`${path}: ${shapeError}`);
+        else if (commitValid && process.env.CHECK_PACK_UPSTREAM === "1") {
+          checkUpstreamOnGitHub({ ...upstream, path: upstream.path }, path, errors);
+        }
       }
     }
   } catch (error) {

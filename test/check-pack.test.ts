@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { YAML } from "bun";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -25,7 +25,7 @@ function memberManifest() {
     author: { name: "The MetaFactory", github: "the-metafactory" },
     provides: { skill: [{ name: "benchmark-checklist", path: "." }] },
     capabilities: { filesystem: { read: [], write: [] }, network: [], bash: { allowed: false }, secrets: [] },
-    upstream: { repo: "cursor/plugins", path: "pstack/skills/benchmark-checklist", commit },
+    upstream: { repo: "cursor/plugins", path: "pstack/skills/benchmark-checklist/SKILL.md", commit },
   };
 }
 
@@ -97,6 +97,67 @@ for (const field of ["repo", "path"] as const) {
     expectMemberFailure(root, `upstream.${field}`);
   });
 }
+
+for (const path of [
+  "pstack/skills/typescript-best-practices",
+  "pstack/skills/benchmark-checklist/SKILL",
+  "/pstack/skills/benchmark-checklist/",
+  "pstack//skills/benchmark-checklist/",
+  "pstack/skills/../benchmark-checklist/SKILL.md",
+  "pstack/skills/./benchmark-checklist/",
+]) {
+  test(`upstream.path ${path} without a file or directory shape fails`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path } });
+    expectMemberFailure(root, "upstream.path");
+  });
+}
+
+test("a directory pin ending in / passes", () => {
+  const root = library([{ path: memberPath }]);
+  member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path: "pstack/skills/benchmark-checklist/" } });
+  expect(run(root).code).toBe(0);
+});
+
+function fakeGh(root: string, body: string) {
+  const bin = join(root, "fake-bin");
+  mkdirSync(bin);
+  writeFileSync(join(bin, "gh"), `#!/bin/sh\necho "$@" >> "${bin}/calls"\n${body}\n`);
+  chmodSync(join(bin, "gh"), 0o755);
+  return { ...process.env, PATH: `${bin}:${process.env.PATH}`, CHECK_PACK_UPSTREAM: "1" };
+}
+
+for (const [label, path, response] of [
+  ["a file pin that is a directory upstream", "pstack/skills/benchmark-checklist/SKILL.md", "[]"],
+  ["a directory pin that is a file upstream", "pstack/skills/benchmark-checklist/", `{"type":"file"}`],
+] as const) {
+  test(`CHECK_PACK_UPSTREAM=1 fails ${label}`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path } });
+    expect(run(root).code).toBe(0);
+    const result = run(root, fakeGh(root, `echo '${response}'`));
+    expect(result.code).not.toBe(0);
+    expect(result.output).toContain("upstream.path");
+    expect(result.output).toContain("cursor/plugins");
+  });
+}
+
+test("CHECK_PACK_UPSTREAM=1 asks GitHub for the pin at its commit and passes a matching file", () => {
+  const root = library([{ path: memberPath }]);
+  member(root);
+  const result = run(root, fakeGh(root, `echo '{"type":"file"}'`));
+  expect(result.code).toBe(0);
+  expect(readFileSync(join(root, "fake-bin", "calls"), "utf8"))
+    .toContain(`repos/cursor/plugins/contents/pstack/skills/benchmark-checklist/SKILL.md?ref=${commit}`);
+});
+
+test("CHECK_PACK_UPSTREAM=1 fails a pin that does not resolve", () => {
+  const root = library([{ path: memberPath }]);
+  member(root);
+  const result = run(root, fakeGh(root, "echo Not Found >&2; exit 1"));
+  expect(result.code).not.toBe(0);
+  expect(result.output).toContain("does not resolve");
+});
 
 test("missing upstream block fails", () => {
   const root = library([{ path: memberPath }]);
