@@ -44,5 +44,8 @@ An earlier version of `check` averaged a slide's distance over the pixels where 
 ## Known limits
 
 - CI has no `ffmpeg` or `rsvg-convert`, so the two render tests run only on a host that has them.
-- Subtitles are not wrapped; a subtitle much past ten words runs off the strip.
+- Long subtitles overflow silently. The subtitle is one unwrapped `<text>` at 52 px, so a subtitle of about 70 characters or more runs off the frame, and `check` does not detect it.
 - Words drawn as SVG paths, not `<text>`, are not counted as words a slide adds.
+- Entity names count as words. The slide-text reader does not decode entities, so `&amp;` counts as the word "amp". This over-counts, which errs on the safe side.
+- When no frame matches a slide (measured 0 s), its still is taken at 0 s and shows slide 1 under that slide's label. The row fails anyway.
+- `check` holds the whole video in memory as 480 by 270 grayscale, about 130 KB per frame. A 10-slide deck of about 100 s needs roughly 390 MB.
