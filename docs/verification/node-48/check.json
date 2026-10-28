@@ -1,0 +1,39 @@
+{
+  "fps": 30,
+  "chatWidth": 640,
+  "subtitlePxAtChatWidth": 17.3,
+  "slides": [
+    {
+      "slide": 1,
+      "words": 26,
+      "required": 8.67,
+      "measured": 9.2,
+      "pass": true,
+      "still": "stills/slide-01-chat.png"
+    },
+    {
+      "slide": 2,
+      "words": 22,
+      "required": 7.33,
+      "measured": 7.9,
+      "pass": true,
+      "still": "stills/slide-02-chat.png"
+    },
+    {
+      "slide": 3,
+      "words": 23,
+      "required": 7.67,
+      "measured": 8.23,
+      "pass": true,
+      "still": "stills/slide-03-chat.png"
+    },
+    {
+      "slide": 4,
+      "words": 21,
+      "required": 7,
+      "measured": 7.5,
+      "pass": true,
+      "still": "stills/slide-04-chat.png"
+    }
+  ]
+}

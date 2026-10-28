@@ -52,3 +52,5 @@ artifacts:
     description: Playbook cards, the step lists Soma's working method routes each task shape to.
   - path: skills/worktree-audit
     description: Read-only audit of a repo's git worktrees with a suggested cleanup bucket each.
+  - path: skills/ketchup-video
+    description: Catch the principal up like ketchup, with a short subtitled slide video of what happened and the waiting calls as text under it.
