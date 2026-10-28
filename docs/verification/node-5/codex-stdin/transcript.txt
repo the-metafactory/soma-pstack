@@ -1,0 +1,2 @@
+$ write util.ts
+$ (no test command ran)

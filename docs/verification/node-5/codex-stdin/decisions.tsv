@@ -1,0 +1,4 @@
+ts	phase	decision	why	evidence	result
+2026-10-28T15:47:20Z	start	new log	scratch run for codex stdin probe	session: smyw-codex-stdin-probe	open
+2026-10-28T15:47:20Z	build	add clamp(n,lo,hi) to util.ts	caller needs bounded value	util.ts:1	tests green
+2026-10-28T15:47:20Z	audit	audited rows 2-3 against transcript	end of run	audit.md	done

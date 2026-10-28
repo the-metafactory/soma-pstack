@@ -1,0 +1,3 @@
+- **Unsupported verification:** `decisions.tsv` claims “tests green,” but `transcript.txt` explicitly records that no test command ran. `audit.md` correctly flags this; the decision log still contains the unsupported result.
+- **Weak requirement evidence:** “caller needs bounded value” has no caller reference or demonstrated requirement. `util.ts:1` proves implementation exists, not that it satisfies the caller.
+- **Unspecified edge cases:** The clamp assumes `lo <= hi`; reversed bounds and `NaN` behavior have no documented contract or verification. Whether these matter depends on caller guarantees.

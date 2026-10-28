@@ -69,6 +69,15 @@ Before handing back, ask a reviewer on a different model family from the one tha
 - Choices that look risky in hindsight: premature decisions, scope creep or symptom fixes.
 - Gaps the principal could miss on a casual skim.
 
+When the reviewer is `codex`, write the request to a file first, with the Write tool on Claude Code, and give it to codex on stdin:
+
+```sh
+codex exec --sandbox read-only --skip-git-repo-check -C <work-dir> \
+  -o <work-dir>/review.md - < <work-dir>/review-prompt.md
+```
+
+`-` makes codex read its prompt from stdin, and the redirect closes stdin when the file ends. With the prompt as an argument, codex also reads any stdin it inherits: an agent's shell keeps stdin open, so codex prints `Reading additional input from stdin...` and waits without end. `-o` writes the final message to a known file. The session header that codex prints on stderr names the model; keep it with the review.
+
 Use only authorized session paths and reviewer services; pass only this run's relevant material and redact secrets before the hand-off. Remote review must use a host declared in [arc-manifest.yaml](arc-manifest.yaml), currently `api.anthropic.com` or `api.openai.com`, through an already authenticated tool or CLI. A proxy, another provider or a custom endpoint needs a matching declaration before use. These capabilities disclose access; they do not grant authorization or permission to read credential files.
 
 Save the review with the reviewer's model identity. If no different-family reviewer is available, retain the artifacts and report the review as incomplete in Attention; never label self-review as cross-model review.

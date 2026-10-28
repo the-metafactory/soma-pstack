@@ -30,7 +30,9 @@ bun test/probes/show-me-your-work.ts /tmp/fresh-decision-trail
 The output directory must be fresh. The probe captures actual sort commands,
 a superseding decision, and an end-of-run audit that adds an omitted fork.
 The captured acceptance run and its separate cross-model review live under
-[`docs/verification/node-5/`](docs/verification/node-5/).
+[`docs/verification/node-5/`](docs/verification/node-5/). A run of the codex
+reviewer command, which gives codex its prompt on stdin so it cannot hang, is under
+[`docs/verification/node-5/codex-stdin/`](docs/verification/node-5/codex-stdin/).
 
 The [ketchup](skills/ketchup/SKILL.md) skill is what the `cup` alias in a Soma home's
 `profile/communication.md` should expand to. The proposed alias text and the caps
