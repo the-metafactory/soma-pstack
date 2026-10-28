@@ -1,0 +1,132 @@
+{
+  "checked": 21,
+  "failures": [],
+  "pins": {
+    "skills/benchmark-checklist": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/benchmark-checklist/SKILL.md",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "file"
+    },
+    "skills/recall": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/recall/SKILL.md",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "file"
+    },
+    "skills/correct": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/correct/SKILL.md",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "file"
+    },
+    "skills/create-verification-skill": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/create-verification-skill/SKILL.md",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "file"
+    },
+    "skills/no-comments": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/no-comments/SKILL.md",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "file"
+    },
+    "skills/bug-fix-test": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/tdd/SKILL.md",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "file"
+    },
+    "skills/show-me-your-work": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/show-me-your-work/",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "dir"
+    },
+    "skills/blast-radius": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/blast-radius/SKILL.md",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "file"
+    },
+    "skills/ketchup": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/ketchup/SKILL.md",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "file"
+    },
+    "skills/reflect": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/reflect/",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "dir"
+    },
+    "skills/typescript-best-practices": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/typescript-best-practices/",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "dir"
+    },
+    "skills/why": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/why/",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "dir"
+    },
+    "skills/how": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/how/",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "dir"
+    },
+    "skills/technical-writing": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/technical-writing/",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "dir"
+    },
+    "skills/sharpen": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/sharpen/",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "dir"
+    },
+    "skills/statechart": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/statechart/",
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "kind": "dir"
+    },
+    "skills/create-formal-verification-skill": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/create-formal-verification-skill/SKILL.md",
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "kind": "file"
+    },
+    "skills/maintain-formal-verification-skill": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/maintain-formal-verification-skill/SKILL.md",
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "kind": "file"
+    },
+    "skills/explain": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/teach/SKILL.md",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "file"
+    },
+    "skills/playbooks": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/poteto-mode/playbooks/",
+      "commit": "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+      "kind": "dir"
+    },
+    "skills/worktree-audit": {
+      "repo": "cursor/plugins",
+      "path": "pstack/skills/poteto-mode/scripts/worktree-audit.sh",
+      "commit": "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+      "kind": "file"
+    }
+  }
+}

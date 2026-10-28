@@ -1,0 +1,25 @@
+From 97e6ea46947528ae90ed5ad4cced3a48fc0bd7d5 Mon Sep 17 00:00:00 2001
+From: <author> <<email>>
+Date: Wed, 28 Oct 2026 14:45:25 +0100
+Subject: [PATCH] typescript-best-practices: directory pin ends in /
+
+---
+ skills/typescript-best-practices/arc-manifest.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/skills/typescript-best-practices/arc-manifest.yaml b/skills/typescript-best-practices/arc-manifest.yaml
+index bc2e716..c62cceb 100644
+--- a/skills/typescript-best-practices/arc-manifest.yaml
++++ b/skills/typescript-best-practices/arc-manifest.yaml
+@@ -10,7 +10,7 @@ author:
+   github: the-metafactory
+ upstream:
+   repo: cursor/plugins
+-  path: pstack/skills/typescript-best-practices
++  path: pstack/skills/typescript-best-practices/
+   commit: b6375f1c3a8600fa8907d2214ed9f8aad0028dde
+ capabilities:
+   filesystem:
+-- 
+2.40.0
+

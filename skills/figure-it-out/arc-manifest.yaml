@@ -1,0 +1,29 @@
+schema: arc/v1
+name: figure-it-out
+version: 0.1.0
+type: skill
+tier: custom
+description: Design an auditable playbook when no playbook card fits, scale rigor to the task, run a hypothesis loop and log each decision.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/figure-it-out/SKILL.md
+  commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+    write:
+      - "./**"
+  # Remote review of the trail runs under show-me-your-work's own declarations.
+  # A designed harness brings its own network needs, granted per run by the
+  # principal (the node-47 probe ran `gh api` that way). The hosts depend on the
+  # task, so no fixed list here would be true.
+  network: []
+  bash:
+    # The designed workflow runs its harness, the units and the trail logger.
+    allowed: true
+  secrets: []
