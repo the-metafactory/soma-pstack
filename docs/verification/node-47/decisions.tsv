@@ -1,0 +1,19 @@
+ts	phase	decision	why	evidence	result
+2026-10-28T13:40:27Z	start	begin figure-it-out probe on a scratch copy of the pack	node #47 probe: a real task with no matching card	playbook.md	open
+2026-10-28T13:40:27Z	frame	no playbook card matches; design one	refactor is closest but no code structure changes; metadata checked against an outside source	playbook.md#card-check	decided
+2026-10-28T13:40:28Z	frame	predicate: C1 pins resolve, C2 form matches kind, C3 no new gate failure, Anti pins unchanged	each claim is binary with a probe that could fail	playbook.md#predicate	open
+2026-10-28T13:40:28Z	frame	rigor medium: negative control on the harness, harness and gate after every unit, no arena, no fan-out	one-line reversible edits, but a remote existence check can pass for the wrong reason	playbook.md#rigor	decided
+2026-10-28T13:40:28Z	design	five phases: scaffold, harness negative control, unit per failing member, whole check, hand back	scaffold and the riskiest unknown first	playbook.md#designed-phases	decided
+2026-10-28T13:40:28Z	scaffold	harness and gate baseline captured from the pre-change state, during grounding	baseline before treatment; captured before the frame was written down	harness-baseline.json	1 failure: typescript-best-practices; gate 94 pass 3 fail
+2026-10-28T13:41:22Z	negative-control	harness reports does-not-resolve for a pin pointed at a missing path; reverted	an existence check that cannot fail proves nothing	harness-negative-control.json	VERIFIED
+2026-10-28T13:41:23Z	scaffold	supersedes row 7: move the scratch copy to its own directory and recapture the baseline	scratchpad/probe was shared: another agent's extract.ts, slices/ and proposal.md landed in it and in its baseline commit	harness-baseline.json	decided
+2026-10-28T13:45:39Z	loop	unit P3: typescript-best-practices directory pin gains its trailing slash	the baseline's only failure; hypothesis: one line clears it with no new gate failure	97e6ea46947528ae90ed5ad4cced3a48fc0bd7d5	kept: harness 0 failures, gate 94 pass 3 fail as baseline
+2026-10-28T13:45:39Z	verify	C1 and C2: harness reports 0 failures over 21 members	the predicate's own probe, rerun on the final state	harness-after.json	VERIFIED
+2026-10-28T13:45:39Z	verify	C3: gate failures identical to the baseline's 3, all from tests reading the omitted docs/	compared failure names line by line	gate-after.txt	VERIFIED
+2026-10-28T13:45:39Z	verify	Anti: no upstream repo or commit changed; only the one path differs	pins block diffed baseline against after	harness-after.json	VERIFIED
+2026-10-28T13:45:39Z	verify	open: the harness does not check that a directory pin matches a member that ports the whole directory	sharpen pins pstack/skills/sharpen/ yet ports one file; outside this predicate	harness-after.json	open
+2026-10-28T13:45:57Z	verify	supersedes row 14: sharpen's upstream directory holds only SKILL.md, so its directory pin is not wrong; whether a pin names the file or the directory a member ports stays a convention question	checked the upstream listing at b6375f1	harness-after.json	open
+2026-10-28T13:45:57Z	audit	added omitted fork: the scratch copy drops docs/ because a gitleaks pre-commit hook refused to commit the existing node-8 and node-17 evidence files	found in the transcript audit; explains the 3 baseline gate failures	audit.md	decided
+2026-10-28T13:45:58Z	audit	added omitted fork: the Algorithm-run mapping was not exercised; soma algorithm new refused a scratch --soma-home with missing-state, and the brief forbids writing under ~/.soma	found in the transcript audit	audit.md	INCONCLUSIVE
+2026-10-28T13:46:55Z	audit	end-of-run audit: lines 2-17 checked against this run's transcript; two omitted forks added	show-me-your-work's audit before hand-back	audit.md	done
+2026-10-28T15:09:15Z	review	cross-model review incomplete: codex exec gave no output in about 77 minutes and was stopped	never label self-review as cross-model review	review.md	INCOMPLETE

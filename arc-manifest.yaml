@@ -62,3 +62,5 @@ artifacts:
     description: Run N parallel candidates at one task, judge them across model families, pick a base and graft the strongest parts of the rest into it.
   - path: skills/interrogate
     description: Send adversaries from different model families to break a change or design, and report only the findings a rerun proves.
+  - path: skills/figure-it-out
+    description: Design an auditable playbook when no playbook card fits, scale rigor to the task, run a hypothesis loop and log each decision.

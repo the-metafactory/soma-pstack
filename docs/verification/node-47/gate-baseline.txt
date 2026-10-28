@@ -1,0 +1,42 @@
+bun test v1.4.2 (744846f84)
+
+test/statechart.test.ts:
+64 |   expect(skill).toContain("Never edit product code during a run");
+65 |   expect(skill).toContain("Say outright which failures were drift in the verification and which were bugs in the code.");
+66 | });
+67 | 
+68 | test("the stored probe report names both rules that break and their two-step paths", () => {
+69 |   const report = readFileSync(join(probe, "report.md"), "utf8");
+                      ^
+error: ENOENT: no such file or directory, open '<scratch>/docs/verification/node-17/report.md'
+      at <anonymous> (<scratch>/test/statechart.test.ts:69:18)
+(fail) the stored probe report names both rules that break and their two-step paths [0.38ms]
+
+test/sharpen.test.ts:
+41 |   expect(skill).toContain("Leave choices that are mine to make open instead of deciding them.");
+42 |   expect(skill).toContain("stays unmade");
+43 | });
+44 | 
+45 | test("the probe output has the four parts and the rewrite", () => {
+46 |   const output = readFileSync(join(probe, "sharpened.md"), "utf8");
+                      ^
+error: ENOENT: no such file or directory, open '<scratch>/docs/verification/node-15/sharpened.md'
+      at <anonymous> (<scratch>/test/sharpen.test.ts:46:18)
+(fail) the probe output has the four parts and the rewrite [0.18ms]
+49 |   expect(headings.slice(0, 4).map(heading => heading[0])).toEqual(["1", "2", "3", "4"]);
+50 |   expect(headings[4]).toBe("Rewritten prompt");
+51 | });
+52 | 
+53 | test("the probe rewrite keeps every choice the brief stated and answers none it left open", () => {
+54 |   const brief = readFileSync(join(probe, "scratch-brief.md"), "utf8");
+                     ^
+error: ENOENT: no such file or directory, open '<scratch>/docs/verification/node-15/scratch-brief.md'
+      at <anonymous> (<scratch>/test/sharpen.test.ts:54:17)
+(fail) the probe rewrite keeps every choice the brief stated and answers none it left open [0.12ms]
+
+ 94 pass
+ 1 skip
+ 3 fail
+ 347 expect() calls
+Ran 98 tests across 11 files. [105.77s]
+Pack checks passed (21 members).
