@@ -21,6 +21,15 @@ capabilities:
       - "~/.pi/agent/sessions/**"
       - "~/.cursor/projects/*/agent-transcripts/**"
       - "~/.soma/**"
+    # Undeclared writes, each made only for a row the principal approved:
+    # profile/communication.md in the Soma home, the memory store through
+    # `soma memory write` (and an Algorithm run's proposal under memory/WORK/),
+    # and `soma install <substrate> --apply`, which rewrites the Claude Code,
+    # Codex and pi projections. Soma's runtime private-content policy
+    # (src/policy/policy.ts in the soma repo) treats the Soma home's memory/,
+    # profile/ and imports/ as private, and this repo is public, so those paths
+    # stay out of the list rather than hiding behind a broader glob.
+    # The paths below hard-code ~/.soma; the skill honors SOMA_HOME.
     write:
       - "./**"
       - "~/.soma/policy/behavior.md"

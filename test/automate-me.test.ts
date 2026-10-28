@@ -40,7 +40,9 @@ test("automate-me routes to the four Soma home surfaces and applies only approve
   }
   expect(skill).toContain("It applies a proposal only after the principal approves that row. Invoking `/automate-me` is not approval.");
   expect(skill).toContain("Do not run it.");
-  expect(skill).toContain("never inside the Soma home");
+  expect(skill).toContain("which is never one of the four surfaces");
+  expect(skill).toContain("by its code with a verb: \"approve W1\". A bare \"yes\"");
+  expect(skill).toContain("In a headless run, leave every row pending and stop before applying.");
   expect(skill).toContain("never against a projection");
 });
 
@@ -81,6 +83,8 @@ test("the extractor keeps only principal-authored turns", () => {
     { type: "user", uuid: "mate", timestamp: "2026-10-01T00:02:00Z", message: { content: "<teammate-message>do x</teammate-message>" } },
     { type: "user", uuid: "meta", timestamp: "2026-10-01T00:03:00Z", isMeta: true, message: { content: "caveat" } },
     { type: "user", uuid: "shell", timestamp: "2026-10-01T00:04:00Z", message: { content: "<bash-input> ls</bash-input>" } },
+    { type: "user", uuid: "slash", timestamp: "2026-10-01T00:04:30Z", message: { content: "<command-name>/clear</command-name>\n<command-message>clear</command-message>" } },
+    { type: "user", uuid: "ranger", timestamp: "2026-10-01T00:04:40Z", message: { content: "Node #2 on the-metafactory/soma-pstack stopped and needs me (ranger's reason: blocked). Then tell me what the next step is." } },
     { type: "user", uuid: "summary", timestamp: "2026-10-01T00:05:00Z", message: { content: "This session is being continued from a previous conversation" } },
     { type: "assistant", uuid: "agent", timestamp: "2026-10-01T00:06:00Z", message: { content: "done" } },
   ];
@@ -96,7 +100,7 @@ test("the extractor keeps only principal-authored turns", () => {
 test("the probe proposal routes only multi-slice signals and applies nothing", () => {
   const proposal = readFileSync(join(probe, "proposal.md"), "utf8");
   expect(proposal).toContain("Status: proposed, nothing applied.");
-  const rows = proposal.split("\n").filter(line => /^\| A\d+ \|/.test(line)).map(line => line.split("|").map(cell => cell.trim()));
+  const rows = proposal.split("\n").filter(line => /^\| W\d+ \|/.test(line)).map(line => line.split("|").map(cell => cell.trim()));
   expect(rows.length).toBeGreaterThan(0);
   for (const row of rows) {
     const [, code, , slices, , , surface] = row;
@@ -105,4 +109,34 @@ test("the probe proposal routes only multi-slice signals and applies nothing", (
   const slices = JSON.parse(readFileSync(join(probe, "slices.json"), "utf8"));
   expect(slices).toHaveLength(3);
   for (const slice of slices) expect(Object.keys(slice).sort()).toEqual(["from", "pointers", "slice", "to", "turns"]);
+});
+
+const [slugCommand, codexCommand] = /```sh\n([^\n]+)\n([^\n]+)\n```/.exec(skill)!.slice(1) as [string, string];
+
+test("the Claude Code slug command maps every non-alphanumeric character to -", () => {
+  expect(slugCommand).toContain('"$PWD"');
+  const run = Bun.spawnSync(["bash", "-c", slugCommand.replace('"$PWD"', "'/srv/work/a.b c - d'")], { stdout: "pipe" });
+  expect(run.stdout.toString()).toBe("-srv-work-a-b-c---d");
+  expect(skill).toContain("`/srv/work/a.b c - d` gives `-srv-work-a-b-c---d`");
+});
+
+test("the Codex filter prints only a top-level session's cwd", () => {
+  const sessions = mkdtempSync(join(tmpdir(), "automate-me-codex-"));
+  const meta = (payload: object) => JSON.stringify({ type: "session_meta", payload: { base_instructions: "SYSTEM PROMPT", runtime_workspace_roots: ["/elsewhere"], ...payload } });
+  const cases: Record<string, string> = {
+    cli: meta({ cwd: "/work/a", source: "cli", thread_source: "user" }),
+    exec: meta({ cwd: "/work/b", source: "exec" }),
+    guardian: meta({ cwd: "/work/a", source: { subagent: { other: "guardian" } }, thread_source: "guardian_review" }),
+    review: meta({ cwd: "/work/a", source: { subagent: "review" }, thread_source: "subagent" }),
+    threadOnly: meta({ cwd: "/work/a", source: "exec", thread_source: "subagent" }),
+    notMeta: JSON.stringify({ type: "response_item", payload: { cwd: "/work/a" } }),
+  };
+  const printed = Object.fromEntries(Object.entries(cases).map(([name, firstLine]) => {
+    const file = join(sessions, `${name}.jsonl`);
+    writeFileSync(file, `${firstLine}\n{"type":"event_msg"}\n`);
+    const run = Bun.spawnSync(["bash", "-c", codexCommand], { env: { ...process.env, FILE: file }, stdout: "pipe", stderr: "pipe" });
+    expect(run.exitCode, name).toBe(0);
+    return [name, run.stdout.toString().trim()];
+  }));
+  expect(printed).toEqual({ cli: "/work/a", exec: "/work/b", guardian: "", review: "", threadOnly: "", notMeta: "" });
 });

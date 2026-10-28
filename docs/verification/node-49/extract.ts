@@ -1,14 +1,15 @@
 // Extract principal-authored turns from one Claude Code workspace store.
-// Usage: bun extract.ts <store-dir> <out-dir>
+// Usage: bun extract.ts <store-dir> <out-dir> [<until ISO timestamp>]
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-const [store, out] = process.argv.slice(2);
-if (!store || !out) throw new Error("usage: bun extract.ts <store-dir> <out-dir>");
+const [store, out, until] = process.argv.slice(2);
+if (!store || !out) throw new Error("usage: bun extract.ts <store-dir> <out-dir> [<until>]");
 mkdirSync(out, { recursive: true });
 
-const machine = /^\s*<(task-notification|teammate-message|system-reminder|local-command|command-stdout|user-prompt-submit-hook|bash-input|bash-stdout|bash-stderr)/;
-const generated = /^This session is being continued from a previous conversation/;
+const machine = /^\s*<(task-notification|teammate-message|system-reminder|local-command|command-stdout|user-prompt-submit-hook|bash-input|bash-stdout|bash-stderr|command-name|command-message)/;
+// A turn a scheduler or launcher wrote into the session, such as ranger's resume prompt for a parked node.
+const generated = /^(This session is being continued from a previous conversation|Node #\d+ on \S+ stopped and needs me\b)/;
 
 type Turn = { file: string; line: number; uuid: string; timestamp: string; text: string };
 const turns: Turn[] = [];
@@ -26,6 +27,7 @@ for (const file of readdirSync(store).filter(name => name.endsWith(".jsonl"))) {
       text = content.filter((part: any) => part.type === "text").map((part: any) => part.text).join("\n");
     }
     if (!text.trim() || machine.test(text) || generated.test(text)) return;
+    if (until && row.timestamp > until) return;
     turns.push({ file, line: index + 1, uuid: row.uuid, timestamp: row.timestamp, text: text.slice(0, 1500) });
   });
 }
