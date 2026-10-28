@@ -10,12 +10,13 @@ const invocations = (markdown: string) => {
   );
   const prose = markdown.replace(/```[\s\S]*?```/g, "");
   const spans = [...prose.matchAll(/`([^`\n]+)`/g)].map(([, span]) => span!);
-  return [...blocks, ...spans].filter(line => /\bcodex exec\b/.test(line));
+  // A span that is only the name, `codex exec`, mentions the tool; it does not run it.
+  return [...blocks, ...spans].filter(line => /\bcodex exec\b/.test(line) && line.trim() !== "codex exec");
 };
 const closesStdin = (command: string) => /(?:^|\s)<\s+\S/.test(command);
 
 test("the stdin check tells a hanging codex command from a closed one", () => {
-  const doc = "```sh\ncodex exec --sandbox read-only \\\n  -o out.md \"review this\"\ncodex exec -o out.md - < prompt.md\n```\nRun `codex exec -m <model> \"go\"`.";
+  const doc = "```sh\ncodex exec --sandbox read-only \\\n  -o out.md \"review this\"\ncodex exec -o out.md - < prompt.md\n```\nRun `codex exec -m <model> \"go\"` with `codex exec`.";
   expect(invocations(doc).map(closesStdin)).toEqual([false, true, false]);
 });
 
