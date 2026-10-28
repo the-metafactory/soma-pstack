@@ -137,10 +137,14 @@ bun test
 bun scripts/check-pack.ts
 ```
 
-An `upstream.path` that ends in `/` names a directory and one that ends in a
-filename with an extension names a file; the gate checks this shape offline,
-and `CHECK_PACK_UPSTREAM=1 bun scripts/check-pack.ts` also asks GitHub (through
-`gh`) that each pin resolves at its commit and is that kind.
+An `upstream.path` that ends in `/` names a directory, and any other path names
+a file. Offline, the gate checks only that the path is relative with no empty,
+`.` or `..` segments; it cannot tell a directory pinned without its `/` from a
+file. `CHECK_PACK_UPSTREAM=1 bun scripts/check-pack.ts` asks GitHub (through
+`gh`) that each pin resolves at its commit and is the kind its `/` says. A pin
+GitHub answers 404 for "does not resolve"; any other `gh` failure (a rate
+limit, no login, no network, a 30 s timeout, a reply that is not JSON) fails
+the run as "could not be checked", so rerun it once the cause is gone.
 
 Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
 change when it fails. The principal controls the merge. This repository has no

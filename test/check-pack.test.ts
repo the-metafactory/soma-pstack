@@ -99,25 +99,25 @@ for (const field of ["repo", "path"] as const) {
 }
 
 for (const path of [
-  "pstack/skills/typescript-best-practices",
-  "pstack/skills/benchmark-checklist/SKILL",
   "/pstack/skills/benchmark-checklist/",
   "pstack//skills/benchmark-checklist/",
   "pstack/skills/../benchmark-checklist/SKILL.md",
   "pstack/skills/./benchmark-checklist/",
 ]) {
-  test(`upstream.path ${path} without a file or directory shape fails`, () => {
+  test(`upstream.path ${path} that is not a relative path fails`, () => {
     const root = library([{ path: memberPath }]);
     member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path } });
     expectMemberFailure(root, "upstream.path");
   });
 }
 
-test("a directory pin ending in / passes", () => {
-  const root = library([{ path: memberPath }]);
-  member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path: "pstack/skills/benchmark-checklist/" } });
-  expect(run(root).code).toBe(0);
-});
+for (const path of ["pstack/skills/benchmark-checklist/", "pstack/LICENSE", "pstack/skills/benchmark-checklist/Makefile"]) {
+  test(`upstream.path ${path} passes offline`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path } });
+    expect(run(root).code).toBe(0);
+  });
+}
 
 function fakeGh(root: string, body: string) {
   const bin = join(root, "fake-bin");
@@ -128,7 +128,7 @@ function fakeGh(root: string, body: string) {
 }
 
 for (const [label, path, response] of [
-  ["a file pin that is a directory upstream", "pstack/skills/benchmark-checklist/SKILL.md", "[]"],
+  ["a file pin that is a directory upstream", "pstack/skills/typescript-best-practices", "[]"],
   ["a directory pin that is a file upstream", "pstack/skills/benchmark-checklist/", `{"type":"file"}`],
 ] as const) {
   test(`CHECK_PACK_UPSTREAM=1 fails ${label}`, () => {
@@ -139,6 +139,7 @@ for (const [label, path, response] of [
     expect(result.code).not.toBe(0);
     expect(result.output).toContain("upstream.path");
     expect(result.output).toContain("cursor/plugins");
+    expect(result.output).toContain("on GitHub");
   });
 }
 
@@ -151,13 +152,40 @@ test("CHECK_PACK_UPSTREAM=1 asks GitHub for the pin at its commit and passes a m
     .toContain(`repos/cursor/plugins/contents/pstack/skills/benchmark-checklist/SKILL.md?ref=${commit}`);
 });
 
+test("CHECK_PACK_UPSTREAM=1 encodes each path segment in the API call", () => {
+  const root = library([{ path: memberPath }]);
+  member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path: "pstack/a b/c#d.md" } });
+  expect(run(root, fakeGh(root, `echo '{"type":"file"}'`)).code).toBe(0);
+  expect(readFileSync(join(root, "fake-bin", "calls"), "utf8")).toContain(`contents/pstack/a%20b/c%23d.md?ref=${commit}`);
+});
+
 test("CHECK_PACK_UPSTREAM=1 fails a pin that does not resolve", () => {
   const root = library([{ path: memberPath }]);
   member(root);
-  const result = run(root, fakeGh(root, "echo Not Found >&2; exit 1"));
+  const result = run(root, fakeGh(root, `echo '{"message":"Not Found"}'; echo 'gh: Not Found (HTTP 404)' >&2; exit 1`));
   expect(result.code).not.toBe(0);
-  expect(result.output).toContain("does not resolve");
+  expect(result.output).toContain("does not resolve on GitHub");
+  expect(result.output).not.toContain("could not be checked");
 });
+
+for (const [label, body, reason] of [
+  ["a rate limit", "echo 'gh: You have exceeded a secondary rate limit (HTTP 429)' >&2; exit 1", "HTTP 429"],
+  ["a missing login", "echo 'To get started with GitHub CLI, please run:  gh auth login' >&2; exit 4", "gh auth login"],
+  ["a silent failure", "exit 1", "gh api exited with 1"],
+  ["a reply that is not JSON", "echo '<html>proxy error</html>'", "gh api returned no JSON"],
+  ["a hung gh", "sleep 30", "gh api timed out"],
+] as const) {
+  test(`CHECK_PACK_UPSTREAM=1 reports ${label} as could not be checked, not as a bad pin`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root);
+    const result = run(root, { ...fakeGh(root, body), CHECK_PACK_GH_TIMEOUT_MS: body.startsWith("sleep") ? "1000" : "" });
+    expect(result.code).not.toBe(0);
+    expect(result.output).toContain("could not be checked on GitHub");
+    expect(result.output).toContain(reason);
+    expect(result.output).not.toContain("does not resolve");
+    expect(result.output).not.toContain("arc-manifest.yaml");
+  });
+}
 
 test("missing upstream block fails", () => {
   const root = library([{ path: memberPath }]);

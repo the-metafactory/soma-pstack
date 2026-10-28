@@ -29,23 +29,44 @@ function upstreamPathShapeError(path: string): string | null {
   if (segments.some((segment) => segment === "" || segment === "." || segment === "..")) {
     return "upstream.path must be relative with no empty, . or .. segments";
   }
-  if (!path.endsWith("/") && !/\.[A-Za-z0-9]+$/.test(segments.at(-1)!)) {
-    return "upstream.path must end in / for a directory or in a filename with an extension for a file";
-  }
   return null;
+}
+
+const githubTimeoutMs = Number(process.env.CHECK_PACK_GH_TIMEOUT_MS) || 30_000;
+
+function lookUpOnGitHub(api: string): { found: unknown } | { notFound: string } | { error: string } {
+  let lookup;
+  try {
+    lookup = Bun.spawnSync(["gh", "api", api], { stdout: "pipe", stderr: "pipe", timeout: githubTimeoutMs });
+  } catch (error) {
+    return { error: `gh could not run: ${describe(error)}` };
+  }
+  if (lookup.exitedDueToTimeout) return { error: `gh api timed out after ${githubTimeoutMs} ms` };
+  const stderr = lookup.stderr.toString().trim();
+  if (lookup.exitCode !== 0) {
+    if (stderr.includes("(HTTP 404)")) return { notFound: stderr };
+    return { error: stderr || `gh api exited with ${lookup.exitCode ?? lookup.signalCode}` };
+  }
+  try {
+    return { found: JSON.parse(lookup.stdout.toString()) };
+  } catch (error) {
+    return { error: `gh api returned no JSON: ${describe(error)}` };
+  }
 }
 
 function checkUpstreamOnGitHub(upstream: Mapping & { path: string }, path: string, errors: string[]): void {
   const pin = `${upstream.repo}:${upstream.path}@${upstream.commit}`;
-  const target = upstream.path.replace(/\/$/, "");
-  const lookup = Bun.spawnSync(["gh", "api", `repos/${upstream.repo}/contents/${target}?ref=${upstream.commit}`], {
-    stdout: "pipe", stderr: "pipe",
-  });
-  if (lookup.exitCode !== 0) {
-    errors.push(`${path}: upstream.path ${pin} does not resolve on GitHub: ${lookup.stderr.toString().trim()}`);
+  const target = upstream.path.replace(/\/$/, "").split("/").map(encodeURIComponent).join("/");
+  const result = lookUpOnGitHub(`repos/${upstream.repo}/contents/${target}?ref=${upstream.commit}`);
+  if ("error" in result) {
+    errors.push(`${path}: upstream.path ${pin} could not be checked on GitHub: ${result.error}`);
     return;
   }
-  const isDirectory = Array.isArray(JSON.parse(lookup.stdout.toString()));
+  if ("notFound" in result) {
+    errors.push(`${path}: upstream.path ${pin} does not resolve on GitHub: ${result.notFound}`);
+    return;
+  }
+  const isDirectory = Array.isArray(result.found);
   if (isDirectory !== upstream.path.endsWith("/")) {
     errors.push(`${path}: upstream.path ${pin} is a ${isDirectory ? "directory" : "file"} on GitHub`);
   }
