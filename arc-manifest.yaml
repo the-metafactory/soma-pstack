@@ -54,3 +54,5 @@ artifacts:
     description: Read-only audit of a repo's git worktrees with a suggested cleanup bucket each.
   - path: skills/ketchup-video
     description: Catch the principal up like ketchup, with a short subtitled slide video of what happened and the waiting calls as text under it.
+  - path: skills/maintain-verification-skill
+    description: Keep a project's verify skill and feature map honest with a source wave, a live pass over every feature and at most one PR of proven corrections.

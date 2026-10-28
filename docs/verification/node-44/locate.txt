@@ -1,0 +1,11 @@
+$ git -C ~/work/mf/ranger rev-parse --abbrev-ref HEAD; git -C ~/work/mf/ranger rev-parse HEAD; git -C ~/work/mf/ranger status --porcelain | wc -l
+main
+492581f8f4ccab86813bc15edd4ef1fd958318be
+0
+
+$ ls -d ~/work/mf/ranger/.claude/skills/*/ ~/work/mf/ranger/.agents/skills/*/
+drwxr-xr-x@ 5 fischer  staff  160 Oct 25 22:51 .claude/skills/verify-ranger/
+ls: .agents/skills/*/: No such file or directory
+
+$ for d in .claude/skills/*/; do printf "%s features/README.md:%s sections:" "$d" "$(test -f $d/features/README.md && echo yes || echo no)"; grep -c "^## \(Launch\|Doctor\|Drive\|Evidence\|Cleanup\)$" "$d/SKILL.md"; done
+.claude/skills/verify-ranger/ features/README.md:yes sections:5

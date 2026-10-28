@@ -1,0 +1,28 @@
+$ cd ~/work/mf/ranger/.claude/skills/verify-ranger/features
+$ grep -o "](\./[^)]*)" README.md | sed "s/](\.\///;s/)//" | sort
+approve-node.md
+dashboard-overview.md
+jobs.md
+journal.md
+scout.md
+
+$ find . -maxdepth 1 -name "*.md" ! -name README.md | sed "s|^\./||" | sort
+approve-node.md
+dashboard-overview.md
+jobs.md
+journal.md
+scout.md
+
+$ diff <(listed) <(on disk); echo "exit $?"   # missing/extra
+exit 0
+
+$ grep -o "](\./[^)]*)" README.md | sort | uniq -d   # duplicates
+(none above means no duplicates)
+
+$ for f in *.md; do [ $f = README.md ] && continue; printf "%s: " $f; grep "^## " $f | tr "
+" "|"; echo; done   # entry contract
+approve-node.md: ## Sub-features|## How to get to it (user POV)|## Driving it with the CLI dry run|## Gotchas|
+dashboard-overview.md: ## Sub-features|## How to get to it (user POV)|## Driving it with drive.ts (Playwright)|## Gotchas|
+jobs.md: ## Sub-features|## How to get to it (user POV)|## Driving it with the CLI and drive.ts|## Gotchas|
+journal.md: ## Sub-features|## How to get to it (user POV)|## Driving it with the CLI|## Gotchas|
+scout.md: ## Sub-features|## How to get to it (user POV)|## Driving it with the CLI|## Gotchas|
