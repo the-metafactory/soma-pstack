@@ -18,9 +18,8 @@ capabilities:
       - "./**"
       - "/tmp/interrogate-*/**"
     write:
-      # Report-only: the scope's own tree is never written. git worktree add
-      # registers each adversary worktree under .git/worktrees.
-      - "./.git/worktrees/**"
+      # Report-only: the scope's own tree is never written. Each adversary
+      # worktree is a clone in a mktemp run directory under /tmp.
       - "/tmp/interrogate-*/**"
   network:
     - host: api.anthropic.com
@@ -28,6 +27,6 @@ capabilities:
     - host: api.openai.com
       reason: Run the codex adversary through an authenticated CLI.
   bash:
-    # git worktree add and apply for each adversary, model CLIs, and reruns of each finding.
+    # git clone and apply for each adversary, model CLIs, and sandboxed reruns of each finding.
     allowed: true
   secrets: []
