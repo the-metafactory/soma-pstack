@@ -1,0 +1,36 @@
+# F1: a reported command that closes the quote. Old template, pasted verbatim (target renamed to r2-escape-old):
+$ codex sandbox -P interrogate -C "$run/adversary-1" -c "permissions.interrogate.filesystem=$fs" -- sh -c 'echo hi'; touch /tmp/r2-escape-old; echo '' < /dev/null
+hi
+
+$ ls -l /tmp/r2-escape-old   # unsandboxed, after
+  -rw-r--r--@ 1 fischer  wheel  0 Oct 28 16:03 /tmp/r2-escape-old
+
+# New template. The parent wrote each command verbatim with the Write tool, then read it:
+$ cat "$run/rerun-1-1.sh"
+echo hi'; touch /tmp/r2-escape; echo '
+$ . /tmp/interrogate-r2probe.f6SgYi/env; codex sandbox -P interrogate -C "$run/adversary-1" -c "permissions.interrogate.filesystem=$fs" -- sh "$run/rerun-1-1.sh" < /dev/null
+hi; touch /tmp/r2-escape; echo 
+exit=0
+$ cat "$run/rerun-1-2.sh"
+cd /tmp/interrogate-r2probe.f6SgYi/adversary-1 && printf '%s\n' "it's \"quoted\" and \$literal" && grep -c "it's" e.txt
+$ . /tmp/interrogate-r2probe.f6SgYi/env; codex sandbox -P interrogate -C "$run/adversary-1" -c "permissions.interrogate.filesystem=$fs" -- sh "$run/rerun-1-2.sh" < /dev/null
+it's "quoted" and $literal
+1
+exit=0
+$ cat "$run/rerun-1-3.sh"
+cd /tmp/interrogate-r2probe.f6SgYi/adversary-1 && echo inside > in.txt && cat in.txt; cat ../adversary-2/secret.txt; cat /private/tmp/interrogate-r2probe.f6SgYi/adversary-2/secret.txt; echo x > ../adversary-2/planted.txt; cat /tmp/interrogate-r2probe.f6SgYi/env; cat /tmp/r2probe-scope/e.txt; bun -e 'console.log(require("ws"), require("dep"))'
+$ . /tmp/interrogate-r2probe.f6SgYi/env; codex sandbox -P interrogate -C "$run/adversary-1" -c "permissions.interrogate.filesystem=$fs" -- sh "$run/rerun-1-3.sh" < /dev/null
+inside
+secret2
+secret2
+/tmp/interrogate-r2probe.f6SgYi/rerun-1-3.sh: line 1: ../adversary-2/planted.txt: Operation not permitted
+run=/tmp/interrogate-r2probe.f6SgYi
+scope=/private/tmp/r2probe-scope
+fs="{\":root\"=\"read\", \"$HOME\"=\"none\", \"$scope\"=\"none\", \"$HOME/.gitconfig\"=\"read\", \"$HOME/.bun\"=\"read\", \":project_roots\"=\"write\"}"
+cat: /tmp/r2probe-scope/e.txt: Operation not permitted
+[class BunWebSocket] dep
+exit=0
+$ ls -l (unsandboxed, after)
+ls: /tmp/interrogate-r2probe.f6SgYi/adversary-2/planted.txt: No such file or directory
+ls: /tmp/r2-escape: No such file or directory
+-rw-r--r--@ 1 fischer  wheel  7 Oct 28 16:03 /tmp/interrogate-r2probe.f6SgYi/adversary-1/in.txt

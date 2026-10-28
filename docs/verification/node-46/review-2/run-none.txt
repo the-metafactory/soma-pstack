@@ -1,0 +1,17 @@
+# F6: the profile with "$run"="none" before the write entry
+fs={":root"="read", "/Users/fischer"="none", "/private/tmp/r2probe-scope"="none", "/tmp/interrogate-r2probe.f6SgYi"="none", "/Users/fischer/.gitconfig"="read", "/Users/fischer/.bun"="read", ":project_roots"="write"}
+# probe.sh (run as sh -c "$(cat probe.sh)", since sh cannot open a file in a denied $run):
+cd /tmp/interrogate-r2probe.f6SgYi/adversary-3 && echo cd-ok
+cd -P /tmp/interrogate-r2probe.f6SgYi/adversary-3 && echo cd-P-ok
+echo ok > /tmp/interrogate-r2probe.f6SgYi/adversary-3/w.txt && echo write-abs-ok
+cat ../adversary-2/secret.txt
+realpath /tmp/interrogate-r2probe.f6SgYi/adversary-3/r.js
+bun /tmp/interrogate-r2probe.f6SgYi/adversary-3/r.js
+$ codex sandbox -P interrogate -C "$run/adversary-3" -c "permissions.interrogate.filesystem=$fs" -- sh -c "$(cat probe.sh)" < /dev/null
+sh: line 0: cd: /tmp/interrogate-r2probe.f6SgYi/adversary-3: Not a directory
+cd-P-ok
+write-abs-ok
+cat: ../adversary-2/secret.txt: Operation not permitted
+realpath: /tmp/interrogate-r2probe.f6SgYi/adversary-3/r.js: Operation not permitted
+ws-from-workspace patched
+exit=0

@@ -18,8 +18,12 @@ capabilities:
       - "./**"
       - "/tmp/interrogate-*/**"
     write:
-      # Report-only: the scope's own tree is never written. Each adversary
-      # worktree is a clone in a mktemp run directory under /tmp.
+      # Report-only: the skill writes only in its mktemp run directory under
+      # /tmp. Each adversary gets a clone there with its own copy of the
+      # scope's node_modules, so no seat shares a writable path with the scope.
+      # The codex seat's profile denies the scope; a sub-agent seat has no
+      # sandbox and is held to its clone by the brief alone. On macOS, /tmp is
+      # a link to /private/tmp, so tools report these paths as /private/tmp.
       - "/tmp/interrogate-*/**"
   network:
     - host: api.anthropic.com

@@ -80,7 +80,7 @@ test("uncommitted changes reach each worktree through concrete git commands", ()
   expect(fan).toContain("run=$(mktemp -d /tmp/interrogate-<slug>.XXXXXX)");
   expect(fan).not.toContain("/tmp/interrogate-<slug>/");
   expect(fan).toContain("git clone --quiet --no-hardlinks --no-checkout");
-  expect(fan).toContain("git diff --binary HEAD");
+  expect(fan).toContain("git -C \"$scope\" diff --binary HEAD");
   expect(fan).toMatch(/git -C \S+ apply /);
   expect(fan).toContain("git ls-files --others --exclude-standard");
 });
@@ -154,17 +154,85 @@ test("the parent reads each repro before running it, and reruns it inside the co
   expect(rerun).toContain("ls: /tmp/s6-control.txt: No such file or directory");
 });
 
-test("every adversary command is pinned to its worktree, and dependencies are linked, not installed", () => {
+test("every adversary command is pinned to its worktree, and each seat gets its own copy of the dependencies", () => {
   const fan = section(skill, "Fan out");
   expect(fan).toContain("Start every command you run with `cd <your worktree> &&` or use only absolute paths");
-  expect(fan).toContain("ln -s \"$scope/node_modules\" \"$run/adversary-<n>/node_modules\"");
-  expect(fan).toContain("`?? node_modules`");
+  expect(fan).toContain("cp -cR \"$scope/node_modules\" \"$run/adversary-<n>/node_modules\"");
+  expect(fan).toContain("cp -R --reflink=auto \"$scope/node_modules\" \"$run/adversary-<n>/node_modules\"");
+  expect(fan).not.toContain("ln -s");
+  expect(fan).toContain("Do not install, add or upgrade dependencies");
+  expect(fan).toContain("A link with an absolute path into the scope still points into the scope");
   expect(fan).not.toMatch(/bun install|install them in each worktree/);
+  expect(skill).not.toContain("\"$scope/node_modules\"=\"read\"");
+  const comment = readFileSync(join(member, "arc-manifest.yaml"), "utf8");
+  expect(comment).not.toContain("the scope's own tree is never written");
+  expect(comment).toContain("held to its clone by the brief alone");
+});
+
+test("the clone is checked against the scope by its changes, not its git status", () => {
+  const fan = section(skill, "Fan out");
+  expect(fan).toContain("apply --index --allow-empty");
+  expect(fan).toContain("state() { git -C \"$1\" diff HEAD --name-status; git -C \"$1\" ls-files --others --exclude-standard; }");
+  expect(fan).toContain("diff <(state \"$scope\") <(state \"$run/adversary-<n>\")");
+  expect(fan).not.toContain("status --short -uall");
+  expect(fan).toContain("does not keep the scope's split between staged and unstaged changes");
+});
+
+test("rsync and the patch do not depend on the shell's working directory", () => {
+  const fan = section(skill, "Fan out");
+  expect(fan).toContain("git -C \"$scope\" ls-files --others --exclude-standard -z | rsync -a --from0 --files-from=- \"$scope/\" \"$run/adversary-<n>/\"");
+  expect(fan).not.toContain("--files-from=- ./");
+});
+
+test("run, scope and fs live in $run/env, and every later shell block sources it", () => {
+  const blocks = [...skill.matchAll(/```sh\n([\s\S]*?)```/g)].map(match => match[1]!.replace(/^ +/gm, ""));
+  const setup = blocks.find(block => block.startsWith("run=$(mktemp"))!;
+  expect(setup).toContain("printf 'run=%q\\nscope=%q\\n' \"$run\" \"$scope\" > \"$run/env\"");
+  expect(setup).toContain("cat >> \"$run/env\" <<'EOF'\nfs=");
+  const later = blocks.filter(block => /\$run|\$fs|\$scope/.test(block) && block !== setup);
+  expect(later.length).toBeGreaterThanOrEqual(4);
+  for (const block of later) expect(block, block).toStartWith(". <run>/env\n");
+  expect(skill).toContain("On Claude Code each Bash call starts a new shell");
+});
+
+test("the codex seat reads its brief from a file, never from an inline argument", () => {
+  const fan = section(skill, "Fan out");
+  expect(fan).not.toContain("\"<brief>\"");
+  expect(fan).toContain("-o \"$run/adversary-<n>.report.md\" - < \"$run/brief-<n>.md\"");
+  expect(fan).toContain("its backticks run as commands");
+  const session = readFileSync(join(probe, "review-2", "brief-stdin-session.txt"), "utf8");
+  expect(session).toContain("Markers that must arrive literally: `$HOME`, $(whoami), `uname -a`");
+  expect(session).toContain("FINAL-CLAUSE: this sentence must survive.");
+  expect(session).toContain("sandbox: workspace-write [workdir]\n");
+});
+
+test("a reported command is rerun from a file, so a quote in it cannot escape the sandbox", () => {
+  const verify = section(skill, "Verify");
+  expect(verify).not.toContain("sh -c '<command>'");
+  expect(skill).not.toMatch(/sh -c '<[^>]*>'/);
+  expect(verify).toContain("-- sh \"$run/rerun-<n>-<k>.sh\" < /dev/null");
+  expect(verify).toContain("Never paste a reported command into your own command line");
+  expect(verify).toContain("use the Write tool");
+  expect(verify).toContain("quoted heredoc (`<<'EOF'`), after you check that no line of the command is `EOF`");
+  const proof = readFileSync(join(probe, "review-2", "f1-escape.txt"), "utf8");
+  expect(proof).toContain("-rw-r--r--@ 1 fischer  wheel  0 Oct 28 16:03 /tmp/r2-escape-old");
+  expect(proof).toContain("hi; touch /tmp/r2-escape; echo \n");
+  expect(proof).toContain("ls: /tmp/r2-escape: No such file or directory");
+  expect(proof).toContain("it's \"quoted\" and $literal\n1\n");
+});
+
+test("the profile does not deny the run directory, and the skill says what that leaves open", () => {
+  const fan = section(skill, "Fan out");
+  expect(/\n\s*fs=.*/.exec(skill)![0]).not.toContain("\\\"$run\\\"=");
+  expect(fan).toContain("The profile does not stop the seat from reading the other seats' clones and reports");
+  const probeOut = readFileSync(join(probe, "review-2", "run-none.txt"), "utf8");
+  expect(probeOut).toContain("cd: /tmp/interrogate-r2probe.f6SgYi/adversary-3: Not a directory");
+  expect(probeOut).toContain("realpath: /tmp/interrogate-r2probe.f6SgYi/adversary-3/r.js: Operation not permitted");
 });
 
 test("the codex seat reads no home or scope secrets, writes only its worktree, has no network, and the probe proves it", () => {
   const fan = section(skill, "Fan out");
-  const command = /```sh\n\s*(fs=[\s\S]*?)```/.exec(fan)![1]!;
+  const command = [...fan.matchAll(/```sh\n([\s\S]*?)```/g)].map(match => match[1]!).filter(block => /fs=|codex exec/.test(block)).join("\n");
   for (const entry of [
     "\\\":root\\\"=\\\"read\\\"",
     "\\\"$HOME\\\"=\\\"none\\\"",
@@ -175,7 +243,6 @@ test("the codex seat reads no home or scope secrets, writes only its worktree, h
     "-c 'default_permissions=\"interrogate\"'",
     "-c 'approval_policy=\"never\"'",
     "-C \"$run/adversary-<n>\" -o \"$run/adversary-<n>.report.md\"",
-    "< /dev/null",
   ]) expect(command, entry).toContain(entry);
   expect(command).not.toContain("--add-dir");
   expect(fan).toContain("sandbox: workspace-write [workdir]");

@@ -1,0 +1,19 @@
+# F3 and F5: probe scope /tmp/r2probe-scope, with a staged edit, a staged rename, an unstaged edit and an untracked file
+$ git -C /tmp/r2probe-scope status --short -uall
+M  a.txt
+R  b.txt -> c.txt
+ M d.txt
+?? e.txt
+# setup block, run in one shell; env sourced in a fresh shell:
+run=/tmp/interrogate-r2probe.f6SgYi
+scope=/private/tmp/r2probe-scope
+fs="{\":root\"=\"read\", \"$HOME\"=\"none\", \"$scope\"=\"none\", \"$HOME/.gitconfig\"=\"read\", \"$HOME/.bun\"=\"read\", \":project_roots\"=\"write\"}"
+$ zsh -c '. /tmp/interrogate-r2probe.f6SgYi/env; echo "$fs"'
+{":root"="read", "/Users/fischer"="none", "/private/tmp/r2probe-scope"="none", "/Users/fischer/.gitconfig"="read", "/Users/fischer/.bun"="read", ":project_roots"="write"}
+# clone block for adversary-5, run from cd / so the cwd is not the scope, then the state check:
+adversary-5: same changes as the scope
+$ git -C "$run/adversary-5" status --short -uall   # index differs: everything staged
+M  a.txt
+R  b.txt -> c.txt
+M  d.txt
+?? e.txt

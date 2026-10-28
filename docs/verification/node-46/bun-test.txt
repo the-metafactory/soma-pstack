@@ -1,5 +1,5 @@
- 125 pass
+ 131 pass
  1 skip
  0 fail
- 526 expect() calls
-Ran 126 tests across 13 files. [38.03s]
+ 566 expect() calls
+Ran 132 tests across 13 files. [59.48s]
