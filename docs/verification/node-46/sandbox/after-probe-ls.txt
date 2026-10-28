@@ -1,0 +1,4 @@
+$ ls -l /Users/fischer/work/mf/r1-probe-outside.txt /tmp/r1-probe-control.txt /tmp/interrogate-r1probe/adversary-1/probe-inside.txt
+ls: /tmp/r1-probe-control.txt: No such file or directory
+ls: /Users/fischer/work/mf/r1-probe-outside.txt: No such file or directory
+-rw-r--r--@ 1 fischer  wheel  7 Oct 28 15:05 /tmp/interrogate-r1probe/adversary-1/probe-inside.txt

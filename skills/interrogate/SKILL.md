@@ -31,8 +31,26 @@ The scope is what the principal names. Otherwise it is the branch diff from its 
 
 Run arena Phase A (Frame) steps 3 and 4 and arena Phase B (Fan out), with four changes.
 
-1. Pick adversaries where arena picks runners. A roster the principal names in the request is the roster. Otherwise run two adversaries from different model families, since the point is that they find different failures: a general-purpose sub-agent on model `opus`, and a `codex exec --sandbox workspace-write --skip-git-repo-check -C /tmp/interrogate-<slug>/adversary-<n>` process, which runs codex in its worktree on its configured default model. If `codex` is missing or fails to start, replace that seat with a sub-agent on `fable` and say the roster lost its second family. Arena's rules for a rejected model and for fewer than two seats apply.
-2. Label the adversaries `adversary-1` to `adversary-N` in spawn order, and give each its own worktree with the scope's uncommitted changes in it, per the **separate-before-serializing-shared-state** principle (`the-algorithm/references/principles/separate-before-serializing-shared-state.md` in the Soma skills directory). This is in place of the harness-picked worktree in arena's step 4, so the uncommitted changes are in place before the adversary starts. From the scope's repository root, for adversary `<n>`:
+1. Pick adversaries where arena picks runners. A roster the principal names in the request is the roster. Otherwise run two adversaries from different model families, since the point is that they find different failures: a general-purpose sub-agent on model `opus`, and a codex process that runs in its worktree on its configured default model:
+
+   ```sh
+   codex exec --sandbox workspace-write --skip-git-repo-check \
+     -c 'sandbox_workspace_write.writable_roots=[]' \
+     -c 'sandbox_workspace_write.network_access=false' \
+     -c 'sandbox_workspace_write.exclude_slash_tmp=true' \
+     -c 'sandbox_workspace_write.exclude_tmpdir_env_var=true' \
+     -c 'approval_policy="never"' \
+     -C /tmp/interrogate-<slug>/adversary-<n> "<brief>"
+   ```
+
+   The `-c` overrides replace the user's codex config, which can add writable roots, turn on the network, or let an approval escalate a command out of the sandbox. With them the seat can write only inside its worktree, and its session header must read `sandbox: workspace-write [workdir]` with no network note; stop the seat if it reads otherwise. Tell it to set `TMPDIR` to a directory inside its worktree when a tool needs one. Drop the `network_access` override only when a repro needs the network, and say so in the report. A sub-agent seat has no such sandbox: it is held to its worktree only by the brief and the substrate's permissions. If `codex` is missing or fails to start, replace that seat with a sub-agent on `fable` and say the roster lost its second family. Arena's rules for a rejected model and for fewer than two seats apply.
+2. Label the adversaries `adversary-1` to `adversary-N` in spawn order, and give each its own worktree with the scope's uncommitted changes in it, per the **separate-before-serializing-shared-state** principle (`the-algorithm/references/principles/separate-before-serializing-shared-state.md` in the Soma skills directory). This is in place of the harness-picked worktree in arena's step 4: a harness worktree starts from a commit, and every seat must start from the same uncommitted tree. First list the untracked files the `rsync` line will copy:
+
+   ```sh
+   git ls-files --others --exclude-standard
+   ```
+
+   That list is every untracked file not in `.gitignore`, which can include large or secret files such as a local `.env` or a data dump. Remove or ignore any that the adversaries must not see, or ask the principal, before you copy. Then, from the scope's repository root, for adversary `<n>`:
 
    ```sh
    mkdir -p /tmp/interrogate-<slug>
@@ -63,4 +81,4 @@ Leave the worktrees in place and name their paths in the report, since they hold
 - Dropped: for each adversary, the count of dropped findings and why.
 - Worktrees: the path of each adversary's worktree.
 
-Source: ported from pstack `pstack/skills/interrogate/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c (MIT, © 2026 Lauren Tan). Changed: triggers added; the intent is restated inline instead of through an unported skill; adversaries come from the principal's roster or a two-family Soma default instead of the pstack models rule's `interrogate reviewers` line; copying uncommitted changes into each worktree is spelled out as git commands; each sub-agent seat is the substrate's general sub-agent rather than a host-specific agent type; the adversary hand-off is arena Phase B's rule for a directory the parent named, plus a report of the repro files; the verify step says who reruns, where, and what is checked first; the `code-review` line, the Worktrees output and the cleanup rule are added. Arena phases are cited by letter and name.
+Source: ported from pstack `pstack/skills/interrogate/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c (MIT, © 2026 Lauren Tan). Changed: triggers added; the intent is restated inline instead of through an unported skill; adversaries come from the principal's roster or a two-family Soma default instead of the pstack models rule's `interrogate reviewers` line; copying uncommitted changes into each worktree is spelled out as git commands, after a check of the untracked files; the codex seat's sandbox overrides confine its writes to its worktree and turn off its network; each sub-agent seat is the substrate's general sub-agent rather than a host-specific agent type; the adversary hand-off is arena Phase B's rule for a directory the parent named, plus a report of the repro files; the verify step says who reruns, where, and what is checked first; the `code-review` line, the Worktrees output and the cleanup rule are added. Arena phases are cited by letter and name.

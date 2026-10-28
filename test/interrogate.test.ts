@@ -68,7 +68,7 @@ test("the default adversaries span two model families and a named roster wins", 
   const fan = section(skill, "Fan out");
   expect(fan).toContain("A roster the principal names");
   expect(fan).toContain("`opus`");
-  expect(fan).toContain("`codex exec");
+  expect(fan).toContain("codex exec --sandbox workspace-write");
   expect(fan).toContain("family");
   expect(fan).toContain("general-purpose");
   const hosts = manifest.capabilities.network.map((entry: { host: string }) => entry.host).sort();
@@ -117,10 +117,41 @@ test("the adversary hand-off follows arena Phase B: labels, a reported path, and
   expect(fan).toContain("`adversary-1` to `adversary-N` in spawn order");
   expect(fan).toContain("ends its report with its worktree path");
   expect(fan).toContain("in place of the harness-picked worktree");
-  expect(fan).toContain("codex exec --sandbox workspace-write --skip-git-repo-check -C /tmp/interrogate-<slug>/adversary-<n>");
+  expect(fan).toContain("every seat must start from the same uncommitted tree");
   const verify = section(skill, "Verify");
   expect(verify).toContain("the path you assigned");
   expect(verify).toContain("git -C /tmp/interrogate-<slug>/adversary-<n> status --short");
+});
+
+test("the codex seat writes only inside its worktree, without network, and the probe proves it", () => {
+  const fan = section(skill, "Fan out");
+  const command = /```sh\n\s*(codex exec [\s\S]*?)```/.exec(fan)![1]!;
+  for (const flag of [
+    "--sandbox workspace-write",
+    "--skip-git-repo-check",
+    "-c 'sandbox_workspace_write.writable_roots=[]'",
+    "-c 'sandbox_workspace_write.network_access=false'",
+    "-c 'sandbox_workspace_write.exclude_slash_tmp=true'",
+    "-c 'sandbox_workspace_write.exclude_tmpdir_env_var=true'",
+    "-c 'approval_policy=\"never\"'",
+    "-C /tmp/interrogate-<slug>/adversary-<n>",
+  ]) expect(command, flag).toContain(flag);
+  expect(command).not.toContain("--add-dir");
+  expect(fan).toContain("sandbox: workspace-write [workdir]");
+  const session = readFileSync(join(probe, "sandbox", "confined-session.txt"), "utf8");
+  expect(session).toContain("sandbox: workspace-write [workdir]\n");
+  expect(session).not.toContain("network access enabled");
+  expect(session).toMatch(/operation not permitted: \S+\/work\/mf\/r1-probe-outside\.txt/);
+  expect(session).toContain("operation not permitted: /tmp/r1-probe-control.txt");
+  expect(session).toContain("Could not resolve host");
+  expect(readFileSync(join(probe, "sandbox", "confined-bun-test-session.txt"), "utf8")).toContain(" 0 fail");
+});
+
+test("the parent checks the untracked files before rsync copies them", () => {
+  const fan = section(skill, "Fan out");
+  expect(fan).toMatch(/untracked file[^\n]*large or secret/);
+  expect(fan.indexOf("git ls-files --others --exclude-standard\n")).toBeGreaterThan(-1);
+  expect(fan.indexOf("git ls-files --others --exclude-standard\n")).toBeLessThan(fan.indexOf("rsync -a"));
 });
 
 const citations = [...skill.matchAll(/`(the-algorithm\/references\/principles\/[^`]+)`/g)].map(match => match[1]!);
