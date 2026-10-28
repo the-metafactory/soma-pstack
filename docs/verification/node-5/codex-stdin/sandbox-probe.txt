@@ -1,0 +1,10 @@
+$ fs="{\":root\"=\"read\", \"$HOME\"=\"none\", \"<work-dir>\"=\"read\"}"
+$ codex sandbox -P review -C <work-dir> -c "permissions.review.filesystem=$fs" -- sh -c 'wc -c decisions.tsv; cat notes.txt; cat "$HOME/.zshrc"; ls "$HOME"; echo x > probe-write.txt; curl -sS -m 5 https://api.openai.com -o /dev/null' < /dev/null
+     338 decisions.tsv
+cat: notes.txt: Operation not permitted
+cat: $HOME/.zshrc: Operation not permitted
+ls: $HOME: Operation not permitted
+sh: probe-write.txt: Operation not permitted
+curl: (6) Could not resolve host: api.openai.com
+$ ls <work-dir>/probe-write.txt
+ls: <work-dir>/probe-write.txt: No such file or directory

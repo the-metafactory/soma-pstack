@@ -1,3 +1,16 @@
-- **Unsupported verification:** `decisions.tsv` claims “tests green,” but `transcript.txt` explicitly records that no test command ran. `audit.md` correctly flags this; the decision log still contains the unsupported result.
-- **Weak requirement evidence:** “caller needs bounded value” has no caller reference or demonstrated requirement. `util.ts:1` proves implementation exists, not that it satisfies the caller.
-- **Unspecified edge cases:** The clamp assumes `lo <= hi`; reversed bounds and `NaN` behavior have no documented contract or verification. Whether these matter depends on caller guarantees.
+- “Tests green” is unsupported: the transcript explicitly records no test command. The audit acknowledges this, but the decision trail still claims success.
+- The stated caller need has no supporting evidence. Behavior when `lo > hi` is unspecified and unverified.
+- `notes.txt` could not be read because access was denied, so this review is incomplete.
+
+Full `wc -c *` output:
+
+```text
+wc: notes.txt: open: Operation not permitted
+     125 audit.md
+     338 decisions.tsv
+     518 review-prompt.md
+    1046 session.txt
+      40 transcript.txt
+      91 util.ts
+    2158 total
+```
