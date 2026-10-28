@@ -1,0 +1,6 @@
+# codex sandbox with the runner's profile, from /tmp/arena-d1-duration/candidate-3
+rubric denied
+own dir write ok
+sibling write denied
+home denied
+1.4.2

@@ -108,8 +108,9 @@ over this repository's own history is under [`docs/verification/node-49/`](docs/
 
 [arena](skills/arena/SKILL.md) runs several candidates at one task in their own worktrees, has a judge from another model family score them
 against a rubric, picks a base and grafts the best of the rest into it by hand. It runs only when the principal asks (`/arena`, "arena this"). By default the
-runners are an `opus` and a `fable` sub-agent and a Claude parent's judge is `codex exec`; a roster named in the request
-replaces the default. Its phase letters A to F are a contract other skills cite. The scratch arena is under
+runners are an `opus` and a `fable` sub-agent plus a confined `codex exec` runner, three seats in two model families, and a
+Claude parent's judge is `codex exec`, which then shares a family with one candidate and sees it only by label; a roster
+named in the request replaces the default. Its phase letters A to F are a contract other skills cite. The scratch arena is under
 [`docs/verification/node-45/`](docs/verification/node-45/).
 
 ## Member gate

@@ -43,12 +43,31 @@ test("arena keeps upstream's phase letters and names, which other skills cite", 
   for (const step of [1, 2, 3, 4]) expect(phase("A")).toContain(`\n${step}. `);
 });
 
-test("arena's default roster is two Claude sub-agents and the principal can replace it", () => {
+test("arena's default roster spans two families with a codex seat, and the principal can replace it", () => {
   const runners = phase("A").split("\n3. ")[1]!.split("\n4. ")[0]!;
   expect(runners).toMatch(/roster the principal names/i);
-  expect(runners.match(/`(opus|fable)`/g)?.slice(0, 2)).toEqual(["`opus`", "`fable`"]);
+  expect(runners).toMatch(/three candidates in parallel, so they span two model families/);
+  expect(runners.match(/`(opus|fable|codex exec)`/g)?.slice(0, 3)).toEqual(["`opus`", "`fable`", "`codex exec`"]);
+  expect(runners).toMatch(/codex` is missing or fails to start, run without it and say the roster lost its second family/);
   expect(runners).toMatch(/fewer than two/);
   expect(runners).toMatch(/never write a candidate yourself/i);
+});
+
+test("the codex runner is confined and reads its prompt from a file on stdin", () => {
+  const fanOut = phase("B");
+  const command = /```sh\n([\s\S]*?)```/.exec(fanOut)![1]!;
+  expect(command).toContain("codex exec");
+  expect(command).toContain("- < /tmp/arena-<slug>-codex/prompt-<n>.md");
+  expect(command).toContain("-C /tmp/arena-<slug>/candidate-<n>");
+  expect(command).toContain("-o /tmp/arena-<slug>-codex/report-<n>.md");
+  expect(command).toContain(`'approval_policy="never"'`);
+  expect(command).toContain(`\\"$HOME\\"=\\"none\\"`);
+  expect(command).toContain(`\\"/tmp/arena-<slug>/rubric.md\\"=\\"none\\"`);
+  expect(command).toContain(`\\":project_roots\\"=\\"write\\"`);
+  expect(command).not.toMatch(/network|danger|--full-auto/);
+  expect(fanOut).toMatch(/never leave it open/);
+  expect(fanOut).toMatch(/`approval: never` and `sandbox: workspace-write \[workdir\]`/);
+  expect(phase("A")).toMatch(/never a linked worktree/);
 });
 
 test("worktree candidates hand back a commit and the judge reads one labeled tree", () => {
@@ -66,6 +85,11 @@ test("arena's judge is never the parent's family and is skipped rather than fake
   expect(judge).toMatch(/Claude parent gets `codex exec --sandbox read-only/);
   expect(judge).toMatch(/skip the judge/);
   expect(judge).toMatch(/never label a judge from the parent's family as cross-family/i);
+  expect(judge).toMatch(/judge shares a family with one candidate/);
+  expect(judge).toMatch(/Do not look for a third family/);
+  expect(judge).toMatch(/only by label, never by model/);
+  expect(judge).toMatch(/Phase D scoring is the check/);
+  expect(judge).toMatch(/Record in the synthesis note which candidate the judge shared a family with/);
   for (const host of judge.match(/`api\.[a-z.]+`/g)!) expect(manifest.capabilities.network.map((entry: { host: string }) => `\`${entry.host}\``)).toContain(host);
   const hosts = manifest.capabilities.network.map((entry: { host: string }) => entry.host).sort();
   expect(hosts).toEqual(["api.anthropic.com", "api.openai.com"]);
@@ -100,6 +124,18 @@ test("the probe synthesis note names the base, the judge, each graft, rejections
   expect(judge).not.toMatch(/judged by (?:claude|opus|sonnet|fable|haiku)/i);
   const candidates = readdirSync(probe).filter(name => /^candidate-\d+$/.test(name));
   expect(candidates.length).toBeGreaterThanOrEqual(2);
+});
+
+test("the default-roster probe ran a codex seat and records the judge's shared family", () => {
+  const run = join(probe, "d1-run");
+  const header = readFileSync(join(run, "codex-runner-session.txt"), "utf8");
+  expect(header).toContain("approval: never");
+  expect(header).toContain("sandbox: workspace-write [workdir]");
+  expect(header).not.toMatch(/network/i);
+  const note = readFileSync(join(run, "synthesis.md"), "utf8");
+  expect(note).toMatch(/codex exec` runner/);
+  expect(note).toMatch(/judge shared a family with candidate-\d/);
+  expect(readdirSync(run).filter(name => /^candidate-\d+$/.test(name)).length).toBe(3);
 });
 
 test("arena carries no pstack-host vocabulary outside the upstream pin and source note", () => {

@@ -5,12 +5,14 @@ Run on the host on 2026-10-28. The port is `skills/arena`, from `pstack/skills/a
 ## What changed from upstream
 
 - Frontmatter: `disable-model-invocation: true` stays, and `triggers` are added (`/arena`, `arena this`, `throw it in the arena`).
-- Phase A step 3: the pstack models rule and its Cursor model slugs are gone. A roster the principal names in the request wins. The default is two sub-agents, one on `opus` and one on `fable`. A substrate whose sub-agent tool cannot pick a model runs each seat as a model CLI process. The rules for a rejected model and for fewer than two runners are kept, in Soma terms.
+- Phase A step 3: the pstack models rule and its Cursor model slugs are gone. A roster the principal names in the request wins. The default is three seats in two families, where upstream's is a pair from two families: two sub-agents, one on `opus` and one on `fable`, and one `codex exec` runner. Without codex the default is the two Claude seats, and the parent says the roster lost its second family. A substrate whose sub-agent tool cannot pick a model runs each seat as a model CLI process. The rules for a rejected model and for fewer than two runners are kept, in Soma terms.
 - Phase A step 3 drops upstream's fast/standard speed choice. Upstream's one-line rule for a short roster becomes: add runners until there are two, on a remaining runner's model or the parent's.
 - Phase A step 3 adds two rules: never write a candidate yourself in this conversation, and stop and say the arena cannot run here when there is no sub-agent tool and no model CLI.
 - Phase A step 4: on Claude Code the Agent tool's `isolation: "worktree"` gives each candidate its own worktree and branch, at a path the harness picks.
 - Phase B (added): a worktree candidate commits its artifact and reports its worktree path, branch and SHA. The parent copies every candidate from its commit into one labeled tree, `/tmp/arena-<slug>/candidate-<n>/`, and leaves the worktrees for the principal to remove.
 - Phase C: the judge is picked by model family through a sub-agent or model CLI, the same mechanism `show-me-your-work` uses for its reviewer. Upstream's chain of fallback judges becomes one judge per family: `codex exec --sandbox read-only --skip-git-repo-check -C /tmp/arena-<slug>` for a Claude parent, `opus` for any other. Codex runs on its configured default model, so only the `opus` route names a model that can be rejected. The rules that the judge is never the parent's family and that a missing judge is skipped and reported are upstream's.
+- Phase B (added): the codex runner's command. Its prompt comes from a file on stdin, so stdin is always closed; `-o` writes its final message; a permissions profile lets it write only in its own directory, denies reads under `$HOME` and of the rubric, and turns off its network, with `approval_policy="never"`. Its prompt, report and session log stay in `/tmp/arena-<slug>-codex/`, outside the labeled tree. It gets a directory or a clone, never a linked worktree, whose git directory the profile denies.
+- Phase C (added): with the default roster the judge shares a family with one candidate. It sees candidates only by label, the parent's Phase D scoring is the check, and the synthesis note records which candidate shared its family. There is no third family.
 - Phase C adds two rules: a remote judge uses only a host declared in the manifest, through an already authenticated CLI, and the verdict is saved with the judge's model identity.
 - Principles point at Soma's `the-algorithm` skill, as `the-algorithm/references/principles/<name>.md` in the Soma skills directory. Upstream's `prove-it-works` is Soma's `verify-before-claiming`.
 - Phase D adds one sentence: a candidate's rationale is a claim about its artifact, so read the artifact.
@@ -48,6 +50,17 @@ The first run gave each candidate a directory under `/tmp`. [worktree-run/](work
 
 `codex exec --help` (v0.163.0) has `-C`/`--cd` for the working root and `--add-dir` for extra directories, but `--add-dir` makes them writable, so copying into one tree keeps the judge read-only.
 
+## Default roster run (D1)
+
+[d1-run/](d1-run/) is a third arena on the parseDuration task, with the default roster after D1: an `opus` and a `fable` sub-agent and a `codex exec` runner, all three started in one message, and a codex judge.
+
+- The codex runner ran the Phase B command with [codex-runner-prompt.md](d1-run/codex-runner-prompt.md) on stdin. Its session header, [codex-runner-session.txt](d1-run/codex-runner-session.txt), reads `model: gpt-6.1-sol`, `approval: never`, `sandbox: workspace-write [workdir]`, with no network note; it exited 0 with its three files written.
+- [confinement-probe.txt](d1-run/confinement-probe.txt) runs the same profile through `codex sandbox` from the runner's directory: the rubric is denied, its own directory is writable, a sibling candidate is not, `$HOME` is denied, and `bun` runs. A network check from the same sandbox, run earlier in the session, printed "net blocked"; the recorded probe leaves it out because the host's egress policy blocks a recorded `curl`.
+- The judge ran `codex exec --sandbox read-only -C /tmp/arena-d1-duration` with [judge-prompt.md](d1-run/judge-prompt.md); [judge-session.txt](d1-run/judge-session.txt) and [judge-verdict.md](d1-run/judge-verdict.md). It picked candidate-1, as I did, and ranked the codex candidate last.
+- [synthesis.md](d1-run/synthesis.md) records that the judge shared a family with candidate-3. [verify-output.txt](d1-run/verify-output.txt): the synthesis passes every hidden case; the 8 failures are the candidates'. Rerun with `bun test ./docs/verification/node-45/d1-run/verify.test.ts`.
+
+The judge's header reads `approval: on-request`, from the user's codex config: the Phase C command sets only `--sandbox read-only`. It ran to completion, since a read-only judge has nothing to escalate for.
+
 ## Gate
 
-`bun test`: 108 tests across 12 files, 107 pass, 1 skip, 0 fail. The skip is the statechart TLC test, which needs `tla2tools` and Java and was skipped before this change too. `bun scripts/check-pack.ts`: see [pack-check.txt](pack-check.txt).
+`bun test`: 110 tests across 12 files, 109 pass, 1 skip, 0 fail. The skip is the statechart TLC test, which needs `tla2tools` and Java and was skipped before this change too. `bun scripts/check-pack.ts`: see [pack-check.txt](pack-check.txt).
