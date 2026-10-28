@@ -96,7 +96,7 @@ under [`docs/verification/node-48/`](docs/verification/node-48/).
 
 [maintain-verification-skill](skills/maintain-verification-skill/SKILL.md) is the upkeep pass for the `verify-<app>` skill that
 [create-verification-skill](skills/create-verification-skill/SKILL.md) generates. One read-only subagent per feature file reads the
-source, the coordinator then drives every feature live, and proven corrections to the map or harness ship as one PR, pushed only under
+source, the coordinator then drives every feature live that the target skill's own rules allow, and proven corrections to the map or harness ship as one PR, pushed only under
 the principal's approval or a covering grant. The read-only probe of its first four steps against ranger's `verify-ranger` is under
 [`docs/verification/node-44/`](docs/verification/node-44/).
 

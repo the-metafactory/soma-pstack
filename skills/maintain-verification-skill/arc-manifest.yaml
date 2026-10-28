@@ -18,11 +18,12 @@ capabilities:
       - "./**"
       - "./.claude/skills/**"
       - "./.agents/skills/**"
-    # Edits stay inside the target verify skill; run notes go to scratch.
+    # The run edits the verify skill only in its own worktree under scratch,
+    # never in the checkout; ./.git/** holds that worktree's branch, refs and objects.
     write:
-      - "./.claude/skills/**"
-      - "./.agents/skills/**"
-      - "/tmp/**"
+      - "./.git/**"
+      - "/tmp/maintain-verification-skill/**"
+  # The push hosts assume GitHub; the pass and the opening-a-pr card work on any forge.
   network:
     - host: localhost
       reason: Drive the project's local app through its verify skill.

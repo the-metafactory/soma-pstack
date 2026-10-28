@@ -18,11 +18,12 @@ function files(directory: string): string[] {
   });
 }
 
-test("maintain-verification-skill is command-invoked and routed", () => {
+test("maintain-verification-skill starts only when the principal asks", () => {
   expect(frontmatter.name).toBe("maintain-verification-skill");
   expect(frontmatter["disable-model-invocation"]).toBe(true);
-  expect(frontmatter.route).toMatch(/verify-<app>/);
   expect(frontmatter.triggers).toContainEqual({ pattern: "/maintain-verification-skill", type: "command", priority: 100 });
+  // Soma lists a routed member as "read that SKILL.md in full and follow it", which would run the pass unasked.
+  expect(frontmatter.route).toBeUndefined();
 });
 
 test("maintain-verification-skill pins the upstream commit", () => {
@@ -33,10 +34,15 @@ test("maintain-verification-skill pins the upstream commit", () => {
   });
 });
 
-test("its edits stay inside the verify skill directories", () => {
-  expect(manifest.capabilities.filesystem.write).toEqual(["./.claude/skills/**", "./.agents/skills/**", "/tmp/**"]);
-  expect(skill).toContain("Edit only the verification skill's own directory");
-  expect(skill).toContain("Never edit product code during a run.");
+test("its edits stay inside the verify skill, in the run's own worktree", () => {
+  const write: string[] = manifest.capabilities.filesystem.write;
+  expect(write).not.toContain("/tmp/**");
+  for (const glob of write) expect(glob, glob).toMatch(/^\.\/\.git\/|^\/tmp\/maintain-verification-skill\//);
+  expect(skill).toMatch(/Edit only the verification skill's own directory/);
+  expect(skill).toMatch(/Never edit product code/);
+  const hygiene = pass.split("1. **Index hygiene.**")[1]!.split("2. **")[0]!;
+  expect(hygiene.indexOf("worktree")).toBeGreaterThanOrEqual(0);
+  expect(hygiene.indexOf("worktree")).toBeLessThan(hygiene.indexOf("Fix missing"));
 });
 
 test("a run ends in exactly one of clean, changed or blocked", () => {
@@ -65,16 +71,25 @@ test("the target is where create-verification-skill writes it", () => {
 });
 
 test("source readers are read-only and the live pass holds its three invariants", () => {
-  expect(pass).toContain("Subagents never drive the app and never edit files.");
-  expect(pass).toContain("Required even when the source looks clean.");
-  const invariants = pass.split("hold three invariants")[1]!.split("A Doctor failure")[0]!;
+  expect(pass).toMatch(/Subagents never drive the app and never edit files/);
+  expect(pass).toMatch(/Required even when the source looks clean/);
+  const invariants = pass.split("hold three invariants")[1]!.split("\n\n")[0]!;
   expect([...invariants.matchAll(/^ {3}\d\. /gm)].length).toBe(3);
+});
+
+test("the target's own hard rules gate a feature without blocking the pass", () => {
+  expect(pass).toMatch(/hard rules win/);
+  expect(pass).toMatch(/`gated`: cite the rule/);
+  const outcomes = skill.split("## Outcomes")[1]!.split("## ")[0]!;
+  for (const verdict of ["driven", "`gated`", "`verified-unreachable`"]) expect(outcomes).toContain(verdict);
 });
 
 test("a push waits on approval and follows the opening-a-pr card", () => {
   const ship = pass.split("6. **Ship or stop.**")[1]!;
-  expect(ship).toContain("only under the principal's approval or a grant that covers this work");
-  expect(ship).toContain("Without approval, stop at the local branch");
+  expect(ship).toMatch(/only under the principal's approval or a grant/);
+  expect(ship).toMatch(/Without approval, stop at the local branch/);
+  const changed = /^- \*\*changed\*\*:(.*)$/m.exec(skill)![1]!;
+  expect(changed).toMatch(/local branch/);
   const card = /`(playbooks\/references\/[a-z-]+\.md)`/.exec(ship)![1]!;
   expect(existsSync(join(skills, card))).toBe(true);
 });
