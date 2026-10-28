@@ -149,8 +149,11 @@ limit, no login, no network, a 30 s timeout, a reply that is not JSON) fails
 the run as "could not be checked", so rerun it once the cause is gone.
 
 Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
-change when it fails. The principal controls the merge. This repository has no
-CI workflow or required GitHub check for the gate.
+change when it fails. The principal controls the merge. The CI workflow
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the same gate on each
+push to `main` and each pull request against it: it puts Arc v0.46.1 on `PATH`,
+installs ripgrep, then runs `bun test test/` and `bun scripts/check-pack.ts`.
+`main` has no branch protection, so the check is not required for a merge.
 
 The script checks the library metadata and each
 listed member's directory, `SKILL.md` name and description, manifest type,
