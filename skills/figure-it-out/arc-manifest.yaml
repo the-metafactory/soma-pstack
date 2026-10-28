@@ -19,6 +19,9 @@ capabilities:
     write:
       - "./**"
   # Remote review of the trail runs under show-me-your-work's own declarations.
+  # A designed harness brings its own network needs, granted per run by the
+  # principal (the node-47 probe ran `gh api` that way). The hosts depend on the
+  # task, so no fixed list here would be true.
   network: []
   bash:
     # The designed workflow runs its harness, the units and the trail logger.

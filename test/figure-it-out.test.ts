@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { YAML } from "bun";
+import { spawnSync } from "bun";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { rows } from "./helpers/decision-trail";
@@ -10,6 +11,26 @@ const skill = readFileSync(join(member, "SKILL.md"), "utf8");
 const frontmatter = YAML.parse(/^---\n([\s\S]*?)\n---/.exec(skill)![1]!);
 const manifest = YAML.parse(readFileSync(join(member, "arc-manifest.yaml"), "utf8"));
 const section = (heading: string) => skill.split(`## ${heading}`)[1]!.split("\n## ")[0]!;
+const trail = rows(join(probe, "decisions.tsv"));
+const line = (row: number) => trail[row - 2]!;
+
+function resolves(evidence: string): boolean {
+  const pointer = evidence.split(/[ :#]/)[0]!;
+  if (existsSync(join(probe, pointer))) return true;
+  return /^[0-9a-f]{7,40}$/.test(pointer)
+    && spawnSync(["git", "cat-file", "-e", `${pointer}^{commit}`], { cwd: member }).exitCode === 0;
+}
+
+/** File line numbers that a later row supersedes as "supersedes row N (<ts of line N>)". */
+function superseded(): Map<number, string[]> {
+  const corrections = new Map<number, string[]>();
+  for (const row of trail) {
+    for (const [, n, ts] of row[2]!.matchAll(/supersedes row (\d+) \(([^)]+)\)/g)) {
+      if (line(Number(n))?.[0] === ts) corrections.set(Number(n), row);
+    }
+  }
+  return corrections;
+}
 
 function files(directory: string): string[] {
   return readdirSync(directory).flatMap(name => {
@@ -18,11 +39,16 @@ function files(directory: string): string[] {
   });
 }
 
-test("figure-it-out is command-only and routed for the case no playbook card matches", () => {
+test("figure-it-out is command-only, as upstream has it", () => {
   expect(frontmatter.name).toBe("figure-it-out");
   expect(frontmatter["disable-model-invocation"]).toBe(true);
-  expect(frontmatter.triggers).toContainEqual({ pattern: "/figure-it-out", type: "command", priority: 100 });
-  expect(frontmatter.route).toMatch(/no playbook card matches/i);
+  expect(frontmatter.triggers).toEqual([{ pattern: "/figure-it-out", type: "command", priority: 100 }]);
+  expect(frontmatter).not.toHaveProperty("route");
+});
+
+test("the description does not claim task shapes that playbook cards own", () => {
+  expect(frontmatter.description).toMatch(/no playbook card fits/i);
+  expect(frontmatter.description).not.toMatch(/migration|stepping away|steps away/i);
 });
 
 test("figure-it-out pins the upstream commit", () => {
@@ -38,8 +64,12 @@ test("figure-it-out declares no network and no secrets of its own", () => {
   expect(manifest.capabilities.secrets).toEqual([]);
 });
 
-test("figure-it-out defers to a matching playbook card before designing one", () => {
-  expect(section("Start")).toMatch(/card matches[^\n]*use (?:that|the) card/i);
+test("an explicit invocation wins, and a matching card is named to the principal rather than taken silently", () => {
+  const start = section("Start");
+  expect(start).toMatch(/explicit `\/figure-it-out`[^\n]*wins/i);
+  expect(start).toMatch(/card clearly matches[^\n]*name that card to the principal and ask/i);
+  expect(start).toMatch(/never switch to it silently/i);
+  expect(start).not.toMatch(/use that card and stop/i);
 });
 
 test("the phases run frame, design, loop, trail, hand back in order", () => {
@@ -55,6 +85,25 @@ test("an Algorithm run gets the predicate as criteria, the design as plan steps 
   expect(composition).toContain("algorithm decision");
   expect(composition).toContain("algorithm verify");
   expect(composition).toContain("decisions.tsv");
+  expect(composition).not.toMatch(/nothing is kept twice/i);
+});
+
+test("a tier mismatch is recorded and left to the principal, never escalated in place", () => {
+  const composition = section("Inside an Algorithm run");
+  expect(composition).not.toMatch(/escalate the tier/i);
+  expect(composition).toMatch(/record the mismatch with `algorithm decision`/);
+  expect(composition).toContain("the-algorithm/references/mode-detection.md");
+  expect(composition).toMatch(/Only when the classifier chose the tier[^\n]*leave that call to the principal/);
+});
+
+test("VERIFIED maps to a passed verify with a probed or tested evidence kind", () => {
+  const composition = section("Inside an Algorithm run");
+  expect(composition).toContain("VERIFIED is `--status passed --evidence-kind probed` (or `tested`");
+  expect(composition).toContain("NOT VERIFIED is `--status failed`");
+});
+
+test("the arena reference says it needs PR #50", () => {
+  expect(skill.trimEnd().split("\n").pop()).toMatch(/`arena` \(which needs soma-pstack PR #50\)/);
 });
 
 test("figure-it-out names Soma principles, not pstack's", () => {
@@ -95,18 +144,42 @@ test("the probe framed a falsifiable predicate and a rigor level before the firs
   expect(playbook).toMatch(/^## Predicate$/m);
   expect(playbook).toMatch(/^## Rigor$/m);
   expect(playbook).toMatch(/^## Designed phases$/m);
-  const trail = rows(join(probe, "decisions.tsv"));
   const firstUnit = trail.findIndex(row => row[1] === "loop");
   const frame = trail.findIndex(row => row[1] === "frame" && /predicate/i.test(row[2]!));
   expect(frame).toBeGreaterThanOrEqual(0);
   expect(frame).toBeLessThan(firstUnit);
+  expect(trail[frame]![0]! <= trail[firstUnit]![0]!).toBe(true);
 });
 
-test("every probe trail row carries an evidence pointer that exists in the evidence directory or is a SHA", () => {
-  for (const [, , decision, , evidence] of rows(join(probe, "decisions.tsv"))) {
+test("every probe trail pointer resolves here, or a later row supersedes it with one that does", () => {
+  const corrections = superseded();
+  trail.forEach(([, , decision, , evidence], index) => {
     expect(evidence, decision).toBeTruthy();
-    const pointer = evidence!.split(/[ :#]/)[0]!;
-    expect(/^[0-9a-f]{7,40}$/.test(pointer) || existsSync(join(probe, pointer)), `${decision}: ${evidence}`).toBe(true);
+    const correction = corrections.get(index + 2);
+    expect(resolves(evidence!) || (correction !== undefined && resolves(correction[4]!)), `${decision}: ${evidence}`).toBe(true);
+  });
+});
+
+test("every probe trail run opens with a start row, the first saying new log unless superseded", () => {
+  expect(trail[0]![1]).toBe("start");
+  expect(/new log/.test(trail[0]![2]!) || superseded().has(2)).toBe(true);
+});
+
+test("every supersede row in the probe trail names its row's timestamp, unless itself superseded", () => {
+  const corrections = superseded();
+  trail.forEach(([, , decision], index) => {
+    for (const [, n, ts] of decision!.matchAll(/supersedes row (\d+)( \(([^)]+)\))?/g)) {
+      const named = ts !== undefined && line(Number(n))?.[0] === ts.slice(2, -1);
+      expect(named || corrections.has(index + 2), decision).toBe(true);
+    }
+  });
+});
+
+test("the committed evidence carries no host path or email address", () => {
+  for (const file of files(probe)) {
+    const text = readFileSync(file, "utf8");
+    expect(text, file).not.toMatch(/\/Users\/|\/home\/[a-z]|-Users-/);
+    expect(text, file).not.toMatch(/[\w.+-]+@[\w-]+\.[\w.]+/);
   }
 });
 

@@ -1,8 +1,7 @@
 ---
 name: figure-it-out
-description: "Design an auditable playbook when no playbook card fits: a large migration, an ambitious multi-part change, or work the principal reviews after stepping away. Scales rigor to the task, runs a hypothesis loop, and logs decisions. Use for /figure-it-out or 'figure it out'."
+description: "Design an auditable playbook for a multi-phase task that no playbook card fits. Scales rigor to the task, runs a hypothesis loop, and logs decisions. Use only when invoked as /figure-it-out or 'figure it out'."
 disable-model-invocation: true
-route: "A multi-phase task that no playbook card matches, such as a large migration or an ambitious multi-part change."
 triggers:
   - pattern: "/figure-it-out"
     type: command
@@ -15,7 +14,7 @@ When the task matches no playbook card, design one. The deliverable before any c
 
 ## Start
 
-Check the playbooks index in your working method first. If a card matches the task shape, use that card and stop here; a designed playbook does not compete with an existing one.
+An explicit `/figure-it-out` is the principal's call, and it wins. Still check the playbooks index in your working method first. If a card clearly matches the task shape, name that card to the principal and ask whether to run it instead; never switch to it silently.
 
 Otherwise open a todo list whose first item is to read the principles index, `the-algorithm/references/principles.md` under the Soma skills directory, and `principles.local.md` beside it when it exists. Read each principle's file before you apply it. Then add the phases below as todos.
 
@@ -60,13 +59,13 @@ Check the whole against the Phase A predicate on the real product, not just the 
 
 ## Inside an Algorithm run
 
-The phases above work on their own. Inside an Algorithm run they map onto the run's records, so nothing is kept twice:
+The phases above work on their own. Inside an Algorithm run they map onto the run's records: the run holds the commitments and the verdicts, and `decisions.tsv` holds the per-unit trail that backs them.
 
 - The no-card call, the rigor level and the trail path each go in with `algorithm decision --id <run-id> --text "..."`. The working method's rule "No card matches: run without one and record that in the run's decisions" is satisfied by that first decision.
 - The Phase A predicate becomes the run's criteria: each binary claim is one `--criterion "C1:..."` on `algorithm new`, plus at least one `Anti:` criterion for the failure the run must not cause.
-- The rigor level shapes gates and artifacts inside the tier the classifier set. When it shows the work is larger than that tier, escalate the tier as a context override and record why; never lower the rigor to fit the tier.
+- The rigor level shapes gates and artifacts inside the run's effort tier; never lower the rigor to fit the tier. No `soma algorithm` verb changes a running run's tier, and an explicit tier proceeds at the level set (`the-algorithm/references/mode-detection.md`). When the rigor shows the work is larger than the tier, record the mismatch with `algorithm decision`. Only when the classifier chose the tier, recommend a re-run at a higher one, and leave that call to the principal.
 - The Phase B phase list becomes plan steps: `algorithm plan --id <run-id> --step "P1:C1,C2:<step>"`, one per unit, each naming the criteria it advances. Close each with `algorithm step` as it lands.
-- Each Phase C verdict on a criterion goes in with `algorithm verify` as it happens. VERIFIED is `passed` with the probe output as evidence, NOT VERIFIED is `failed`, and an INCONCLUSIVE criterion stays open.
+- Each Phase C verdict on a criterion goes in with `algorithm verify --criterion-id <id>` as it happens. VERIFIED is `--status passed --evidence-kind probed` (or `tested` when a test ran) with the probe output as `--evidence`. NOT VERIFIED is `--status failed`. An INCONCLUSIVE criterion stays open, or takes `--status deferred-probe` when its probe cannot run yet.
 - The per-unit trail stays in `show-me-your-work`'s `decisions.tsv`. The run's decisions hold the commitments; the TSV holds every fork, revert and verified unit, with evidence pointers.
 
-Source: ported from pstack `pstack/skills/figure-it-out/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c. Changed: pstack's principle skills map to Soma's principle files, `architect` to `arena`, and pstack's subagent rules to `own-delegated-work`; added a playbook-card check before designing, the Algorithm run mapping, a `route:` line and a command trigger.
+Source: ported from pstack `pstack/skills/figure-it-out/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c. Changed: pstack's principle skills map to Soma's principle files, `architect` to `arena` (which needs soma-pstack PR #50), and pstack's subagent rules to `own-delegated-work`; added a playbook-card check that names a matching card to the principal before designing, the Algorithm run mapping and a command trigger.

@@ -5,10 +5,10 @@ Verified on the host on 2026-10-28. The port is `skills/figure-it-out`, from `ps
 ## What changed from upstream
 
 - pstack's principle skills become Soma's principle files under `the-algorithm/references/principles/`: prove-it-works is `verify-before-claiming` plus `one-probe-per-criterion`, never-block-on-the-human is `build-over-ask-when-reversible`, and the subagent rules from poteto-mode are `own-delegated-work` plus a plain rule on model and effort. The rest keep their names.
-- `architect` is not ported. A one-way-door decision goes to the `arena` skill.
-- `## Start` first checks the playbooks index and uses a matching card instead. The todo list's first item reads Soma's principles index rather than poteto-mode.
+- `architect` is not ported. A one-way-door decision goes to the `arena` skill, which lands with PR #50; until then the reference does not resolve in this pack.
+- `## Start` lets an explicit `/figure-it-out` win, but checks the playbooks index first and names a clearly matching card to the principal before designing. The todo list's first item reads Soma's principles index rather than poteto-mode.
 - `## Inside an Algorithm run` maps the phases onto a run: the predicate becomes `--criterion` lines, the designed phases become `algorithm plan` steps, verdicts go in through `algorithm verify`, and the no-card call, rigor and trail path go in as `algorithm decision` lines. The per-unit trail stays in `show-me-your-work`'s `decisions.tsv`.
-- Frontmatter keeps `disable-model-invocation: true`, adds a `route:` line so Soma's working method lists it under Triggers, and adds a `/figure-it-out` command trigger.
+- Frontmatter keeps `disable-model-invocation: true` and adds a `/figure-it-out` command trigger. It declares no `route:` line: the skill is command-only, as upstream has it, so the working method never routes to it.
 
 ## Live probe
 
@@ -16,10 +16,10 @@ The scratch task: make every member's `upstream.path` in this pack resolve at it
 
 - [harness.ts](harness.ts) is the verification harness, written before any edit. [harness-baseline.json](harness-baseline.json) shows one failure out of 21 (`typescript-best-practices` pins a directory without a trailing slash). [harness-negative-control.json](harness-negative-control.json) shows the harness reporting a pin pointed at a missing path, so its zero is not vacuous.
 - The one unit is [unit-typescript-best-practices.patch](unit-typescript-best-practices.patch). [harness-after.json](harness-after.json) shows zero failures and unchanged repos and commits. [gate-after.txt](gate-after.txt) has the same 3 failures as [gate-baseline.txt](gate-baseline.txt), all from tests that read the `docs/` evidence the scratch copy leaves out.
-- [decisions.tsv](decisions.tsv) is the trail, written through `show-me-your-work`'s helper as each step landed. [audit.md](audit.md) is the end-of-run audit against the transcript; it added two forks the log had missed.
+- [decisions.tsv](decisions.tsv) is the trail, written through `show-me-your-work`'s helper. The timestamps show it was written in batches after each phase (13:40:27-28, 13:45:39, 13:45:57), not row by row as each step landed. A later fix round appended lines 20 to 24 to correct three rows; [audit.md](audit.md) lists them. [audit.md](audit.md) is the end-of-run audit against the transcript; it added two forks the log had missed.
 - [review.md](review.md) records that the cross-model review is incomplete: the Codex reviewer gave no output in about 77 minutes and was stopped. No self-review stands in for it.
 
-`test/figure-it-out.test.ts` checks that the frame rows come before the first unit, that every evidence pointer resolves, and that the harness fails on the baseline and passes after the run.
+`test/figure-it-out.test.ts` checks that the trail lists the predicate row before the first unit with a timestamp no later than it, that every evidence pointer resolves to a file here or a commit in this repo (or is superseded by a row whose pointer does), and that the harness fails on the baseline and passes after the run.
 
 ## What the probe does not show
 
