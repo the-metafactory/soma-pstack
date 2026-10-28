@@ -1,0 +1,41 @@
+schema: arc/v1
+name: maintain-verification-skill
+version: 0.1.0
+type: skill
+tier: custom
+description: Keep a project's verify skill and feature map honest with a source wave, a live pass over every feature and at most one PR of proven corrections.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/maintain-verification-skill/SKILL.md
+  commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "./.claude/skills/**"
+      - "./.agents/skills/**"
+    # The run edits the verify skill only in its own worktree under scratch,
+    # never in the checkout; ./.git/** holds that worktree's branch, refs and objects.
+    write:
+      - "./.git/**"
+      - "/tmp/maintain-verification-skill/**"
+  # The push hosts assume GitHub; the pass and the opening-a-pr card work on any forge.
+  network:
+    - host: localhost
+      reason: Drive the project's local app through its verify skill.
+    - host: 127.0.0.1
+      reason: Drive loopback app endpoints bound to an IPv4 address.
+    - host: github.com
+      reason: Push the corrections branch, only under the principal's approval or a covering grant.
+    - host: api.github.com
+      reason: Open the corrections PR with gh, under the same approval.
+  bash:
+    # The target skill's launch, doctor, drive and cleanup scripts, git log over
+    # recent churn, and git for the corrections branch. Those scripts can write
+    # outside the paths above (app data dirs, evidence); review them per target.
+    allowed: true
+  secrets: []

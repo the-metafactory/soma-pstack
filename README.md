@@ -94,6 +94,12 @@ and measures each slide's hold by matching frames, so it needs ffmpeg on the hos
 directory, never into the repository, and the reply gives the file path. The probe on this repo's own recent work is
 under [`docs/verification/node-48/`](docs/verification/node-48/).
 
+[maintain-verification-skill](skills/maintain-verification-skill/SKILL.md) is the upkeep pass for the `verify-<app>` skill that
+[create-verification-skill](skills/create-verification-skill/SKILL.md) generates. One read-only subagent per feature file reads the
+source, the coordinator then drives every feature live that the target skill's own rules allow, and proven corrections to the map or harness ship as one PR, pushed only under
+the principal's approval or a covering grant. The read-only probe of its first four steps against ranger's `verify-ranger` is under
+[`docs/verification/node-44/`](docs/verification/node-44/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer

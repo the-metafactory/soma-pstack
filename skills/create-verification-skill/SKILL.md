@@ -48,6 +48,6 @@ Run its instructions end to end once: launch, doctor, drive ONE mapped feature, 
 
 ## 5. Keep the map honest
 
-Tell the principal the map drifts as the app changes: re-run step 3 for new features and step 4 after a feature's UI or commands change. A dedicated maintenance skill is a follow-up once a verify skill exists for a real project.
+Tell the principal the map drifts as the app changes: re-run step 3 for new features and step 4 after a feature's UI or commands change. For a full upkeep pass over the map and harness, point them at `/maintain-verification-skill`.
 
 Source: ported from pstack (MIT, © 2026 Lauren Tan); upstream pin in arc-manifest.yaml.
