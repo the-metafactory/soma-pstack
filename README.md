@@ -106,6 +106,12 @@ that routes each signal seen in two or more slices to the communication contract
 memory note. It applies a row only after the principal approves it. It is command-only (`/automate-me`). The mining probe
 over this repository's own history is under [`docs/verification/node-49/`](docs/verification/node-49/).
 
+[arena](skills/arena/SKILL.md) runs several candidates at one task in their own worktrees, has a judge from another model family score them
+against a rubric, picks a base and grafts the best of the rest into it by hand. It runs only when the principal asks (`/arena`, "arena this"). By default the
+runners are an `opus` and a `fable` sub-agent and a Claude parent's judge is `codex exec`; a roster named in the request
+replaces the default. Its phase letters A to F are a contract other skills cite. The scratch arena is under
+[`docs/verification/node-45/`](docs/verification/node-45/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
