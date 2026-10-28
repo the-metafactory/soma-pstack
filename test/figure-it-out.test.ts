@@ -102,8 +102,9 @@ test("VERIFIED maps to a passed verify with a probed or tested evidence kind", (
   expect(composition).toContain("NOT VERIFIED is `--status failed`");
 });
 
-test("the arena reference says it needs PR #50", () => {
-  expect(skill.trimEnd().split("\n").pop()).toMatch(/`arena` \(which needs soma-pstack PR #50\)/);
+test("the arena reference names a member that exists in this pack", () => {
+  expect(skill.trimEnd().split("\n").pop()).toMatch(/`arena` \(soma-pstack PR #50\)/);
+  expect(existsSync(resolve(import.meta.dir, "../skills/arena/SKILL.md"))).toBe(true);
 });
 
 test("figure-it-out names Soma principles, not pstack's", () => {

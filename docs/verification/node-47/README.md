@@ -5,7 +5,7 @@ Verified on the host on 2026-10-28. The port is `skills/figure-it-out`, from `ps
 ## What changed from upstream
 
 - pstack's principle skills become Soma's principle files under `the-algorithm/references/principles/`: prove-it-works is `verify-before-claiming` plus `one-probe-per-criterion`, never-block-on-the-human is `build-over-ask-when-reversible`, and the subagent rules from poteto-mode are `own-delegated-work` plus a plain rule on model and effort. The rest keep their names.
-- `architect` is not ported. A one-way-door decision goes to the `arena` skill, which lands with PR #50; until then the reference does not resolve in this pack.
+- `architect` is not ported. A one-way-door decision goes to the `arena` skill, which landed in this pack with PR #50.
 - `## Start` lets an explicit `/figure-it-out` win, but checks the playbooks index first and names a clearly matching card to the principal before designing. The todo list's first item reads Soma's principles index rather than poteto-mode.
 - `## Inside an Algorithm run` maps the phases onto a run: the predicate becomes `--criterion` lines, the designed phases become `algorithm plan` steps, verdicts go in through `algorithm verify`, and the no-card call, rigor and trail path go in as `algorithm decision` lines. The per-unit trail stays in `show-me-your-work`'s `decisions.tsv`.
 - Frontmatter keeps `disable-model-invocation: true` and adds a `/figure-it-out` command trigger. It declares no `route:` line: the skill is command-only, as upstream has it, so the working method never routes to it.

@@ -120,17 +120,11 @@ headings change. By default the adversaries are an `opus` sub-agent and a `codex
 named in the request replaces them. It runs only when the principal asks (`/interrogate`). The seeded-bug probe is under
 [`docs/verification/node-46/`](docs/verification/node-46/).
 
-[figure-it-out](skills/figure-it-out/SKILL.md) is what to run when no playbook card matches a multi-phase task. It
-designs the playbook first: a falsifiable predicate, a rigor level, a verification harness with a baseline, then a
-hypothesis loop with one `show-me-your-work` row per unit. Inside an Algorithm run the predicate becomes the run's criteria
-and the designed phases its plan steps. One-way-door decisions go to `arena`. The scratch-task probe is under
-[`docs/verification/node-47/`](docs/verification/node-47/).
-
 [figure-it-out](skills/figure-it-out/SKILL.md) is a command, `/figure-it-out`, for a multi-phase task that no playbook
 card matches; it declares no `route:`, so nothing reaches it unless the principal asks. It designs the playbook first: a
 falsifiable predicate, a rigor level, a verification harness with a baseline, then a hypothesis loop with one
 `show-me-your-work` row per unit. Inside an Algorithm run the predicate becomes the run's criteria and the designed
-phases its plan steps. One-way-door decisions go to `arena`, which needs PR #50 to land first. The scratch-task probe is
+phases its plan steps. One-way-door decisions go to `arena`. The scratch-task probe is
 under [`docs/verification/node-47/`](docs/verification/node-47/).
 
 ## Member gate
