@@ -1,11 +1,11 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterAll, beforeAll, expect, test } from "bun:test";
 import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const script = resolve(import.meta.dir, "../skills/worktree-audit/scripts/worktree-audit.ts");
 const roots: string[] = [];
-afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
+afterAll(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
 
 const slug = (path: string) => path.replace(/[/.]/g, "-");
 
@@ -20,9 +20,14 @@ function executable(path: string, body: string) {
   chmodSync(path, 0o755);
 }
 
+function scratch(): string {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "worktree-audit-")));
+  roots.push(dir);
+  return dir;
+}
+
 function fixture() {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), "worktree-audit-")));
-  roots.push(root);
+  const root = scratch();
   const repo = join(root, "repo");
   mkdirSync(repo);
   git(repo, "init", "-q", "-b", "main");
@@ -66,6 +71,9 @@ function fixture() {
   return { root, repo, bin, sessionsDir: sessions, names };
 }
 
+let shared: ReturnType<typeof fixture>;
+beforeAll(() => { shared = fixture(); }, 120_000);
+
 function audit(repo: string, sessionsDir: string, bin: string, path = `${bin}:${process.env.PATH}`) {
   const result = Bun.spawnSync([process.execPath, script, "-b", "main", repo], {
     stdout: "pipe", stderr: "pipe", env: { ...process.env, PATH: path, SOMA_AUDIT_SESSIONS_DIR: sessionsDir },
@@ -77,7 +85,7 @@ function audit(repo: string, sessionsDir: string, bin: string, path = `${bin}:${
 }
 
 test("the audit buckets each worktree and leaves every one in place", () => {
-  const { root, repo, bin, sessionsDir, names } = fixture();
+  const { root, repo, bin, sessionsDir, names } = shared;
   const { code, rows } = audit(repo, sessionsDir, bin);
   expect(code).toBe(0);
   expect([...rows.keys()].sort()).toEqual([...names].sort());
@@ -94,17 +102,17 @@ test("the audit buckets each worktree and leaves every one in place", () => {
 }, 30_000);
 
 test("an rg that cannot run stops the audit instead of reading as no session", () => {
-  const { repo, bin, sessionsDir } = fixture();
-  executable(join(bin, "rg"), "echo 'rg: broken' >&2\nexit 2");
-  const { code, stderr } = audit(repo, sessionsDir, bin);
+  const { repo, bin, sessionsDir } = shared;
+  const broken = scratch();
+  executable(join(broken, "rg"), "echo 'rg: broken' >&2\nexit 2");
+  const { code, stderr } = audit(repo, sessionsDir, bin, `${broken}:${bin}:${process.env.PATH}`);
   expect(code).toBe(1);
   expect(stderr).toContain("rg could not scan");
 }, 30_000);
 
 test("a machine without gh gets a warning and an empty PR column, not a crash", () => {
-  const { root, repo, bin, sessionsDir } = fixture();
-  const tools = join(root, "tools");
-  mkdirSync(tools);
+  const { repo, bin, sessionsDir } = shared;
+  const tools = scratch();
   for (const tool of ["git", "du", "rg"]) symlinkSync(Bun.which(tool)!, join(tools, tool));
   const { code, stderr, rows } = audit(repo, sessionsDir, bin, tools);
   expect(code).toBe(0);
