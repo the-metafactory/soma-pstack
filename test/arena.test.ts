@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { YAML } from "bun";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
 const member = resolve(import.meta.dir, "../skills/arena");
@@ -44,30 +45,50 @@ test("arena keeps upstream's phase letters and names, which other skills cite", 
 
 test("arena's default roster is two Claude sub-agents and the principal can replace it", () => {
   const runners = phase("A").split("\n3. ")[1]!.split("\n4. ")[0]!;
-  expect(runners).toContain("A roster the principal names in the request");
-  expect(runners).toContain("one on model `opus` and one on model `fable`");
-  expect(runners).toContain("fewer than two runners");
-  expect(runners).toContain("Never write a candidate yourself");
+  expect(runners).toMatch(/roster the principal names/i);
+  expect(runners.match(/`(opus|fable)`/g)?.slice(0, 2)).toEqual(["`opus`", "`fable`"]);
+  expect(runners).toMatch(/fewer than two/);
+  expect(runners).toMatch(/never write a candidate yourself/i);
+});
+
+test("worktree candidates hand back a commit and the judge reads one labeled tree", () => {
+  expect(phase("A")).toContain('isolation: "worktree"');
+  const fanOut = phase("B");
+  expect(fanOut).toMatch(/worktree path, branch and commit/);
+  expect(fanOut).toMatch(/git archive <sha>/);
+  expect(fanOut).toContain("/tmp/arena-<slug>/candidate-<n>/");
+  expect(phase("C")).toMatch(/codex exec --sandbox read-only\b[^`]*-C \/tmp\/arena-<slug>/);
 });
 
 test("arena's judge is never the parent's family and is skipped rather than faked", () => {
   const judge = phase("C");
-  expect(judge).toContain("The judge is never from the parent's family.");
-  expect(judge).toContain("A Claude parent gets `codex exec --sandbox read-only`.");
-  expect(judge).toContain("skip the judge, pick the base alone in Phase D, and say so");
-  expect(judge).toContain("Never label a judge from the parent's family as cross-family.");
-  expect(judge).toContain("api.anthropic.com");
-  expect(judge).toContain("api.openai.com");
+  expect(judge).toMatch(/judge is never from the parent's family/);
+  expect(judge).toMatch(/Claude parent gets `codex exec --sandbox read-only/);
+  expect(judge).toMatch(/skip the judge/);
+  expect(judge).toMatch(/never label a judge from the parent's family as cross-family/i);
+  for (const host of judge.match(/`api\.[a-z.]+`/g)!) expect(manifest.capabilities.network.map((entry: { host: string }) => `\`${entry.host}\``)).toContain(host);
   const hosts = manifest.capabilities.network.map((entry: { host: string }) => entry.host).sort();
   expect(hosts).toEqual(["api.anthropic.com", "api.openai.com"]);
 });
 
-test("arena cites Soma principles that exist under those names", () => {
-  for (const name of ["separate-before-serializing-shared-state", "laziness-protocol", "redesign-from-first-principles", "verify-before-claiming"]) {
-    expect(skill).toContain(`\`references/principles/${name}.md\``);
-  }
+const citations = [...skill.matchAll(/`(the-algorithm\/references\/principles\/[^`]+)`/g)].map(match => match[1]!);
+
+test("arena anchors every principle citation to Soma's the-algorithm skill", () => {
+  expect(citations.length).toBe(4);
+  expect(skill).not.toMatch(/`references\/principles\//);
   expect(skill).not.toMatch(/\*\*prove-it-works\*\*/);
 });
+
+// The principles live in Soma, so this runs only where a Soma home is installed,
+// and skips otherwise, as test/playbooks.test.ts does.
+const somaSkills = process.env.SOMA_SKILLS_DIR ?? join(homedir(), ".soma", "skills");
+const somaPrinciples = join(somaSkills, "the-algorithm", "references", "principles");
+test.skipIf(process.env.SOMA_SKILLS_DIR === undefined && !existsSync(somaPrinciples))(
+  "every principle arena cites exists in the installed Soma",
+  () => {
+    expect(citations.filter(path => !existsSync(join(somaSkills, path)))).toEqual([]);
+  },
+);
 
 test("the probe synthesis note names the base, the judge, each graft, rejections and verification", () => {
   const note = readFileSync(join(probe, "synthesis.md"), "utf8");

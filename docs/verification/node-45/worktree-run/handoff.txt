@@ -1,0 +1,12 @@
+candidate-1
+  harness worktreePath: /Users/fischer/work/mf/soma-pstack/.claude/worktrees/agent-a8333d9097fab5804
+  harness worktreeBranch: worktree-agent-a8333d9097fab5804
+  reported commit: 050febd91cd6fee25de950df4c1a740a425cd142
+  git branch --contains: worktree-agent-a8333d9097fab5804
+  copied with: git archive 050febd91cd6fee25de950df4c1a740a425cd142 arena-candidate | tar -x -C /tmp/arena-clamp-range/candidate-1 --strip-components=1
+candidate-2
+  harness worktreePath: /Users/fischer/work/mf/soma-pstack/.claude/worktrees/agent-a164e83d5db7a3423
+  harness worktreeBranch: worktree-agent-a164e83d5db7a3423
+  reported commit: d9117713ba14e456890602996b2c77b4524d3f73
+  git branch --contains: worktree-agent-a164e83d5db7a3423
+  copied with: git archive d9117713ba14e456890602996b2c77b4524d3f73 arena-candidate | tar -x -C /tmp/arena-clamp-range/candidate-2 --strip-components=1

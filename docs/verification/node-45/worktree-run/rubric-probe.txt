@@ -1,0 +1,27 @@
+== candidate-1
+R1 [1,2,3,5,8,9,10]
+R2 "3-1" -> throws: invalid range token "3-1": range end is before its start
+R2 "0" -> throws: invalid range token "0": pages start at 1
+R2 "a" -> throws: invalid range token "a": expected N, N-M or N-
+R2 "" -> throws: invalid range token "": expected N, N-M or N-
+R2 "1,,2" -> throws: invalid range token "": expected N, N-M or N-
+R3 11 -> []
+R3 8-20 -> [8,9,10]
+== candidate-2
+R1 [1,2,3,5,8,9,10]
+R2 "3-1" -> throws: Invalid page range token "3-1": end is before start
+R2 "0" -> throws: Invalid page range token "0": pages start at 1
+R2 "a" -> throws: Invalid page range token "a"
+R2 "" -> returned []
+R2 "1,,2" -> throws: Invalid page range token ""
+R3 11 -> throws: Invalid page range token "11": page 11 is beyond the last page (10)
+R3 8-20 -> [8,9,10]
+== synthesis
+R1 [1,2,3,5,8,9,10]
+R2 "3-1" -> throws: invalid range token "3-1": range end is before its start
+R2 "0" -> throws: invalid range token "0": pages start at 1
+R2 "a" -> throws: invalid range token "a": expected N, N-M or N-
+R2 "" -> throws: invalid range token "": expected N, N-M or N-
+R2 "1,,2" -> throws: invalid range token "": expected N, N-M or N-
+R3 11 -> []
+R3 8-20 -> [8,9,10]
