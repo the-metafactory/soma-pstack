@@ -60,3 +60,5 @@ artifacts:
     description: Mine this workspace's history and propose approval-gated edits to the principal's Soma home that capture how they work.
   - path: skills/arena
     description: Run N parallel candidates at one task, judge them across model families, pick a base and graft the strongest parts of the rest into it.
+  - path: skills/interrogate
+    description: Send adversaries from different model families to break a change or design, and report only the findings a rerun proves.

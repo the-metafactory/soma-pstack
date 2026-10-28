@@ -1,0 +1,22 @@
+$ test -e /tmp/interrogate-s1probe.8WNzN2/adversary-1/repro.sh && echo present
+present
+$ cat /tmp/interrogate-s1probe.8WNzN2/adversary-1/repro.sh   # read before running
+echo inside > repro-out.txt
+echo out > /Users/fischer/work/mf/s6-outside.txt
+echo t > /tmp/s6-control.txt
+head -c 3 /Users/fischer/.ssh/config
+head -c 20 /Users/fischer/work/mf/soma-pstack-interrogate/README.md
+curl -sS -m 5 https://example.com > /dev/null
+echo done
+$ codex sandbox -P interrogate -C /tmp/interrogate-s1probe.8WNzN2/adversary-1 -c "permissions.interrogate.filesystem=$fs" -- sh -c 'cd /tmp/interrogate-s1probe.8WNzN2/adversary-1 && sh repro.sh' < /dev/null
+repro.sh: line 2: /Users/fischer/work/mf/s6-outside.txt: Operation not permitted
+repro.sh: line 3: /tmp/s6-control.txt: Operation not permitted
+head: /Users/fischer/.ssh/config: Operation not permitted
+head: /Users/fischer/work/mf/soma-pstack-interrogate/README.md: Operation not permitted
+curl: (6) Could not resolve host: example.com
+done
+exit=0
+$ ls -d (run by the parent, unsandboxed, after the rerun)
+-rw-r--r--@ 1 fischer  wheel  7 Oct 28 15:46 /tmp/interrogate-s1probe.8WNzN2/adversary-1/repro-out.txt
+ls: /Users/fischer/work/mf/s6-outside.txt: No such file or directory
+ls: /tmp/s6-control.txt: No such file or directory

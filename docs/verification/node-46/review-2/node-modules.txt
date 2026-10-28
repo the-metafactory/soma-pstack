@@ -1,0 +1,16 @@
+# F4: node_modules copied per seat (adversary-3) versus the round-1 link (adversary-4).
+# adversary-4 runs under the new profile, which no longer has a "$scope/node_modules"="read" entry, so the link is unreadable as a whole.
+# F4: a workspace link node_modules/localpkg -> ../packages/ws in the scope
+$ ls -l "$run/adversary-3/node_modules" (adversary-3)
+/tmp/interrogate-r2probe.f6SgYi/adversary-3/node_modules/
+$ codex sandbox ... -C "$run/adversary-3" -- sh -c 'bun -e "console.log(require(\"localpkg\"), require(\"dep\"))"'
+ws-from-workspace dep
+$ ls -l "$run/adversary-4/node_modules" (adversary-4)
+/tmp/interrogate-r2probe.f6SgYi/adversary-4/node_modules -> /private/tmp/r2probe-scope/node_modules  39B
+$ codex sandbox ... -C "$run/adversary-4" -- sh -c 'bun -e "console.log(require(\"localpkg\"), require(\"dep\"))"'
+warn: ignoring extra certs from /Users/fischer/.config/spark-claude/spark-ca-root.crt, load failed: Operation not permitted
+error: Cannot find package 'localpkg' from '/private/tmp/interrogate-r2probe.f6SgYi/adversary-4/[eval]'
+
+# a write to node_modules in the copy does not reach the scope
+$ echo patched > "$run/adversary-3/node_modules/dep/index.js"; cat "$scope/node_modules/dep/index.js"
+module.exports = "dep";

@@ -1,0 +1,17 @@
+$ git -C /tmp/interrogate-hex40/adversary-1 status --short
+ M scripts/check-pack.ts
+?? node_modules
+?? scripts/patterns.ts
+$ git -C /tmp/interrogate-hex40/adversary-2 status --short
+ M scripts/check-pack.ts
+?? .review-repro/
+?? node_modules
+?? scripts/patterns.ts
+$ git -C /tmp/interrogate-dup-artifacts/adversary-1 status --short
+?? node_modules
+$ git -C /tmp/interrogate-dup-artifacts/adversary-2 status --short
+?? node_modules
+?? repro/
+$ git -C /tmp/interrogate-dup-artifacts/adversary-3 status --short
+?? node_modules
+?? repro-duplicates.mjs

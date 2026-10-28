@@ -1,0 +1,40 @@
+$ git diff 48eb39e
+diff --git a/README.md b/README.md
+index 248d6d3..98362ff 100644
+--- a/README.md
++++ b/README.md
+@@ -110,7 +110,7 @@ CI workflow or required GitHub check for the gate.
+ 
+ The script checks the library metadata and each
+ listed member's directory, `SKILL.md` name and description, manifest type,
+-upstream repository/path/40-hex commit, and `arc validate <member-directory>`.
++upstream repository/path/40-hex commit (the 40-hex pattern lives in `scripts/patterns.ts`), and `arc validate <member-directory>`.
+ An empty library passes without invoking Arc on the root.
+ 
+ ## Attribution
+diff --git a/scripts/check-pack.ts b/scripts/check-pack.ts
+index 7c7503d..75fa3ee 100644
+--- a/scripts/check-pack.ts
++++ b/scripts/check-pack.ts
+@@ -1,6 +1,7 @@
+ import { YAML } from "bun";
+ import { readFileSync, realpathSync, statSync } from "node:fs";
+ import { basename, resolve, sep } from "node:path";
++import { HEX40 } from "./patterns";
+ 
+ type Mapping = Record<string, unknown>;
+ 
+@@ -34,7 +35,7 @@ function checkMemberManifest(member: string, path: string, errors: string[]): vo
+     } else {
+       if (upstream.repo !== "cursor/plugins") errors.push(`${path}: upstream.repo must be cursor/plugins`);
+       if (!nonEmpty(upstream.path)) errors.push(`${path}: upstream.path must be a non-empty string`);
+-      if (typeof upstream.commit !== "string" || !/^[a-f0-9]{40}$/i.test(upstream.commit)) {
++      if (typeof upstream.commit !== "string" || !HEX40.test(upstream.commit)) {
+         errors.push(`${path}: upstream.commit must be a 40-hex commit`);
+       }
+     }
+
+$ git status --short
+ M scripts/check-pack.ts
+?? scripts/patterns.ts$ cat scripts/patterns.ts
+export const HEX40 = /[a-f0-9]{40}/i;
