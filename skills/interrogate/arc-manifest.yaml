@@ -1,0 +1,33 @@
+schema: arc/v1
+name: interrogate
+version: 0.1.0
+type: skill
+tier: custom
+description: Send adversaries from different model families to break a change or design, and report only the findings a rerun proves.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/interrogate/SKILL.md
+  commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "/tmp/interrogate-*/**"
+    write:
+      # Report-only: the scope's own tree is never written. git worktree add
+      # registers each adversary worktree under .git/worktrees.
+      - "./.git/worktrees/**"
+      - "/tmp/interrogate-*/**"
+  network:
+    - host: api.anthropic.com
+      reason: Run a Claude adversary through an authenticated CLI.
+    - host: api.openai.com
+      reason: Run the codex adversary through an authenticated CLI.
+  bash:
+    # git worktree add and apply for each adversary, model CLIs, and reruns of each finding.
+    allowed: true
+  secrets: []

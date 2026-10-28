@@ -1,0 +1,36 @@
+# adversary-1 (opus) F1, Repro A: rerun in /tmp/interrogate-dup-artifacts/adversary-1
+$ cp arc-manifest.yaml /tmp/interrogate-dup-artifacts/a1-manifest.orig && printf "  - path: skills/recall
+    description: dup
+" >> arc-manifest.yaml && grep -n "path: skills/recall" arc-manifest.yaml && bun scripts/check-pack.ts; echo "exit=$?"; cp /tmp/interrogate-dup-artifacts/a1-manifest.orig arc-manifest.yaml
+15:  - path: skills/recall
+57:  - path: skills/recall
+Pack checks passed (23 members).
+exit=0
+?? node_modules
+# adversary-2 (haiku) Finding 1, Repro 2: rerun in /tmp/interrogate-dup-artifacts/adversary-2
+$ cd repro/nonadjacent && cat arc-manifest.yaml && bun ../../scripts/check-pack.ts; echo "exit=$?"
+  - path: skills/recall
+  - path: skills/correct
+  - path: skills/recall
+Pack checks passed (3 members).
+exit=0
+$ cd repro/adjacent && bun ../../scripts/check-pack.ts; echo "exit=$?"   # control
+skills/recall: listed more than once in artifacts
+exit=1
+
+# adversary-2 (haiku) Finding 2: rerun
+$ bun test test/check-pack.test.ts 2>&1 | tail -3
+ 0 fail
+ 84 expect() calls
+Ran 31 tests across 1 file. [32.40s]
+
+# adversary-3 (codex) P1: rerun in /tmp/interrogate-dup-artifacts/adversary-3
+$ bun repro-duplicates.mjs separated
+Pack checks passed (23 members).
+exit code: 0
+$ bun repro-duplicates.mjs adjacent
+skills/benchmark-checklist: listed more than once in artifacts
+exit code: 1
+$ git status --short
+?? node_modules
+?? repro-duplicates.mjs

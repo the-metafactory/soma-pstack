@@ -1,0 +1,6 @@
+OpenAI Codex v0.163.0
+workdir: /tmp/interrogate-hex40/adversary-2
+model: gpt-6.1-sol
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR, /Users/fischer/.soma, /Users/fischer/work, /tmp] (network access enabled)

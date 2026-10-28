@@ -1,0 +1,29 @@
+$ cd /tmp/interrogate-hex40/adversary-2 && bun .review-repro/hex40.ts
+valid: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  original: exit=0; Pack checks passed (1 members).
+  current: exit=0; Pack checks passed (1 members).
+41 hex characters: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  original: exit=1; skills/benchmark-checklist: upstream.commit must be a 40-hex commit
+  current: exit=0; Pack checks passed (1 members).
+non-hex prefix: "gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  original: exit=1; skills/benchmark-checklist: upstream.commit must be a 40-hex commit
+  current: exit=0; Pack checks passed (1 members).
+non-hex suffix: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaag"
+  original: exit=1; skills/benchmark-checklist: upstream.commit must be a 40-hex commit
+  current: exit=0; Pack checks passed (1 members).
+39 hex characters: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  original: exit=1; skills/benchmark-checklist: upstream.commit must be a 40-hex commit
+  current: exit=1; skills/benchmark-checklist: upstream.commit must be a 40-hex commit
+exit 0
+
+$ cd /tmp/interrogate-hex40/adversary-1 && bun test 2>&1 | grep -E "^\(fail\)| pass$| fail$"
+(fail) invalid upstream.commit (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa) names the member and field [997.73ms]
+ 104 pass
+ 1 fail
+
+$ cd /tmp/interrogate-hex40/adversary-1 && sed -i "" "s/^  commit: .*/  commit: 99743e9c151c8537cbbf1f98bb38f34ef3368453a/" skills/why/arc-manifest.yaml && bun scripts/check-pack.ts; git checkout skills/why/arc-manifest.yaml
+Pack checks passed (22 members).
+exit 0
+ M scripts/check-pack.ts
+?? node_modules
+?? scripts/patterns.ts

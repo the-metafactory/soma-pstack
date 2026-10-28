@@ -1,0 +1,7 @@
+schema: arc/v1
+name: soma-pstack
+type: library
+license: MIT
+artifacts:
+  - path: skills/recall
+  - path: skills/recall

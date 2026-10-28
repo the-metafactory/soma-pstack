@@ -1,0 +1,24 @@
+$ git diff 48eb39e
+diff --git a/scripts/check-pack.ts b/scripts/check-pack.ts
+index 7c7503d..2b65f81 100644
+--- a/scripts/check-pack.ts
++++ b/scripts/check-pack.ts
+@@ -104,6 +104,7 @@ export function checkPack(directory: string): number {
+   if (!Array.isArray(manifest.artifacts)) {
+     errors.push("arc-manifest.yaml: artifacts must be a list (an empty list is allowed)");
+   } else {
++    let previous: string | undefined;
+     for (const [index, entry] of manifest.artifacts.entries()) {
+       if (!isMapping(entry) || !nonEmpty(entry.path)) {
+         errors.push(`artifacts[${index}].path must be a non-empty string`);
+@@ -114,6 +115,8 @@ export function checkPack(directory: string): number {
+         errors.push(`${path}: artifacts.path must be skills/<name> with a lowercase-hyphenated name`);
+         continue;
+       }
++      if (path === previous) errors.push(`${path}: listed more than once in artifacts`);
++      previous = path;
+       checkMember(root, path, errors);
+     }
+   }
+$ git status --short
+ok

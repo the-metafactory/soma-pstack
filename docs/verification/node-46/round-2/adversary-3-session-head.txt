@@ -1,0 +1,5 @@
+OpenAI Codex v0.163.0
+workdir: /tmp/interrogate-dup-artifacts/adversary-3
+model: gpt-6.1-sol
+provider: openai
+sandbox: workspace-write [workdir, /tmp, $TMPDIR, /Users/fischer/.soma, /Users/fischer/work, /tmp] (network access enabled)

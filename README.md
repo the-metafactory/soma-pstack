@@ -113,6 +113,13 @@ Claude parent's judge is `codex exec`, which then shares a family with one candi
 named in the request replaces the default. Its phase letters A to F are a contract other skills cite. The scratch arena is under
 [`docs/verification/node-45/`](docs/verification/node-45/).
 
+[interrogate](skills/interrogate/SKILL.md) sends adversaries at a change or design, each in its own worktree with the
+scope's uncommitted changes copied in, and reports only the findings a rerun reproduces. It never applies a fix. It reuses
+arena's Phase A steps 3 and 4, Phase B and Phase F, cited by letter and name, so `test/interrogate.test.ts` fails when those
+headings change. By default the adversaries are an `opus` sub-agent and a `codex exec` process, two model families; a roster
+named in the request replaces them. It runs only when the principal asks (`/interrogate`). The seeded-bug probe is under
+[`docs/verification/node-46/`](docs/verification/node-46/).
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer
