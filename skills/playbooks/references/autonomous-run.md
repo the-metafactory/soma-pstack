@@ -11,9 +11,10 @@
 4. Discard changes that did not help. Do not leave them to ride.
 5. Append one row per fork, revert or verified unit to the run's decision trail: time, phase, decision, why, evidence pointer (a path or SHA), result.
 6. Take on a problem you meet on the way only when it serves the goal, and fix it yourself when the fix is reversible.
-7. Put each side fix in its own PR, and return to the predicate check after each side fix.
-8. Stop for the principal only on an irreversible action, a real preference call, or a dead end.
-9. Stop when the predicate is met. A plateau is not a stop; change approach. Never relax the predicate to declare victory.
+7. Put each side fix in its own PR.
+8. Return to the predicate check after each side fix.
+9. Stop for the principal only on an irreversible action, a real preference call, or a dead end.
+10. Stop when the predicate is met. A plateau is not a stop; change approach. Never relax the predicate to declare victory.
 
 ## Criteria
 
