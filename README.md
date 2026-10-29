@@ -130,6 +130,12 @@ falsifiable predicate, a rigor level, a verification harness with a baseline, th
 phases its plan steps. One-way-door decisions go to `arena`. The scratch-task probe is
 under [`docs/verification/node-47/`](docs/verification/node-47/).
 
+[architect](skills/architect/SKILL.md) is a command, `/architect`, that sketches types, signatures and module boundaries
+before code. It grounds the design with `how` and `why`, runs `arena` for at least two structurally distinct sketches on
+arena's runner roster, screens them against its design red flags, and implements against the synthesis. When the
+implementation keeps fighting the sketch, it scraps it and returns to the arena. `no-comments` step 3 calls it for fixes
+that need a new shape. It has no live probe yet.
+
 ## Member gate
 
 Use Bun 1.3 or newer (for its built-in YAML parser) and Arc 0.46.1 or newer

@@ -1,0 +1,30 @@
+schema: arc/v1
+name: architect
+version: 0.1.0
+type: skill
+tier: custom
+description: Sketch types, signatures and module boundaries before code through an arena of designs, then implement against the chosen sketch and scrap it when it stops fitting.
+license: MIT
+author:
+  name: The MetaFactory
+  github: the-metafactory
+upstream:
+  repo: cursor/plugins
+  path: pstack/skills/architect/
+  commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+capabilities:
+  filesystem:
+    read:
+      - "./**"
+      - "/tmp/arena-*/**"
+    write:
+      # The sketch and its implementation land in the repository; candidates
+      # and the shared grounding copy live in arena's directories.
+      - "./**"
+      - "/tmp/arena-*/**"
+  # Runners and the judge run under arena's own declarations.
+  network: []
+  bash:
+    # Phase D builds and checks the implementation.
+    allowed: true
+  secrets: []
