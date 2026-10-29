@@ -10,9 +10,10 @@
 3. Choose the data shape first: a typed model, a table or registry over branching, a state machine over scattered flags.
 4. Plan the order: blocking steps first, independent workstreams in parallel, shared write targets split per actor or serialized.
 5. Get a second opinion at the commitment boundary when the design admits several valid shapes: settle them with the Prototype card first, and the `Advisor` judges the prototype's evidence, not the plan.
-6. Build in small units; verify and commit each before starting the next.
+6. Build in small units; verify and commit each before starting the next. A unit whose implementation admits several valid shapes (error handling, abstraction layer, test structure) goes through [`/arena`](../../arena/SKILL.md): read its SKILL.md and follow it, so its runners surface the alternatives and its cross-judge guards the pick.
 7. Verify on the surface the user will touch, not only through unit tests. When the project has a verify skill (`verify-<project>`), drive the change through it and attach its evidence to the review.
-8. Run the suites, then open the change for review in small, ordered commits.
+8. If the design is contested, read [`/interrogate`](../../interrogate/SKILL.md) and follow it on the design before opening the change.
+9. Run the suites, then open the change for review in small, ordered commits.
 
 ## Criteria
 

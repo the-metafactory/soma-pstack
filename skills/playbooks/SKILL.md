@@ -10,7 +10,7 @@ A playbook card is the step list for one task shape. Cards apply in every mode: 
 
 1. In an Algorithm run, mode and effort tier first, from the classifier (`algorithm classify`; `the-algorithm/references/mode-detection.md` for overrides).
 2. Then the card whose task shape matches, from the table below. One card per run; when a task changes shape mid-run (an investigation that turns into a fix), switch cards and record the switch as a decision.
-3. No card matches: run without one and record that in the run's decisions. A shape that keeps recurring without a card is a candidate for a new one.
+3. No card matches: run without one and record that in the run's decisions. For multi-phase work, offer the principal `/figure-it-out`, which designs a playbook for the task. A shape that keeps recurring without a card is a candidate for a new one.
 
 | Card | Task shape |
 | --- | --- |

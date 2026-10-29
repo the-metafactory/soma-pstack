@@ -5,10 +5,9 @@ This pack ports skills from pstack in the upstream repository
 Copyright © 2026 Lauren Tan. The upstream MIT license follows verbatim.
 
 The playbook cards in `skills/playbooks/` moved here from Soma's the-algorithm skill.
-Their task shapes and step order are adapted from pstack's poteto-mode playbooks at
-commit `99743e9`. The opening-a-pr, shipping, perf-issue, hillclimb, forensics and
-cleanup cards, and the `worktree-audit` member's script, are adapted from commit
-`b6375f1`.
+Their task shapes and step order are adapted from pstack's poteto-mode playbooks.
+The cards, including opening-a-pr, shipping, perf-issue, hillclimb, forensics and
+cleanup, and the `worktree-audit` member's script are all synced to commit `c742dd6`.
 
 ```text
 MIT License

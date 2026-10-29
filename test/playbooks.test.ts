@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { YAML } from "bun";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
@@ -81,3 +82,93 @@ test.skipIf(process.env.SOMA_SKILLS_DIR === undefined && !existsSync(somaPrincip
     expect(pointers.filter(({ path }) => !existsSync(join(somaSkills, path))).map(({ card, path }) => `${card}: ${path}`)).toEqual([]);
   },
 );
+
+// A command-only member (`disable-model-invocation: true`) is reached by its
+// command, so a card names it as `/name`, and that name must be a member whose
+// frontmatter declares the command.
+const pack = resolve(import.meta.dir, "../skills");
+test("every command a card or the index names is a pack member that declares it", () => {
+  const sources = [["SKILL.md", index], ...cards.map(card => [card, readCard(card)])];
+  const commands = sources.flatMap(([name, text]) => [...text!.matchAll(/`\/([a-z-]+)`/g)].map(match => ({ name, command: match[1]! })));
+  expect(commands.length).toBeGreaterThan(0);
+  const missing = commands.filter(({ command }) => {
+    const skill = join(pack, command, "SKILL.md");
+    if (!existsSync(skill)) return true;
+    const frontmatter = YAML.parse(/^---\n([\s\S]*?)\n---/.exec(readFileSync(skill, "utf8"))![1]!);
+    const triggers: { pattern?: string; type?: string }[] = frontmatter.triggers ?? [];
+    return !triggers.some(({ pattern, type }) => type === "command" && pattern === `/${command}`);
+  });
+  expect(missing.map(({ name, command }) => `${name}: /${command}`)).toEqual([]);
+});
+
+// A command-only member stays out of the skill catalog, so a card that sends the
+// agent to one links its SKILL.md for the agent to read and follow.
+test("every relative link in a card resolves", () => {
+  const links = cards.flatMap(card => [...readCard(card).matchAll(/\]\((\.[^)]+)\)/g)].map(match => ({ card, path: match[1]! })));
+  expect(links.length).toBeGreaterThan(0);
+  const broken = links.filter(({ path }) => !existsSync(resolve(member, "references", path)));
+  expect(broken.map(({ card, path }) => `${card}: ${path}`)).toEqual([]);
+});
+
+test("the feature card routes several valid shapes to arena and a contested design to interrogate", () => {
+  const steps = stepsOf(readCard("feature.md"));
+  expect(steps.some(step => /several valid shapes[^\n]*`\/arena`/.test(step))).toBe(true);
+  expect(steps.some(step => /design is contested[^\n]*`\/interrogate`/.test(step))).toBe(true);
+});
+
+test("the eval card picks candidate and judge models by arena's phases, and those phases exist", () => {
+  const steps = stepsOf(readCard("eval.md")).join("\n");
+  expect(steps).toMatch(/\[`arena`\]\(\.\.\/\.\.\/arena\/SKILL\.md\) Phase A \(Frame\) step 3/);
+  expect(steps).toMatch(/\[`arena`\]\(\.\.\/\.\.\/arena\/SKILL\.md\) Phase C \(Cross-judge\)/);
+  const arena = readFileSync(join(pack, "arena", "SKILL.md"), "utf8");
+  const frame = arena.split(/^## /m).find(section => section.startsWith("Phase A: Frame\n"));
+  expect(stepsOf(frame ?? "")[2]).toMatch(/^3\. Pick the runners\./);
+  expect(arena).toMatch(/^## Phase C: Cross-judge$/m);
+});
+
+test("large refactors and work no card fits are offered to the principal as figure-it-out", () => {
+  expect(readCard("refactor.md")).toMatch(/Large or cross-cutting[^\n]*offer the principal `\/figure-it-out`/);
+  const noCard = index.split("\n").find(line => line.startsWith("3. No card matches"));
+  expect(noCard).toContain("No card matches: run without one and record that in the run's decisions.");
+  expect(noCard).toMatch(/offer the principal `\/figure-it-out`/);
+});
+
+test("an autonomous run takes side work only for the goal, in its own PR, and keeps a heartbeat", () => {
+  const steps = stepsOf(readCard("autonomous-run.md")).join("\n");
+  expect(steps).toMatch(/only when it serves the goal/);
+  expect(steps).toMatch(/side fix in its own PR/);
+  expect(steps).toMatch(/return to the predicate check after each side fix/i);
+  expect(steps).toMatch(/event to watch[^\n]*heartbeat as fallback/);
+});
+
+test("the playbooks member pins the upstream commit its cards were synced to", () => {
+  expect(readFileSync(resolve(member, "arc-manifest.yaml"), "utf8")).toContain("commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c");
+});
+
+test("the eval card carries upstream's blinding rules", () => {
+  const steps = stepsOf(readCard("eval.md")).join("\n");
+  expect(steps).toMatch(/never for a list of the skills, principles or files it applied/);
+  expect(steps).toMatch(/does not say other candidates exist/);
+  for (const word of ["eval", "test", "judge", "experiment", "rubric", "score", "compare", "benchmark", "candidate", "arena"]) {
+    expect(steps).toContain(`\`${word}\``);
+  }
+  expect(steps).toMatch(/from the files it opened and the shape of its code/);
+});
+
+test("the bug-fix card seeds hypotheses with how and why and commits the failing repro first", () => {
+  const steps = stepsOf(readCard("bug-fix.md")).join("\n");
+  expect(steps).toMatch(/seeded with `how` over the affected subsystem and `why` for its regression history/);
+  expect(steps).toMatch(/failing reproduction[^\n]*before the fix/);
+});
+
+test("the refactor card commits the subtraction, then the reshape, then follow-on cleanup", () => {
+  expect(stepsOf(readCard("refactor.md")).join("\n")).toMatch(/the subtraction first, then the reshape, then any follow-on cleanup/);
+});
+
+test("session pickup parses a long transcript in a subagent and picks one of four verdicts", () => {
+  const card = readCard("session-pickup.md");
+  const steps = stepsOf(card).join("\n");
+  expect(steps).toMatch(/long transcript in a subagent/);
+  expect(steps).toMatch(/continue the execution, ship a finished recommendation, ratify or override a prior conclusion, or postmortem a failed run/);
+  expect(card).toContain("`the-algorithm/references/principles/guard-the-context-window.md`");
+});
