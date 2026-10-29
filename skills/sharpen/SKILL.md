@@ -33,4 +33,4 @@ Leave choices that are mine to make open instead of deciding them.
 - Follow them with the rewritten prompt.
 - A choice the principal stated (a tool, a scope, a format, a deadline, a name) stays in the rewrite as stated. A choice the original left unmade stays unmade: the rewrite lists it as an open question for the principal instead of picking an answer.
 
-Source: ported from pstack `pstack/skills/sharpen/SKILL.md` at commit b6375f1c3a8600fa8907d2214ed9f8aad0028dde. Changed: triggers added, `disable-model-invocation` dropped, and the Output section added. The upstream text above it is verbatim.
+Source: ported from pstack `pstack/skills/sharpen/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c. Changed: triggers added, `disable-model-invocation` dropped, and the Output section added. The upstream text above it is verbatim.

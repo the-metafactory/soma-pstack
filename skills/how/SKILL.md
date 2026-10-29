@@ -63,4 +63,4 @@ If the question names a subsystem, command or file that a search of the reposito
 
 An explanation that stops short says so. Put each place a trace stopped (an explorer's Open Questions, a dynamic dispatch you could not resolve, code outside the repository) under Gotchas, naming the last `file:line` reached.
 
-Source: ported from pstack `pstack/skills/how/SKILL.md` at commit 99743e9c151c8537cbbf1f98bb38f34ef3368453 (MIT, © 2026 Lauren Tan); pin in arc-manifest.yaml.
+Source: ported from pstack `pstack/skills/how/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c (MIT, © 2026 Lauren Tan); pin in arc-manifest.yaml.

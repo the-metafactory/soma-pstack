@@ -47,6 +47,6 @@ test("recall's manifest declares the hosts the chat and docs sweeps reach", () =
 });
 
 test("recall still pins the upstream commit and ends with its source note", () => {
-  expect(manifest.upstream.commit).toBe("99743e9c151c8537cbbf1f98bb38f34ef3368453");
+  expect(manifest.upstream.commit).toBe("c742dd61706fbacc1b95f1a20b7b988cf096ce6c");
   expect(skill.trimEnd().split("\n").pop()).toStartWith("Source: ported from pstack");
 });

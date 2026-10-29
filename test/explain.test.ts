@@ -27,7 +27,7 @@ test("explain pins the upstream teach file and is listed in the root manifest", 
   expect(manifest.upstream).toEqual({
     repo: "cursor/plugins",
     path: "pstack/skills/teach/SKILL.md",
-    commit: "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+    commit: "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
   });
   expect(root.artifacts.map((entry: { path: string }) => entry.path)).toContain("skills/explain");
 });
@@ -59,5 +59,5 @@ test("explain carries none of the upstream tooling names", () => {
 
 test("explain ends with a one-line source note naming the pstack file and commit", () => {
   const last = skill.trimEnd().split("\n").at(-1)!;
-  expect(last).toStartWith("Source: ported from pstack `pstack/skills/teach/SKILL.md` at commit 99743e9c151c8537cbbf1f98bb38f34ef3368453");
+  expect(last).toStartWith("Source: ported from pstack `pstack/skills/teach/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c");
 });

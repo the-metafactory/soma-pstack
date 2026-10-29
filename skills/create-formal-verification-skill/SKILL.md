@@ -52,4 +52,4 @@ Follow the generated skill once, as the next agent would, on a scratch change th
 
 Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one. Point the user at `/maintain-formal-verification-skill` for bringing the verification back in line after changes that did not recheck it.
 
-Source: ported from pstack `pstack/skills/create-formal-verification-skill/SKILL.md` at commit 519d36aa98955bf680db01bcde5fdfba686dc901. Changed: triggers added and `disable-model-invocation` dropped. The upstream text above it is verbatim.
+Source: ported from pstack `pstack/skills/create-formal-verification-skill/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c. Changed: triggers added and `disable-model-invocation` dropped. The upstream text above it is verbatim.

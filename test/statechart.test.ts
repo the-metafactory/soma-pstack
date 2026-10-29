@@ -6,7 +6,7 @@ import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
 const probe = join(root, "docs/verification/node-17");
-const commit = "519d36aa98955bf680db01bcde5fdfba686dc901";
+const commit = "c742dd61706fbacc1b95f1a20b7b988cf096ce6c";
 const names = ["statechart", "create-formal-verification-skill", "maintain-formal-verification-skill"] as const;
 
 const read = (name: string, file: string) => readFileSync(join(root, "skills", name, file), "utf8");

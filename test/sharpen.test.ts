@@ -26,7 +26,7 @@ test("sharpen pins the upstream commit", () => {
   expect(manifest.upstream).toEqual({
     repo: "cursor/plugins",
     path: "pstack/skills/sharpen/",
-    commit: "b6375f1c3a8600fa8907d2214ed9f8aad0028dde",
+    commit: "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
   });
 });
 
