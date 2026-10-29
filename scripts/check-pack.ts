@@ -88,6 +88,11 @@ function lookUpPinInClone(clone: string, upstream: Mapping & { path: string }): 
   if ("error" in runGit(clone, ["cat-file", "-e", `${upstream.commit}^{commit}`])) {
     return { notFound: `commit ${upstream.commit} is not in ${clone}` };
   }
+  const branch = runGit(clone, ["for-each-ref", "--count=1", "--contains", upstream.commit as string, "refs/remotes/origin/"]);
+  if ("error" in branch) return branch;
+  if (branch.stdout.trim() === "") {
+    return { notFound: `commit ${upstream.commit} is on no branch of origin in ${clone}` };
+  }
   const entry = runGit(clone, ["--literal-pathspecs", "ls-tree", "-z", upstream.commit as string, "--", upstream.path.replace(/\/$/, "")]);
   if ("error" in entry) return entry;
   const type = /^\d+ (\w+) /.exec(entry.stdout)?.[1];

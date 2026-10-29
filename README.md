@@ -150,8 +150,12 @@ limit, no login, no network, a 30 s timeout, a reply that is not JSON) fails
 the run as "could not be checked", so rerun it once the cause is gone. With
 `CHECK_PACK_UPSTREAM_REPO=<dir>` naming a local clone of `cursor/plugins`, the
 same checks read the pins from that clone with `git` and never call `gh`; a
-commit or path missing from the clone fails, and so does a clone whose `origin`
-is another repository.
+commit or path missing from the clone fails, as does a commit that no branch
+of `origin` contains, and so does a clone whose `origin` is another repository.
+The clone's `origin` must be `https://github.com/cursor/plugins`; an SSH
+`origin` is refused. The gate sets `GIT_NO_LAZY_FETCH`, which git honours from
+2.44 on; an older git may fetch missing objects of a partial clone from the
+network.
 
 Ranger runs `bun scripts/check-pack.ts` on the host and refuses to push a member
 change when it fails. The principal controls the merge. The CI workflow

@@ -124,7 +124,9 @@ function fakeGh(root: string, body: string) {
   mkdirSync(bin);
   writeFileSync(join(bin, "gh"), `#!/bin/sh\necho "$@" >> "${bin}/calls"\n${body}\n`);
   chmodSync(join(bin, "gh"), 0o755);
-  return { ...process.env, PATH: `${bin}:${process.env.PATH}`, CHECK_PACK_UPSTREAM: "1" };
+  const env: Record<string, string | undefined> = { ...process.env, PATH: `${bin}:${process.env.PATH}`, CHECK_PACK_UPSTREAM: "1" };
+  delete env.CHECK_PACK_UPSTREAM_REPO;
+  return env;
 }
 
 for (const [label, path, response] of [
@@ -285,21 +287,26 @@ function git(cwd: string, ...args: string[]) {
 }
 
 function upstreamClone(origin = "https://github.com/cursor/plugins.git") {
-  const clone = mkdtempSync(join(tmpdir(), "soma-pstack-upstream-"));
-  fixtures.push(clone);
-  git(clone, "init", "-q");
-  mkdirSync(join(clone, "pstack/skills/how"), { recursive: true });
-  writeFileSync(join(clone, "pstack/skills/how/SKILL.md"), "# How\n");
-  git(clone, "add", ".");
-  git(clone, "commit", "-qm", "fixture");
-  git(clone, "remote", "add", "origin", origin);
+  const upstream = mkdtempSync(join(tmpdir(), "soma-pstack-upstream-"));
+  fixtures.push(upstream);
+  git(upstream, "init", "-q");
+  mkdirSync(join(upstream, "pstack/skills/how"), { recursive: true });
+  writeFileSync(join(upstream, "pstack/skills/how/SKILL.md"), "# How\n");
+  git(upstream, "add", ".");
+  git(upstream, "commit", "-qm", "fixture");
+  const clone = join(upstream, "clone");
+  git(upstream, "clone", "-q", "--no-checkout", upstream, clone);
+  git(clone, "remote", "set-url", "origin", origin);
   return { clone, head: git(clone, "rev-parse", "HEAD") };
 }
 
-function runAgainstClone(path: string, pinCommit?: string, origin?: string) {
+type Pin = string | ((clone: string, head: string) => string);
+
+function runAgainstClone(path: string, pin?: Pin, origin?: string) {
   const { clone, head } = upstreamClone(origin);
+  const pinCommit = typeof pin === "function" ? pin(clone, head) : pin ?? head;
   const root = library([{ path: memberPath }]);
-  member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path, commit: pinCommit ?? head } });
+  member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path, commit: pinCommit } });
   const noGh = join(root, "no-gh");
   mkdirSync(noGh);
   writeFileSync(join(noGh, "gh"), "#!/bin/sh\necho gh was called >&2\nexit 1\n");
@@ -317,16 +324,26 @@ for (const path of ["pstack/skills/how/", "pstack/skills/how/SKILL.md"]) {
   });
 }
 
-for (const [label, path, pinCommit, origin, reason] of [
+const danglingCommit: Pin = (clone, head) => git(clone, "commit-tree", `${head}^{tree}`, "-p", head, "-m", "dangling");
+const localOnlyCommit: Pin = (clone, head) => {
+  git(clone, "branch", "local-only", danglingCommit(clone, head));
+  return git(clone, "rev-parse", "local-only");
+};
+
+for (const [label, path, pin, origin, reason] of [
   ["a directory pinned without its /", "pstack/skills/how", undefined, undefined, "is a directory in the upstream clone"],
   ["a file pinned with a /", "pstack/skills/how/SKILL.md/", undefined, undefined, "is a file in the upstream clone"],
   ["a commit the clone lacks", "pstack/skills/how/", commit, undefined, "does not resolve in the upstream clone"],
+  ["a commit in the clone that no origin branch contains", "pstack/skills/how/", danglingCommit, undefined,
+    "does not resolve in the upstream clone"],
+  ["a commit only on a local branch of the clone", "pstack/skills/how/", localOnlyCommit, undefined,
+    "does not resolve in the upstream clone"],
   ["a path missing at the commit", "pstack/skills/what/", undefined, undefined, "does not resolve in the upstream clone"],
   ["a clone of another repository", "pstack/skills/how/", undefined, "https://github.com/someone/else.git",
     "could not be checked in the upstream clone"],
 ] as const) {
   test(`CHECK_PACK_UPSTREAM_REPO fails ${label}`, () => {
-    const result = runAgainstClone(path, pinCommit, origin);
+    const result = runAgainstClone(path, pin, origin);
     expect(result.code).not.toBe(0);
     expect(result.output).toContain("upstream.path");
     expect(result.output).toContain(reason);
