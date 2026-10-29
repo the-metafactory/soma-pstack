@@ -21,7 +21,7 @@ P1 covers steps 1–5 in the existing reflect member. Existing role references r
 - F2 (Security): Discovery metadata now starts with explicit principal invocation and excludes auto-invocation. Codex retains its machine setting. Other substrates receive an instruction, not a machine guarantee.
 - F3 (EcosystemCompliance): Inspected installed Soma's Claude Code adapter and `linkSkill`: on-demand loaders link the shared source without a frontmatter override. Recorded the loss of upstream's Claude Code flag and its cause explicitly; no external projector change is made. Projection readback checks the current member.
 - F4 (Maintainability): A ROUNDS table selects files and instructions once, and argparse rejects unknown round keys. Filename differences no longer implicitly select audit mode.
-- F5 (HonestOracle): Removed pre-set conclusions from audit instructions. The verification README discloses exactly how the historical round-2 pass was steered. Raw historical inputs and responses remain unchanged. A fresh round uses no prior audit verdict or author disposition in its evidence bundle.
+- F5 (HonestOracle): Removed pre-set conclusions from audit instructions. The verification README discloses exactly how the historical round-2 pass was steered. Raw historical inputs and responses remain unchanged. Round 3 excludes the standalone prior review and disposition files. The PR #26 finding identifies earlier verdicts through the README and F1–F6 author dispositions through this record; both documents appear in its saved input hash map. The earlier claim that no such conclusions were supplied was incorrect. Later R1–R8 dispositions are not claimed to have been present.
 - F6 (README): The root README states approval as a procedural instruction and explicitly disclaims runtime enforcement.
 
 All six supplied Sage findings above are addressed; none of those six is declined. The principal's node instruction authorizes this finish-pass skill edit. Reflection has not applied proposals to any reviewed skill, and no backlog item is filed.
@@ -32,7 +32,7 @@ Focused checks passed on this host: `bun test test/reflect.test.ts` (2 pass), `e
 
 `project.py` refreshed [projection.jsonl](projection.jsonl) for this revision: six full loader views match all source files, and Pi's stub resolves to the matching registry. Claude Code's loader is a symlink to the shared source: the explicit-only description is present and the native frontmatter flag is absent. Original implementation projection commands remain in the base commit's history.
 
-The neutral `review-round-3` call completed through the authenticated Claude CLI with reported model `claude-sonnet-5-5` and verdict **concerns**. [review-round-3-inputs.json](review-round-3-inputs.json), [review-round-3-response.json](review-round-3-response.json) and [review-round-3.md](review-round-3.md) retain the exact prompt, input hashes and response. Input hashes identify the audit snapshot; later documentation and trail entries record this response and are not claimed to have been audited in that snapshot.
+The `review-round-3` call completed through the authenticated Claude CLI with reported model `claude-sonnet-5-5` and verdict **concerns**. [review-round-3-inputs.json](review-round-3-inputs.json), [review-round-3-response.json](review-round-3-response.json) and [review-round-3.md](review-round-3.md) retain the exact prompt, input hashes and response. Input hashes identify the audit snapshot; later documentation and trail entries record this response and are not claimed to have been audited in that snapshot.
 
 The author assesses its eight concerns as follows; these are author dispositions, not a reviewer-approved pass:
 
@@ -52,3 +52,11 @@ The trail flags are retained without presenting disclosure as machine enforcemen
 Post-review changes are limited to these qualifications, the explicit log supersessions, and testing the trail round. No second independent pass is claimed for them.
 
 The prescribed `bun scripts/check-pack.ts` ran **once** for this finish pass on the host and passed for all **10 members**. Its actual stdout is retained in [finish-pack-check.txt](finish-pack-check.txt). The final commit is pending at this precommit evidence snapshot; the post-commit branch/clean-status readback belongs to the Algorithm run and worker report.
+
+## Node #27 provenance corrections
+
+`review.py` was added to the `review-trail` round after the recorded trail run. The saved [trail inputs](review-trail-inputs.json) have no hash for it. The current configuration and runner test include it, so they describe a later bundle rather than the recorded one. The saved inputs and response remain unchanged; the recorded reviewer did not receive the runner source.
+
+The round-3 omission claim above and in the verification README is corrected. The recorded instruction still contains that inaccurate claim as historical evidence. Current instructions acknowledge the included prior conclusions rather than claiming an isolated audit.
+
+The Python test moved from `test/reflect_review_test.py` to `docs/verification/node-10/review_test.py`. The recorded round-3 inputs retain the old test path; the current configuration uses the new one. The earlier command and results above describe the original run. Its current host command is `PYTHONDONTWRITEBYTECODE=1 python3 docs/verification/node-10/review_test.py`; it remains a local evidence check outside the pack gate.

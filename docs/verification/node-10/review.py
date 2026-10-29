@@ -50,9 +50,10 @@ ROUNDS = {
     'review-round-3': (
         BASE_FILES + PROBE_FILES + ['docs/verification/node-10/review.py',
                                    'docs/verification/node-10/finish-pass.md',
-                                   'test/reflect_review_test.py'],
-        'Audit the current artifacts afresh. Earlier audit verdicts and author '
-        'dispositions are omitted from the evidence bundle.',
+                                   'docs/verification/node-10/review_test.py'],
+        'Audit the current artifacts. The README and finish-pass record include '
+        'earlier audit verdicts and author dispositions. Assess those claims '
+        'independently against the supplied evidence.',
     ),
     'review-trail': (
         BASE_FILES + PROBE_FILES + ['docs/verification/node-10/finish-pass.md',
@@ -70,6 +71,10 @@ ROUNDS = {
 
 def run_review(round_name):
     files, round_instruction = ROUNDS[round_name]
+    for suffix in ('-inputs.json', '-response.json', '-stderr.txt', '.md'):
+        artifact = OUT / f'{round_name}{suffix}'
+        if artifact.exists():
+            raise FileExistsError(f'Refusing to overwrite preserved review artifact: {artifact}')
     instruction = INSTRUCTION + '\n' + round_instruction
     endpoint = os.environ.get('ANTHROPIC_BASE_URL', 'https://api.anthropic.com')
     if urlparse(endpoint).hostname != 'api.anthropic.com':
@@ -101,5 +106,5 @@ def run_review(round_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('round', nargs='?', default='review', choices=ROUNDS)
+    parser.add_argument('round', choices=ROUNDS)
     run_review(parser.parse_args().round)

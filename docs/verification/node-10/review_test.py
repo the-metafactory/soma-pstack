@@ -12,7 +12,7 @@ import unittest
 from unittest.mock import patch
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / 'docs/verification/node-10/review.py'
+SCRIPT = Path(__file__).resolve().with_name('review.py')
 SPEC = importlib.util.spec_from_file_location('reflect_review', SCRIPT)
 review = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(review)
@@ -71,7 +71,7 @@ class ReviewRunnerTest(unittest.TestCase):
                 self.assertIn(str(stderr_path), str(failure.exception))
                 self.assertEqual(stderr_path.read_text(), stderr)
 
-    def test_fresh_round_sends_current_files_and_saves_response(self):
+    def test_fresh_output_sends_current_files_and_saves_response(self):
         for round_name in ('review-round-3', 'review-trail'):
             with self.subTest(round_name=round_name):
                 self.check_fresh_round(round_name)
@@ -92,6 +92,8 @@ class ReviewRunnerTest(unittest.TestCase):
             inputs = json.loads((output / f'{round_name}-inputs.json').read_text())
             self.assertNotIn('docs/verification/node-10/review-disposition.md', inputs['sha256'])
             self.assertNotIn('docs/verification/node-10/review-round-2.md', inputs['sha256'])
+            self.assertIn('docs/verification/node-10/README.md', inputs['sha256'])
+            self.assertIn('docs/verification/node-10/finish-pass.md', inputs['sha256'])
             self.assertEqual((output / f'{round_name}.md').read_text(), response['result'] + '\n')
             self.assertEqual(json.loads((output / f'{round_name}-response.json').read_text()), response)
 
