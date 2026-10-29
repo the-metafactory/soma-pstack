@@ -275,3 +275,61 @@ test("wrong root metadata fails with the field", () => {
   expect(result.code).not.toBe(0);
   expect(result.output).toContain("type");
 });
+
+function git(cwd: string, ...args: string[]) {
+  const result = Bun.spawnSync(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.com", ...args], {
+    cwd, stdout: "pipe", stderr: "pipe",
+  });
+  if (result.exitCode !== 0) throw new Error(result.stderr.toString());
+  return result.stdout.toString().trim();
+}
+
+function upstreamClone(origin = "https://github.com/cursor/plugins.git") {
+  const clone = mkdtempSync(join(tmpdir(), "soma-pstack-upstream-"));
+  fixtures.push(clone);
+  git(clone, "init", "-q");
+  mkdirSync(join(clone, "pstack/skills/how"), { recursive: true });
+  writeFileSync(join(clone, "pstack/skills/how/SKILL.md"), "# How\n");
+  git(clone, "add", ".");
+  git(clone, "commit", "-qm", "fixture");
+  git(clone, "remote", "add", "origin", origin);
+  return { clone, head: git(clone, "rev-parse", "HEAD") };
+}
+
+function runAgainstClone(path: string, pinCommit?: string, origin?: string) {
+  const { clone, head } = upstreamClone(origin);
+  const root = library([{ path: memberPath }]);
+  member(root, { ...memberManifest(), upstream: { ...memberManifest().upstream, path, commit: pinCommit ?? head } });
+  const noGh = join(root, "no-gh");
+  mkdirSync(noGh);
+  writeFileSync(join(noGh, "gh"), "#!/bin/sh\necho gh was called >&2\nexit 1\n");
+  chmodSync(join(noGh, "gh"), 0o755);
+  return run(root, {
+    ...process.env, PATH: `${noGh}:${process.env.PATH}`, CHECK_PACK_UPSTREAM: "1", CHECK_PACK_UPSTREAM_REPO: clone,
+  });
+}
+
+for (const path of ["pstack/skills/how/", "pstack/skills/how/SKILL.md"]) {
+  test(`CHECK_PACK_UPSTREAM_REPO passes ${path} from the clone without calling gh`, () => {
+    const result = runAgainstClone(path);
+    expect(result.output).not.toContain("gh was called");
+    expect(result.code).toBe(0);
+  });
+}
+
+for (const [label, path, pinCommit, origin, reason] of [
+  ["a directory pinned without its /", "pstack/skills/how", undefined, undefined, "is a directory in the upstream clone"],
+  ["a file pinned with a /", "pstack/skills/how/SKILL.md/", undefined, undefined, "is a file in the upstream clone"],
+  ["a commit the clone lacks", "pstack/skills/how/", commit, undefined, "does not resolve in the upstream clone"],
+  ["a path missing at the commit", "pstack/skills/what/", undefined, undefined, "does not resolve in the upstream clone"],
+  ["a clone of another repository", "pstack/skills/how/", undefined, "https://github.com/someone/else.git",
+    "could not be checked in the upstream clone"],
+] as const) {
+  test(`CHECK_PACK_UPSTREAM_REPO fails ${label}`, () => {
+    const result = runAgainstClone(path, pinCommit, origin);
+    expect(result.code).not.toBe(0);
+    expect(result.output).toContain("upstream.path");
+    expect(result.output).toContain(reason);
+    expect(result.output).not.toContain("gh was called");
+  });
+}
