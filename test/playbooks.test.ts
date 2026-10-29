@@ -115,3 +115,15 @@ test("large refactors and work no card fits are offered to the principal as figu
   expect(noCard).toContain("No card matches: run without one and record that in the run's decisions.");
   expect(noCard).toMatch(/offer the principal `\/figure-it-out`/);
 });
+
+test("an autonomous run takes side work only for the goal, in its own PR, and keeps a heartbeat", () => {
+  const steps = stepsOf(readCard("autonomous-run.md")).join("\n");
+  expect(steps).toMatch(/only when it serves the goal/);
+  expect(steps).toMatch(/side fix in its own PR/);
+  expect(steps).toMatch(/return to the predicate check after each side fix/);
+  expect(steps).toMatch(/event to watch[^\n]*heartbeat as fallback/);
+});
+
+test("the playbooks member pins the upstream commit its cards were synced to", () => {
+  expect(readFileSync(resolve(member, "arc-manifest.yaml"), "utf8")).toContain("commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c");
+});
