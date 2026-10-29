@@ -3,6 +3,9 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import shutil
+import subprocess
+import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -16,6 +19,44 @@ SPEC.loader.exec_module(review)
 
 
 class ReviewRunnerTest(unittest.TestCase):
+    def test_existing_round_artifacts_are_preserved(self):
+        for round_name in review.ROUNDS:
+            for suffix in ('-inputs.json', '-response.json', '-stderr.txt', '.md'):
+                with self.subTest(round_name=round_name, suffix=suffix), tempfile.TemporaryDirectory() as scratch:
+                    output = Path(scratch)
+                    artifact = output / f'{round_name}{suffix}'
+                    original = b'preserved historical evidence\n'
+                    artifact.write_bytes(original)
+                    result = SimpleNamespace(returncode=0, stdout='{"result": "new review"}', stderr='')
+                    with patch.object(review, 'OUT', output), patch.object(
+                        review.subprocess, 'run', return_value=result
+                    ) as run, patch.dict(
+                        review.os.environ, {'ANTHROPIC_BASE_URL': 'https://api.anthropic.com'}
+                    ), redirect_stdout(io.StringIO()):
+                        with self.assertRaises(FileExistsError):
+                            review.run_review(round_name)
+                    run.assert_not_called()
+                    self.assertEqual(artifact.read_bytes(), original)
+                    self.assertEqual(list(output.iterdir()), [artifact])
+
+    def test_cli_requires_an_explicit_round(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            script = root / 'docs/verification/node-10/review.py'
+            script.parent.mkdir(parents=True)
+            shutil.copyfile(SCRIPT, script)
+            for name in review.BASE_FILES:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('test evidence\n')
+            result = subprocess.run(
+                [sys.executable, str(script)], text=True, capture_output=True,
+                env={**review.os.environ, 'PATH': '', 'ANTHROPIC_BASE_URL': 'https://api.anthropic.com'},
+            )
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn('required: round', result.stderr)
+            self.assertFalse((script.parent / 'review-inputs.json').exists())
+
     def test_failed_follow_up_points_to_existing_stderr_file(self):
         for stderr in ('review service unavailable', ''):
             with self.subTest(stderr=stderr), tempfile.TemporaryDirectory() as scratch:
