@@ -127,3 +127,13 @@ test("an autonomous run takes side work only for the goal, in its own PR, and ke
 test("the playbooks member pins the upstream commit its cards were synced to", () => {
   expect(readFileSync(resolve(member, "arc-manifest.yaml"), "utf8")).toContain("commit: c742dd61706fbacc1b95f1a20b7b988cf096ce6c");
 });
+
+test("the eval card carries upstream's blinding rules", () => {
+  const steps = stepsOf(readCard("eval.md")).join("\n");
+  expect(steps).toMatch(/never for a list of the skills, principles or files it applied/);
+  expect(steps).toMatch(/does not say other candidates exist/);
+  for (const word of ["eval", "test", "judge", "experiment", "rubric", "score", "compare", "benchmark", "candidate", "arena"]) {
+    expect(steps).toContain(`\`${word}\``);
+  }
+  expect(steps).toMatch(/from the files it opened and the shape of its code/);
+});
