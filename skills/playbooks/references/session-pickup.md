@@ -6,11 +6,12 @@
 ## Steps
 
 1. Locate the trail: the Algorithm run (`algorithm list`, `algorithm show`), the VSA, a handoff note, the branch.
-2. Read the last state first, then scan back for the decision points.
+2. Read the last state first, then scan back for the decision points. Parse a long transcript in a subagent and keep only its reduced timeline in the main thread.
 3. Reconstruct operational state: branch, what landed (`git log` and `git diff` against the base), open todos, decisions made.
 4. Diff done against planned, and name the resume point.
 5. Re-check only the inherited claims the remaining work depends on, on the real artifact. A prior self-report is not proof.
-6. Route the remaining work to its matching card. This card ends here.
+6. Pick the verdict: continue the execution, ship a finished recommendation, ratify or override a prior conclusion, or postmortem a failed run.
+7. Route the remaining work to its matching card. This card ends here.
 
 ## Criteria
 
@@ -20,6 +21,6 @@
 
 ## Principles
 
-`the-algorithm/references/principles/ground-claims-in-this-session.md`, `the-algorithm/references/principles/verify-before-claiming.md`.
+`the-algorithm/references/principles/ground-claims-in-this-session.md`, `the-algorithm/references/principles/verify-before-claiming.md`, `the-algorithm/references/principles/guard-the-context-window.md`.
 
-**Reply:** where the prior session stopped, what you inherited and what you redid (ideally nothing), the resume point, and the card you routed to.
+**Reply:** where the prior session stopped, what you inherited and what you redid (ideally nothing), the resume point, the verdict, and the card you routed to.

@@ -137,3 +137,21 @@ test("the eval card carries upstream's blinding rules", () => {
   }
   expect(steps).toMatch(/from the files it opened and the shape of its code/);
 });
+
+test("the bug-fix card seeds hypotheses with how and why and commits the failing repro first", () => {
+  const steps = stepsOf(readCard("bug-fix.md")).join("\n");
+  expect(steps).toMatch(/seeded with `how` over the affected subsystem and `why` for its regression history/);
+  expect(steps).toMatch(/failing reproduction[^\n]*before the fix/);
+});
+
+test("the refactor card commits the subtraction, then the reshape, then follow-on cleanup", () => {
+  expect(stepsOf(readCard("refactor.md")).join("\n")).toMatch(/the subtraction first, then the reshape, then any follow-on cleanup/);
+});
+
+test("session pickup parses a long transcript in a subagent and picks one of four verdicts", () => {
+  const card = readCard("session-pickup.md");
+  const steps = stepsOf(card).join("\n");
+  expect(steps).toMatch(/long transcript in a subagent/);
+  expect(steps).toMatch(/continue the execution, ship a finished recommendation, ratify or override a prior conclusion, or postmortem a failed run/);
+  expect(card).toContain("`the-algorithm/references/principles/guard-the-context-window.md`");
+});

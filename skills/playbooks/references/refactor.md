@@ -15,6 +15,7 @@ Large or cross-cutting structural work does not fit this card: offer the princip
 6. Check every rename against strings, docs and back-references, not only the compiler.
 7. Prove behavior is unchanged on the real artifact; for a large reshape, diff old against new output.
 8. Keep the change only if it lowers what a reader must hold; otherwise revert it.
+9. Commit in order, each commit green on the pin: the subtraction first, then the reshape, then any follow-on cleanup.
 
 ## Criteria
 
