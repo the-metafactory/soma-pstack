@@ -90,6 +90,7 @@ Source: ported from pstack `pstack/skills/architect/` at commit c742dd61706fbacc
 Adaptations:
 
 - Triggers added.
-- Phase B takes the runners from arena Phase A step 3 instead of the pstack models rule's `architect runners` line, and copies the skill and references into arena's grounding directory so the confined codex runner can read them.
+- Phase B takes the runners from arena Phase A step 3 instead of the pstack models rule's `architect runners` line, and copies the skill and references into arena's grounding directory so the confined codex runner can read them. Runners therefore see the design red flags that arena's rubric scores, by intent: arena hides its rubric from candidates, but upstream's runner prompt already tells runners these axes.
 - Phase B puts the red flags and interface depth in arena's rubric, so the cross-family judge scores them.
+- The runner prompt says arena Phase A step 4 assigns the working directory, since its codex seat never gets a worktree, and locates `rationale-template.md` beside the architect skill path the orchestrator gives, since a runner reading the prompt from stdin cannot resolve a relative link. Otherwise it is upstream's.
 - Principle names point at Soma's `the-algorithm` skill. Upstream's `fix-root-causes` is `fix-at-the-ingestion-point`, whose rule is the same.

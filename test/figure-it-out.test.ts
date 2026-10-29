@@ -102,8 +102,9 @@ test("VERIFIED maps to a passed verify with a probed or tested evidence kind", (
   expect(composition).toContain("NOT VERIFIED is `--status failed`");
 });
 
-test("the arena reference names a member that exists in this pack", () => {
-  expect(skill.trimEnd().split("\n").pop()).toMatch(/`arena` \(soma-pstack PR #50\)/);
+test("the architect reference names a member that exists in this pack", () => {
+  expect(skill.trimEnd().split("\n").pop()).toMatch(/`architect` is read from its SKILL\.md and followed, because it is command-only/);
+  expect(existsSync(resolve(import.meta.dir, "../skills/architect/SKILL.md"))).toBe(true);
   expect(existsSync(resolve(import.meta.dir, "../skills/arena/SKILL.md"))).toBe(true);
 });
 
@@ -116,9 +117,8 @@ test("figure-it-out names Soma principles, not pstack's", () => {
   expect(skill).not.toMatch(/prove-it-works|never-block-on-the-human/);
 });
 
-test("one-way doors go to arena and the trail goes to show-me-your-work", () => {
-  expect(section("Phase B: Design the workflow")).toMatch(/one-way-door[^\n]*`arena`/);
-  expect(skill.split("\nSource: ")[0]).not.toMatch(/\barchitect\b/);
+test("one-way doors go to architect, which runs arena, and the trail goes to show-me-your-work", () => {
+  expect(section("Phase B: Design the workflow")).toMatch(/one-way-door[^\n]*\[`architect`\]\(\.\.\/architect\/SKILL\.md\)[^\n]*`arena`/);
   expect(section("Phase D: Keep the audit trail")).toContain("`show-me-your-work`");
 });
 

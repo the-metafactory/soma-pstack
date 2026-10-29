@@ -23,12 +23,17 @@ function phase(letter: string): string {
   return skill.split(`## Phase ${letter}:`)[1]!.split("\n## ")[0]!;
 }
 
-test("architect runs only when asked, with the /architect command no-comments calls", () => {
+test("architect runs only when asked, and the members that need it link its SKILL.md", () => {
   expect(frontmatter.name).toBe("architect");
   expect(frontmatter["disable-model-invocation"]).toBe(true);
   expect(frontmatter).not.toHaveProperty("route");
   expect(frontmatter.triggers).toContainEqual({ pattern: "/architect", type: "command", priority: 100 });
-  expect(readFileSync(join(skills, "no-comments", "SKILL.md"), "utf8")).toContain("use `/architect` when available");
+  const noComments = readFileSync(join(skills, "no-comments", "SKILL.md"), "utf8");
+  expect(noComments).toContain("use `/architect` when available");
+  for (const caller of ["no-comments", "figure-it-out"]) {
+    const text = readFileSync(join(skills, caller, "SKILL.md"), "utf8");
+    expect(text, caller).toContain("[`architect`](../architect/SKILL.md) and follow it");
+  }
 });
 
 test("architect pins the upstream directory and is listed in the root manifest", () => {
@@ -61,6 +66,8 @@ test("Phase B takes arena's roster and hands the confined codex runner a readabl
   const sketch = phase("B");
   expect(sketch).toMatch(/arena Phase A step 3/);
   expect(arena).toMatch(/^3\. Pick the runners\. A roster the principal names/m);
+  expect(sketch).toMatch(/raise each runner's reasoning effort, as that step says/);
+  expect(arena).toMatch(/^3\. .*raise it for judgment-heavy design work/m);
   expect(sketch).toMatch(/arena's shared grounding directory/);
   expect(arena).toContain("/tmp/arena-<slug>/grounding/");
   expect(sketch).toMatch(/at least two structurally distinct candidates/);
@@ -78,8 +85,12 @@ test("every relative link in the member resolves", () => {
   }
 });
 
+// Both phrasings: "the **a** principle" and "the **a** and **b** principles".
 const principles = [...new Set(files(member).flatMap(file =>
-  [...readFileSync(file, "utf8").matchAll(/\*\*([a-z-]+)\*\* principle/g)].map(match => match[1]!)))];
+  [...readFileSync(file, "utf8").matchAll(/((?:\*\*[a-z-]+\*\* and )*\*\*[a-z-]+\*\*) principles?\b/g)]
+    .flatMap(match => [...match[1]!.matchAll(/\*\*([a-z-]+)\*\*/g)].map(name => name[1]!))))];
+const citations = [...new Set(files(member).flatMap(file =>
+  [...readFileSync(file, "utf8").matchAll(/`(the-algorithm\/references\/principles\/[^`]+)`/g)].map(match => match[1]!)))];
 
 test("architect carries no pstack-host vocabulary or unported principle names outside the source note", () => {
   const banned = /cursor|Task tool|subagent_type|generalPurpose|pstack-models|poteto|grok-|claude-opus|principle skill|fix-root-causes|prove-it-works/i;
@@ -87,7 +98,8 @@ test("architect carries no pstack-host vocabulary or unported principle names ou
     const text = readFileSync(file, "utf8").replace("repo: cursor/plugins", "").split("\nSource: ")[0]!;
     expect(banned.test(text), file).toBe(false);
   }
-  expect(principles.length).toBeGreaterThan(0);
+  expect(principles).toContain("laziness-protocol");
+  expect(principles).toContain("minimize-reader-load");
 });
 
 // The principles live in Soma, so this runs only where a Soma home is installed,
@@ -97,8 +109,7 @@ const somaPrinciples = join(somaSkills, "the-algorithm", "references", "principl
 test.skipIf(process.env.SOMA_SKILLS_DIR === undefined && !existsSync(somaPrinciples))(
   "every principle architect names exists in the installed Soma",
   () => {
-    const cited = [...skill.matchAll(/`(the-algorithm\/references\/principles\/[^`]+)`/g)].map(match => match[1]!);
-    expect(cited.filter(path => !existsSync(join(somaSkills, path)))).toEqual([]);
+    expect(citations.filter(path => !existsSync(join(somaSkills, path)))).toEqual([]);
     expect(principles.filter(name => !existsSync(join(somaPrinciples, `${name}.md`)))).toEqual([]);
   },
 );
