@@ -127,8 +127,14 @@ named in the request replaces them. It runs only when the principal asks (`/inte
 card matches; it declares no `route:`, so nothing reaches it unless the principal asks. It designs the playbook first: a
 falsifiable predicate, a rigor level, a verification harness with a baseline, then a hypothesis loop with one
 `show-me-your-work` row per unit. Inside an Algorithm run the predicate becomes the run's criteria and the designed
-phases its plan steps. One-way-door decisions go to `arena`. The scratch-task probe is
+phases its plan steps. One-way-door decisions go to `architect`, which runs `arena`. The scratch-task probe is
 under [`docs/verification/node-47/`](docs/verification/node-47/).
+
+[architect](skills/architect/SKILL.md) is a command, `/architect`, that sketches types, signatures and module boundaries
+before code. It grounds the design with `how` and `why`, runs `arena` for at least two structurally distinct sketches on
+arena's runner roster, screens them against its design red flags, and implements against the synthesis. When the
+implementation keeps fighting the sketch, it scraps it and returns to the arena. It declares no `route:`, so `no-comments` step 3 (for fixes that
+need a new shape) and `figure-it-out` Phase B (for one-way-door decisions) link to its SKILL.md, which the agent reads and follows. It has no live probe yet.
 
 ## Member gate
 

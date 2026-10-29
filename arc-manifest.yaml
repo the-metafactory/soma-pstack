@@ -64,3 +64,5 @@ artifacts:
     description: Send adversaries from different model families to break a change or design, and report only the findings a rerun proves.
   - path: skills/figure-it-out
     description: Design an auditable playbook when no playbook card fits, scale rigor to the task, run a hypothesis loop and log each decision.
+  - path: skills/architect
+    description: Sketch types, signatures and module boundaries before code through an arena of designs, then implement against the chosen sketch.
