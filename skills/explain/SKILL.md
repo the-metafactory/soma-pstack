@@ -26,4 +26,4 @@ Write every response through the `humanizer` skill, in plain spoken English, the
 
 **Reply:** the explanation itself, never a report about what you did or delivered. Lead with the main point, then the plain account of what it is, how it works, and why, and the threads worth chasing with `how` or `why`.
 
-Source: ported from pstack `pstack/skills/teach/SKILL.md` at commit 99743e9c151c8537cbbf1f98bb38f34ef3368453 (MIT, © 2026 Lauren Tan), renamed `explain`; changed: triggers added, the prose-pass skill replaced by `humanizer`, the image-generation tool replaced by the `art` skill, and the missing-skill fallback added.
+Source: ported from pstack `pstack/skills/teach/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c (MIT, © 2026 Lauren Tan), renamed `explain`; changed: triggers added, the prose-pass skill replaced by `humanizer`, the image-generation tool replaced by the `art` skill, and the missing-skill fallback added.

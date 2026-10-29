@@ -107,4 +107,4 @@ After Sources Consulted, if the user's `why` question comes before a change to t
 
 - **Recency bias**. Assuming the most recent commit is authoritative. The current shape is often the accretion of many earlier decisions. Trace back.
 
-Source: ported from pstack `pstack/skills/why/SKILL.md` at commit `99743e9c151c8537cbbf1f98bb38f34ef3368453` (MIT, © 2026 Lauren Tan); upstream pin in [arc-manifest.yaml](arc-manifest.yaml), notice in [../../NOTICE.md](../../NOTICE.md).
+Source: ported from pstack `pstack/skills/why/SKILL.md` at commit `c742dd61706fbacc1b95f1a20b7b988cf096ce6c` (MIT, © 2026 Lauren Tan); upstream pin in [arc-manifest.yaml](arc-manifest.yaml), notice in [../../NOTICE.md](../../NOTICE.md).

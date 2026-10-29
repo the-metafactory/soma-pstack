@@ -120,4 +120,4 @@ After:
 
 > `budget.mjs` reads the committed budget from `budget.json` and counts the files that import protos. If the count exceeds the budget, CI fails. Run `budget.mjs --write` only to lower the budget.
 
-Source: ported from pstack `pstack/skills/technical-writing/SKILL.md` at commit b6375f1c3a8600fa8907d2214ed9f8aad0028dde. Changed: triggers added, `disable-model-invocation` dropped, `unslop` replaced by `humanizer` as the prose pass.
+Source: ported from pstack `pstack/skills/technical-writing/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c. Changed: triggers added, `disable-model-invocation` dropped, `unslop` replaced by `humanizer` as the prose pass.

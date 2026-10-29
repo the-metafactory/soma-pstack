@@ -27,7 +27,7 @@ test("how binds TraceMechanics and pins the upstream commit", () => {
   expect(manifest.upstream).toEqual({
     repo: "cursor/plugins",
     path: "pstack/skills/how/",
-    commit: "99743e9c151c8537cbbf1f98bb38f34ef3368453",
+    commit: "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
   });
 });
 
@@ -64,5 +64,5 @@ test("how carries no pstack-host vocabulary outside the upstream pin", () => {
 
 test("how ends with a one-line source note naming the file and commit", () => {
   const last = skill.trimEnd().split("\n").pop()!;
-  expect(last).toStartWith("Source: ported from pstack `pstack/skills/how/SKILL.md` at commit 99743e9c151c8537cbbf1f98bb38f34ef3368453");
+  expect(last).toStartWith("Source: ported from pstack `pstack/skills/how/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c");
 });

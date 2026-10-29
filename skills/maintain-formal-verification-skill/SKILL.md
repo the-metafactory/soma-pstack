@@ -64,4 +64,4 @@ Say outright which failures were drift in the verification and which were bugs i
 
 Put the verification updates in a change of their own, separate from any product fix.
 
-Source: ported from pstack `pstack/skills/maintain-formal-verification-skill/SKILL.md` at commit 519d36aa98955bf680db01bcde5fdfba686dc901. Changed: triggers added and `disable-model-invocation` dropped. The upstream text above it is verbatim.
+Source: ported from pstack `pstack/skills/maintain-formal-verification-skill/SKILL.md` at commit c742dd61706fbacc1b95f1a20b7b988cf096ce6c. Changed: triggers added and `disable-model-invocation` dropped. The upstream text above it is verbatim.
