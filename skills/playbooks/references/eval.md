@@ -8,8 +8,8 @@
 1. Frame: name the variant under test and the behavior that counts as success. Write a rubric of 3 to 6 concrete criteria for the judge only.
 2. Record the baseline and the variant as reproducible states (a tag, a commit, a config).
 3. Write one organic task prompt, as a user would type it. Nothing in it names the eval, the rubric or the comparison.
-4. Run the candidates in separate working directories with sanitized names, on the same prompt.
-5. Score with a judge that is not the producer, sees outputs by sanitized label only, and scores both sets on one scale (the registry's `JudgeOutput`).
+4. Run the candidates in separate working directories with sanitized names, on the same prompt, on models picked by `arena` Phase A (Frame) step 3.
+5. Score with one judge that is not the producer, on a model family picked by `arena` Phase C (Cross-judge). It sees outputs by sanitized label only and scores both sets on one scale (the registry's `JudgeOutput`).
 6. Check what each candidate actually did from its transcript or trail, not from its own report.
 7. Read every output yourself and compare to the judge. A disagreement means bias or an ambiguous rubric.
 8. Explain the number: run count, spread, and what else it could be measuring.

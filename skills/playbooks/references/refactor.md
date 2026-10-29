@@ -3,6 +3,8 @@
 **Task shape:** the structure changes and the behavior does not.
 **You own:** the contract. A missing feature or a real bug found on the way is split out, not folded in.
 
+Large or cross-cutting structural work does not fit this card: offer the principal `/figure-it-out`. This card is for a focused to medium change.
+
 ## Steps
 
 1. Pin the current behavior first: a characterization test, a snapshot or an equivalence harness. Type check and lint are not a pin.

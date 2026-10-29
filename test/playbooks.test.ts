@@ -81,3 +81,37 @@ test.skipIf(process.env.SOMA_SKILLS_DIR === undefined && !existsSync(somaPrincip
     expect(pointers.filter(({ path }) => !existsSync(join(somaSkills, path))).map(({ card, path }) => `${card}: ${path}`)).toEqual([]);
   },
 );
+
+// A command-only member (`disable-model-invocation: true`) is reached by its
+// command, so a card names it as `/name`, and that name must be a member whose
+// frontmatter declares the command.
+const pack = resolve(import.meta.dir, "../skills");
+test("every command a card or the index names is a pack member that declares it", () => {
+  const sources = [["SKILL.md", index], ...cards.map(card => [card, readCard(card)])];
+  const commands = sources.flatMap(([name, text]) => [...text!.matchAll(/`\/([a-z-]+)`/g)].map(match => ({ name, command: match[1]! })));
+  expect(commands.length).toBeGreaterThan(0);
+  const missing = commands.filter(({ command }) => {
+    const skill = join(pack, command, "SKILL.md");
+    return !existsSync(skill) || !readFileSync(skill, "utf8").includes(`pattern: "/${command}"`);
+  });
+  expect(missing.map(({ name, command }) => `${name}: /${command}`)).toEqual([]);
+});
+
+test("the feature card routes several valid shapes to arena and a contested design to interrogate", () => {
+  const steps = stepsOf(readCard("feature.md"));
+  expect(steps.some(step => /several valid shapes[^\n]*`\/arena`/.test(step))).toBe(true);
+  expect(steps.some(step => /design is contested[^\n]*`\/interrogate`/.test(step))).toBe(true);
+});
+
+test("the eval card picks candidate and judge models by arena's phases", () => {
+  const steps = stepsOf(readCard("eval.md")).join("\n");
+  expect(steps).toMatch(/`arena` Phase A \(Frame\) step 3/);
+  expect(steps).toMatch(/`arena` Phase C \(Cross-judge\)/);
+});
+
+test("large refactors and work no card fits are offered to the principal as figure-it-out", () => {
+  expect(readCard("refactor.md")).toMatch(/Large or cross-cutting[^\n]*offer the principal `\/figure-it-out`/);
+  const noCard = index.split("\n").find(line => line.startsWith("3. No card matches"));
+  expect(noCard).toContain("No card matches: run without one and record that in the run's decisions.");
+  expect(noCard).toMatch(/offer the principal `\/figure-it-out`/);
+});
