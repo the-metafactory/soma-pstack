@@ -54,21 +54,68 @@ function lookUpOnGitHub(api: string): { found: unknown } | { notFound: string } 
   }
 }
 
-function checkUpstreamOnGitHub(upstream: Mapping & { path: string }, path: string, errors: string[]): void {
-  const pin = `${upstream.repo}:${upstream.path}@${upstream.commit}`;
+type Lookup = { isDirectory: boolean } | { notFound: string } | { error: string };
+
+function lookUpPinOnGitHub(upstream: Mapping & { path: string }): Lookup {
   const target = upstream.path.replace(/\/$/, "").split("/").map(encodeURIComponent).join("/");
   const result = lookUpOnGitHub(`repos/${upstream.repo}/contents/${target}?ref=${upstream.commit}`);
+  return "found" in result ? { isDirectory: Array.isArray(result.found) } : result;
+}
+
+function runGit(clone: string, args: string[]): { stdout: string } | { error: string } {
+  let git;
+  try {
+    git = Bun.spawnSync(["git", "-C", clone, ...args], {
+      stdout: "pipe", stderr: "pipe", timeout: githubTimeoutMs, env: { ...process.env, GIT_NO_LAZY_FETCH: "1" },
+    });
+  } catch (error) {
+    return { error: `git could not run: ${describe(error)}` };
+  }
+  if (git.exitedDueToTimeout) return { error: `git timed out after ${githubTimeoutMs} ms` };
+  if (git.exitCode !== 0) {
+    return { error: git.stderr.toString().trim() || `git exited with ${git.exitCode ?? git.signalCode}` };
+  }
+  return { stdout: git.stdout.toString() };
+}
+
+function lookUpPinInClone(clone: string, upstream: Mapping & { path: string }): Lookup {
+  const origin = runGit(clone, ["remote", "get-url", "origin"]);
+  if ("error" in origin) return { error: `${clone} has no origin: ${origin.error}` };
+  const originRepo = origin.stdout.trim().replace(/\/$/, "").replace(/\.git$/, "");
+  if (originRepo !== `https://github.com/${upstream.repo}`) {
+    return { error: `${clone} is a clone of ${originRepo}, not of ${upstream.repo}` };
+  }
+  if ("error" in runGit(clone, ["cat-file", "-e", `${upstream.commit}^{commit}`])) {
+    return { notFound: `commit ${upstream.commit} is not in ${clone}` };
+  }
+  const branch = runGit(clone, ["for-each-ref", "--count=1", "--contains", upstream.commit as string, "refs/remotes/origin/"]);
+  if ("error" in branch) return branch;
+  if (branch.stdout.trim() === "") {
+    return { notFound: `commit ${upstream.commit} is on no branch of origin in ${clone}` };
+  }
+  const entry = runGit(clone, ["--literal-pathspecs", "ls-tree", "-z", upstream.commit as string, "--", upstream.path.replace(/\/$/, "")]);
+  if ("error" in entry) return entry;
+  const type = /^\d+ (\w+) /.exec(entry.stdout)?.[1];
+  if (type === undefined) return { notFound: `no such path at commit ${upstream.commit} in ${clone}` };
+  if (type !== "tree" && type !== "blob") return { error: `git lists the path as a ${type}` };
+  return { isDirectory: type === "tree" };
+}
+
+function checkUpstream(upstream: Mapping & { path: string }, path: string, errors: string[]): void {
+  const pin = `${upstream.repo}:${upstream.path}@${upstream.commit}`;
+  const clone = process.env.CHECK_PACK_UPSTREAM_REPO;
+  const where = clone ? "in the upstream clone" : "on GitHub";
+  const result = clone ? lookUpPinInClone(clone, upstream) : lookUpPinOnGitHub(upstream);
   if ("error" in result) {
-    errors.push(`${path}: upstream.path ${pin} could not be checked on GitHub: ${result.error}`);
+    errors.push(`${path}: upstream.path ${pin} could not be checked ${where}: ${result.error}`);
     return;
   }
   if ("notFound" in result) {
-    errors.push(`${path}: upstream.path ${pin} does not resolve on GitHub: ${result.notFound}`);
+    errors.push(`${path}: upstream.path ${pin} does not resolve ${where}: ${result.notFound}`);
     return;
   }
-  const isDirectory = Array.isArray(result.found);
-  if (isDirectory !== upstream.path.endsWith("/")) {
-    errors.push(`${path}: upstream.path ${pin} is a ${isDirectory ? "directory" : "file"} on GitHub`);
+  if (result.isDirectory !== upstream.path.endsWith("/")) {
+    errors.push(`${path}: upstream.path ${pin} is a ${result.isDirectory ? "directory" : "file"} ${where}`);
   }
 }
 
@@ -89,7 +136,7 @@ function checkMemberManifest(member: string, path: string, errors: string[]): vo
         const shapeError = upstreamPathShapeError(upstream.path);
         if (shapeError) errors.push(`${path}: ${shapeError}`);
         else if (commitValid && process.env.CHECK_PACK_UPSTREAM === "1") {
-          checkUpstreamOnGitHub({ ...upstream, path: upstream.path }, path, errors);
+          checkUpstream({ ...upstream, path: upstream.path }, path, errors);
         }
       }
     }

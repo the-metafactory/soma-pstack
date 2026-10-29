@@ -45,11 +45,19 @@ jobs:
       # Scoped to test/: a bare `bun test` would also run arc's suite in .arc/.
       - run: bun test test/
 
-      # CHECK_PACK_UPSTREAM asks GitHub that each upstream pin resolves at its
-      # commit and is the kind its trailing `/` says; offline, a directory
-      # pinned without its `/` passes as a file. The job token keeps gh under
-      # the authenticated rate limit.
+      # CHECK_PACK_UPSTREAM checks that each upstream pin resolves at its commit
+      # and is the kind its trailing `/` says; offline, a directory pinned
+      # without its `/` passes as a file. The cursor org's IP allow list
+      # refuses the GitHub API from runners (HTTP 403), so CI reads the pins
+      # from an anonymous partial clone of the public repo instead of `gh api`.
+      - name: Clone the upstream repository
+        working-directory: ${{ runner.temp }}
+        run: |
+          unset GH_TOKEN GITHUB_TOKEN
+          clone="$RUNNER_TEMP/cursor-plugins"
+          git -c credential.helper= clone -q --filter=blob:none --no-checkout https://github.com/cursor/plugins "$clone"
+          echo "CHECK_PACK_UPSTREAM_REPO=$clone" >> "$GITHUB_ENV"
+
       - run: bun scripts/check-pack.ts
         env:
           CHECK_PACK_UPSTREAM: "1"
-          GH_TOKEN: ${{ github.token }}
