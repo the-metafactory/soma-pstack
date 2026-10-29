@@ -69,6 +69,12 @@ The actual CLI rejects a bare invocation with exit 2 and rejects the saved `revi
 
 F1 (artifact overwrites): Addressed by the output preflight and required round argument. F2 (trail bundle drift): Addressed in the node-10 finish-pass provenance correction. F3 (one-off test placement): Addressed by moving the test beside the runner and documenting its direct command. F4 (round-3 omission claim): Addressed in the README, finish-pass record, and current round instruction. No finding is declined. Merge and node-close acceptance remain with the supervisor and principal.
 
-The prescribed `bun scripts/check-pack.ts` ran once on this host immediately before the final repair commit and passed for all 28 members. Claude Sonnet 5.5's two tool-free audit rounds found all four fixes addressed and retained low concerns; the remaining misleading review labels were then removed. Race-safe creation and retry controls are outside this node. The audit reviewed supplied evidence and did not independently execute checks.
+The prescribed `bun scripts/check-pack.ts` ran once on this host immediately before repair commit `d4d8283` and passed for all 28 members. The earlier claim about two tool-free audit rounds is withdrawn: their prompts, input hashes, and responses were not retained with this change. Those rounds are not verification evidence. Race-safe creation and retry controls are outside this node.
 
 Post-commit status is pending at this precommit evidence snapshot. C8's readback belongs to the worker report and Algorithm run; no future commit or merge is claimed here.
+
+### Node #27 finish pass, round 1
+
+Both findings are accepted. `review.py` defines `ARTIFACT_SUFFIXES` once; the runner guard and preservation test iterate that declaration. The unsupported audit claim above is withdrawn rather than reconstructed. No finding is declined.
+
+`PYTHONDONTWRITEBYTECODE=1 python3 docs/verification/node-10/review_test.py` passed all four tests on this host before and after the refactor. All 15 historical review artifacts remain byte-for-byte identical to `d4d8283`, and `git diff --check` passes. The final pack gate and commit readback belong to Algorithm run `ranger-soma-pstack-node-27-finish-1`; they are pending in this snapshot.

@@ -21,7 +21,7 @@ SPEC.loader.exec_module(review)
 class ReviewRunnerTest(unittest.TestCase):
     def test_existing_round_artifacts_are_preserved(self):
         for round_name in review.ROUNDS:
-            for suffix in ('-inputs.json', '-response.json', '-stderr.txt', '.md'):
+            for suffix in review.ARTIFACT_SUFFIXES:
                 with self.subTest(round_name=round_name, suffix=suffix), tempfile.TemporaryDirectory() as scratch:
                     output = Path(scratch)
                     artifact = output / f'{round_name}{suffix}'

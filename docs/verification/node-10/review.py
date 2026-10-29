@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[3]
 OUT = Path(__file__).resolve().parent
+ARTIFACT_SUFFIXES = ('-inputs.json', '-response.json', '-stderr.txt', '.md')
 
 BASE_FILES = [
     'README.md', 'skills/reflect/SKILL.md', 'skills/reflect/arc-manifest.yaml',
@@ -71,7 +72,7 @@ ROUNDS = {
 
 def run_review(round_name):
     files, round_instruction = ROUNDS[round_name]
-    for suffix in ('-inputs.json', '-response.json', '-stderr.txt', '.md'):
+    for suffix in ARTIFACT_SUFFIXES:
         artifact = OUT / f'{round_name}{suffix}'
         if artifact.exists():
             raise FileExistsError(f'Refusing to overwrite preserved review artifact: {artifact}')
