@@ -23,15 +23,25 @@ or `soma install pi-dev` to collect them for that substrate. Reinstall Soma
 after removing the pack to remove its nudges. This requires
 [Soma's pack nudge support](https://github.com/the-metafactory/soma/issues/1105).
 The [benchmark member](skills/benchmark-checklist/SKILL.md) declares a reminder
-for benchmark commands; routes without an observable tool signal have no nudge.
+for the bare executables `hyperfine`, `bench`, `benchmark`, and `benchmarks`
+at command position. Soma handles shell separators, environment assignments,
+and supported wrappers before applying the pattern. Commands such as `cargo bench`,
+`go test -bench`, `bun run bench`, and `npm run benchmark` do not trigger it;
+read the member via its `route:` when measuring with those commands.
+Other members have no established tool-call signal and declare no nudge.
+The per-member assessments in [test/nudges.test.ts](test/nudges.test.ts) cover
+every member, including those without a `route:`. They record the judgment
+behind that policy; the test enforces the declarations, not intent detection.
 The declaration schema and command-position matching contract live in
 [Soma's adapter documentation](https://github.com/the-metafactory/soma/blob/main/docs/substrate-adapters.md).
 `bun scripts/check-pack.ts` validates each declaration's shape and regex syntax.
 Run `bun test test/check-pack.test.ts test/nudges.test.ts` for the regressions.
 Set `SOMA_REPO` to a Soma checkout with the nudge support and dependencies
-installed to also test installation, emitted hooks, and removal in all three
-substrates. Those integration cases use temporary homes and skip when the
-variable is absent.
+installed to also test `arc install`, Soma installation, emitted hooks, and
+`arc remove` followed by Soma reinstallation in all three substrates. Arc must
+be on `PATH`. These cases clone the committed pack from the local repository,
+assert that its benchmark member matches the working copy, use temporary homes,
+and skip when the variable is absent.
 
 The root manifest lists the installable members. [POLICY.md](POLICY.md) routes
 unattended decision trails to [show-me-your-work](skills/show-me-your-work/SKILL.md).
