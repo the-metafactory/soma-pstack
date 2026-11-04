@@ -226,6 +226,67 @@ test("Arc failure is propagated even when pack-specific member checks pass", () 
   expect(run(root).output).toContain("schema");
 });
 
+for (const nudge of [null, "Bash", {}, true]) {
+  test(`nudge must be a list (${JSON.stringify(nudge)})`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root, memberManifest(), skillText({ name: "benchmark-checklist", description: "Fixture.", nudge }));
+    expectMemberFailure(root, "nudge must be a list");
+  });
+}
+
+for (const rule of [null, "Bash", [], 42]) {
+  test(`nudge rule must be a mapping (${JSON.stringify(rule)})`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root, memberManifest(), skillText({ name: "benchmark-checklist", description: "Fixture.", nudge: [rule] }));
+    expectMemberFailure(root, "nudge[0] must be a mapping");
+  });
+}
+
+for (const field of ["tool", "command", "text"]) {
+  for (const invalid of [null, "", "  ", 42, [], {}]) {
+    test(`nudge.${field} rejects ${JSON.stringify(invalid)}`, () => {
+      const root = library([{ path: memberPath }]);
+      const rule = { tool: "^Bash$", command: "^hyperfine(?:\\s|$)", text: "Read {path}.", [field]: invalid };
+      member(root, memberManifest(), skillText({ name: "benchmark-checklist", description: "Fixture.", nudge: [rule] }));
+      expectMemberFailure(root, `nudge[0].${field}`);
+    });
+  }
+}
+
+for (const field of ["tool", "text"]) {
+  test(`nudge.${field} is required`, () => {
+    const root = library([{ path: memberPath }]);
+    const rule: Record<string, unknown> = { tool: "Bash", text: "Read {path}." };
+    delete rule[field];
+    member(root, memberManifest(), skillText({ name: "benchmark-checklist", description: "Fixture.", nudge: [rule] }));
+    expectMemberFailure(root, `nudge[0].${field}`);
+  });
+}
+
+for (const field of ["tool", "command"]) {
+  test(`nudge.${field} must compile as a regular expression, including in later rules`, () => {
+    const root = library([{ path: memberPath }]);
+    const valid = { tool: "^Bash$", command: "^hyperfine", text: "Read {path}." };
+    member(root, memberManifest(), skillText({
+      name: "benchmark-checklist", description: "Fixture.", nudge: [valid, { ...valid, [field]: "[" }],
+    }));
+    expectMemberFailure(root, `nudge[1].${field}`);
+  });
+}
+
+for (const nudge of [[], [{ tool: "Read", text: "Read {path}." }], [
+  { tool: "^Bash$", command: "^hyperfine(?:\\s|$)", text: "Read {path}.", future: true },
+  { tool: "Read|Write", text: "Inspect {path}." },
+]]) {
+  test(`valid nudge list passes without requiring route (${JSON.stringify(nudge)})`, () => {
+    const root = library([{ path: memberPath }]);
+    member(root, memberManifest(), skillText({ name: "benchmark-checklist", description: "Fixture.", nudge }));
+    const result = run(root);
+    expect(result.output).toContain("1 members");
+    expect(result.code).toBe(0);
+  });
+}
+
 test("missing Arc fails for a populated library", () => {
   const root = library([{ path: memberPath }]);
   member(root);
