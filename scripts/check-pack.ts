@@ -145,6 +145,34 @@ function checkMemberManifest(member: string, path: string, errors: string[]): vo
   }
 }
 
+function checkNudges(value: unknown, path: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${path}: SKILL.md nudge must be a list`);
+    return;
+  }
+  for (const [index, rule] of value.entries()) {
+    const label = `${path}: SKILL.md nudge[${index}]`;
+    if (!isMapping(rule)) {
+      errors.push(`${label} must be a mapping`);
+      continue;
+    }
+    for (const field of ["tool", "command"] as const) {
+      if (field === "command" && !Object.hasOwn(rule, field)) continue;
+      const pattern = rule[field];
+      if (!nonEmpty(pattern)) {
+        errors.push(`${label}.${field} must be a non-empty regular expression string`);
+        continue;
+      }
+      try {
+        new RegExp(pattern);
+      } catch (error) {
+        errors.push(`${label}.${field} is not a valid regular expression: ${describe(error)}`);
+      }
+    }
+    if (!nonEmpty(rule.text)) errors.push(`${label}.text must be a non-empty string`);
+  }
+}
+
 function checkSkillFile(member: string, path: string, errors: string[]): void {
   try {
     const skill = readFileSync(resolve(member, "SKILL.md"), "utf8");
@@ -153,6 +181,7 @@ function checkSkillFile(member: string, path: string, errors: string[]): void {
     const metadata = parseMapping(frontmatter[1]!, "SKILL.md frontmatter");
     if (metadata.name !== basename(member)) errors.push(`${path}: SKILL.md name must equal ${basename(member)}`);
     if (!nonEmpty(metadata.description)) errors.push(`${path}: SKILL.md description must be non-empty`);
+    if (Object.hasOwn(metadata, "nudge")) checkNudges(metadata.nudge, path, errors);
   } catch (error) {
     errors.push(`${path}: SKILL.md: ${describe(error)}`);
   }

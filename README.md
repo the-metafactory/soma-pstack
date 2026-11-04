@@ -17,6 +17,22 @@ lists each installed member that declares one in its Triggers section, with the
 absolute SKILL.md path. That is how a member with `disable-model-invocation:
 true` is reached while staying out of the skill catalog.
 
+Members can also declare tool-triggered reminders with `nudge:` frontmatter.
+After installing the pack, run `soma install claude-code`, `soma install codex`,
+or `soma install pi-dev` to collect them for that substrate. Reinstall Soma
+after removing the pack to remove its nudges. This requires
+[Soma's pack nudge support](https://github.com/the-metafactory/soma/issues/1105).
+The [benchmark member](skills/benchmark-checklist/SKILL.md) declares a reminder
+for benchmark commands; routes without an observable tool signal have no nudge.
+The declaration schema and command-position matching contract live in
+[Soma's adapter documentation](https://github.com/the-metafactory/soma/blob/main/docs/substrate-adapters.md).
+`bun scripts/check-pack.ts` validates each declaration's shape and regex syntax.
+Run `bun test test/check-pack.test.ts test/nudges.test.ts` for the regressions.
+Set `SOMA_REPO` to a Soma checkout with the nudge support and dependencies
+installed to also test installation, emitted hooks, and removal in all three
+substrates. Those integration cases use temporary homes and skip when the
+variable is absent.
+
 The root manifest lists the installable members. [POLICY.md](POLICY.md) routes
 unattended decision trails to [show-me-your-work](skills/show-me-your-work/SKILL.md).
 
