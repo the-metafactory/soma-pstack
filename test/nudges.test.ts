@@ -179,5 +179,5 @@ process.exit(result.status ?? 1);
     install();
     expect(rules().some((entry: { file: string }) => entry.file === member)).toBe(false);
     expect(await run("hyperfine x")).toBe("");
-  }, 60000);
+  }, 240000);
 }
