@@ -1,6 +1,6 @@
 ---
 name: why
-description: "Reconstruct the motivation behind code from a fixed roster of evidence sources (git and PR review threads, issues and graph nodes, docs, chat, Soma's own record) and return a cited read that separates found from inferred. USE WHEN why does X work this way, why did we pick Y, design rationale, regression history, postmortem, where does this threshold come from, why does this live here. NOT FOR what the code does at runtime (use how)."
+description: "Reconstruct the motivation behind code from a fixed roster of evidence sources (git and PR review threads, issues and graph nodes, docs, chat, Soma's own record) and return a cited read that separates found from inferred. Use for design rationale, regression history, or why code or a threshold is the way it is. NOT FOR what the code does at runtime (use how)."
 route: "Before removing or reworking code whose reason you do not know, or when a reply must say why the code is built a certain way."
 triggers:
   - pattern: "why does .* work this way"
